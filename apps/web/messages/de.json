@@ -1,0 +1,206 @@
+{
+  "common": {
+    "cart": "Warenkorb",
+    "favorites": "Favoriten",
+    "search": "Suchen",
+    "noResults": "Keine Ergebnisse gefunden",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "account": "Konto",
+    "myOrders": "Meine Bestellungen",
+    "close": "Schließen",
+    "add": "Hinzufügen",
+    "remove": "Entfernen",
+    "quantity": "Menge",
+    "total": "Gesamt",
+    "submit": "Absenden",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "language": "Sprache",
+    "addToCart": "In den Warenkorb"
+  },
+  "nav": {
+    "catalog": "Katalog",
+    "about": "Über uns",
+    "contact": "Kontakt",
+    "cakes": "Torten",
+    "desserts": "Desserts",
+    "cookies": "Cookies",
+    "macarons": "Macarons",
+    "cheesecakes": "Cheesecakes",
+    "navigation": "Navigation",
+    "pages": "Seiten"
+  },
+  "product": {
+    "addToCart": "In den Warenkorb",
+    "selectDesign": "Design auswählen",
+    "ingredients": "Zutaten",
+    "allergens": "Allergene",
+    "description": "Beschreibung",
+    "favorite": "Zu Favoriten hinzufügen",
+    "unfavorite": "Aus Favoriten entfernen",
+    "favoriteButton": "Favorit",
+    "unfavoriteButton": "Entfernen",
+    "noDesignSelected": "Bitte wählen Sie ein Design aus",
+    "uploadCustomDesign": "Eigenes Design hochladen",
+    "uploadCustomDesignDescription": "Laden Sie Ihr eigenes Bild hoch und fügen Sie Text hinzu, um die Torte zu personalisieren",
+    "customDesignText": "Design-Text",
+    "customDesignTextPlaceholder": "Geben Sie den Text ein, der auf der Torte stehen soll (optional)",
+    "uploadImage": "Bild hochladen",
+    "customDesign": "Eigenes Design",
+    "uploadDesign": "Design hochladen",
+    "uploading": "Hochladen...",
+    "invalidFileType": "Ungültiger Dateityp. Nur JPEG, PNG, WebP und GIF sind erlaubt.",
+    "fileTooLarge": "Dateigröße überschreitet 10MB",
+    "pleaseSelectFile": "Bitte wählen Sie eine Datei aus",
+    "uploadError": "Upload-Fehler",
+    "similarProducts": "Ähnliche Produkte"
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "items": "Artikel",
+    "item": "Artikel",
+    "checkout": "Zur Kasse",
+    "continueShopping": "Weiter einkaufen",
+    "orderSummary": "Bestellübersicht",
+    "total": "Gesamt",
+    "product": "Produkt",
+    "design": "Design"
+  },
+  "order": {
+    "title": "Bestellung aufgeben",
+    "customerInfo": "Kundeninformationen",
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon (optional)",
+    "address": "Adresse (optional)",
+    "notes": "Notizen (optional)",
+    "required": "Pflichtfeld",
+    "submitOrder": "Bestellung abschicken",
+    "success": "Ihre Bestellung wurde erfolgreich übermittelt!",
+    "error": "Fehler beim Übermitteln der Bestellung. Bitte versuchen Sie es erneut."
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "forgotPassword": "Passwort vergessen?",
+    "noAccount": "Noch kein Konto?",
+    "hasAccount": "Bereits ein Konto?",
+    "loginSuccess": "Erfolgreich angemeldet",
+    "registerSuccess": "Registrierung erfolgreich! Sie werden weitergeleitet...",
+    "loginError": "Anmeldung fehlgeschlagen",
+    "registerError": "Registrierung fehlgeschlagen",
+    "loginDescription": "Melden Sie sich mit Ihrem Konto an",
+    "registerDescription": "Erstellen Sie ein neues Konto",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "passwordMinLength": "Passwort muss mindestens 6 Zeichen lang sein",
+    "passwordsDoNotMatch": "Passwörter stimmen nicht überein"
+  },
+  "about": {
+    "title": "Über uns",
+    "content": "Willkommen bei Jufoods! Wir sind spezialisiert auf handgemachte Torten und Desserts."
+  },
+  "contact": {
+    "title": "Kontakt",
+    "name": "Name",
+    "email": "E-Mail",
+    "message": "Nachricht",
+    "send": "Nachricht senden",
+    "success": "Nachricht erfolgreich gesendet"
+  },
+  "catalog": {
+    "noProducts": "Noch keine {category} verfügbar",
+    "title": "Katalog",
+    "all": "Alle",
+    "subcategories": {
+      "desserts": {
+        "tarts": "Torten",
+        "cinabons": "Cinabons",
+        "куличи": "Kulitschi",
+        "капкейки": "Cupcakes",
+        "кейпопы": "Cake Pops",
+        "муссовый": "Mousse"
+      },
+      "cheesecakes": {
+        "нью-йорк": "New York",
+        "сан себастьян": "San Sebastian",
+        "чизкейк на палочке": "Cheesecake am Stiel"
+      },
+      "cookies": {
+        "шоколадні": "Schokoladen",
+        "блонді кукіс": "Blondie Cookies"
+      }
+    }
+  },
+  "favorites": {
+    "title": "Meine Favoriten",
+    "description": "Ihre gespeicherten Lieblingsprodukte",
+    "emptyTitle": "Keine Favoriten",
+    "emptyDescription": "Sie haben noch keine Favoriten hinzugefügt. Durchsuchen Sie unseren Katalog und fügen Sie Ihre Lieblingsprodukte hinzu!",
+    "clearAll": "Alle Favoriten entfernen",
+    "count": "{count} Favorit{count, plural, =1 {} other {en}}"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "description": "Verwalten Sie Produkte, Designs, Kunden und Bestellungen",
+    "tabs": {
+      "products": "Produkte",
+      "designs": "Designs",
+      "customers": "Kunden",
+      "orders": "Bestellungen"
+    },
+    "products": {
+      "title": "Produkte",
+      "newProduct": "Neues Produkt",
+      "loading": "Lade Produktverwaltung...",
+      "noProducts": "Keine Produkte gefunden",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "view": "Ansehen",
+      "image": "Bild",
+      "nameDe": "Name (DE)",
+      "nameUk": "Name (UK)",
+      "category": "Kategorie",
+      "actions": "Aktionen",
+      "noImage": "Kein Bild",
+      "editProduct": "Produkt bearbeiten",
+      "createProduct": "Neues Produkt erstellen"
+    },
+    "designs": {
+      "title": "Designs",
+      "newDesign": "Neues Design",
+      "loading": "Lade Designverwaltung...",
+      "noDesigns": "Keine Designs gefunden",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "name": "Name",
+      "image": "Bild",
+      "actions": "Aktionen",
+      "noImage": "Kein Bild",
+      "editDesign": "Design bearbeiten",
+      "createDesign": "Neues Design erstellen",
+      "nameDe": "Name (DE)",
+      "nameUk": "Name (UK)",
+      "loadingDesigns": "Lade Designs..."
+    },
+    "customers": {
+      "title": "Kundenverwaltung",
+      "comingSoon": "Kundenverwaltung kommt bald..."
+    },
+    "orders": {
+      "title": "Bestellungsverwaltung",
+      "comingSoon": "Bestellungsverwaltung kommt bald..."
+    }
+  }
+}
+

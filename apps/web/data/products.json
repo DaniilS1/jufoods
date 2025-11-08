@@ -1,0 +1,195 @@
+[
+  {
+    "id": "1",
+    "slug": "zitronen-mohn-torte",
+    "name_uk": "Лимонно-маковий",
+    "name_de": "Zitronen-Mohn-Torte",
+    "description_uk": "Легкий лимонний торт із маком, ягідним прошарком та ніжним крем-чізом",
+    "description_de": "Ein leichter Zitronenkuchen mit Mohn, Beerenschicht und zarter Cream-Cheese-Creme",
+    "category": "torten",
+    "ingredients_uk": [
+      "Лимонний бісквіт із маком",
+      "Ягідне конфі",
+      "Лимонний мус",
+      "Крем-чиз"
+    ],
+    "ingredients_de": [
+      "Zitronen-Biskuit mit Mohn",
+      "Beerenkonfitüre",
+      "Zitronen-Mousse",
+      "Cream Cheese"
+    ],
+    "allergens_uk": [
+      "молоко",
+      "яйця",
+      "пшеничне борошно",
+      "соєвий лецитин"
+    ],
+    "allergens_de": [
+      "Milch",
+      "Eier",
+      "Weizenmehl",
+      "Sojalecithin"
+    ],
+    "full_ingredients_uk": "вершковий сир, вершки 30%, курячі яйця, пшеничне борошно, цукор, вершкове масло, білий шоколад (молоко, соєвий лецитин), ягідне пюре, темний шоколад (соєвий лецитин), рослинна олія, молоко, лимонний сік, кукурудзяний крохмаль, какао-масло, мак, лимонна цедра, желатин, розпушувач, сіль, ванільний цукор, пектин NH, натуральні ароматизатори, жиророзчинний барвник",
+    "full_ingredients_de": "Frischkäse, Sahne (30 %), Eier, Weizenmehl, Zucker, Butter, weiße Schokolade (Milch, Sojalecithin), Beerenpüree, dunkle Schokolade (Sojalecithin), pflanzliches Öl, Milch, Zitronensaft, Maisstärke, Kakaobutter, Mohn, Zitronenschale, Gelatine, Backpulver, Salz, Vanillezucker, Pektin NH, natürliche Aromen, fettlöslicher Farbstoff",
+    "available_designs": [
+      {
+        "id": "classic",
+        "name_uk": "Класичний",
+        "name_de": "Klassisch",
+        "image": "/placeholder-cake.jpg"
+      },
+      {
+        "id": "elegant",
+        "name_uk": "Елегантний",
+        "name_de": "Elegant",
+        "image": "/placeholder-cake.jpg"
+      },
+      {
+        "id": "modern",
+        "name_uk": "Сучасний",
+        "name_de": "Modern",
+        "image": "/placeholder-cake.jpg"
+      }
+    ],
+    "image_placeholder": "/placeholder-cake.svg"
+  },
+  {
+    "id": "2",
+    "slug": "schokoladen-torte",
+    "name_uk": "Шоколадна",
+    "name_de": "Schokoladen-Torte",
+    "description_uk": "Багатошаровий шоколадний торт з ніжним кремом",
+    "description_de": "Mehrschichtige Schokoladentorte mit zartem Creme",
+    "category": "torten",
+    "ingredients_uk": [
+      "Шоколадний бісквіт",
+      "Шоколадний крем",
+      "Горіхи"
+    ],
+    "ingredients_de": [
+      "Schokoladen-Biskuit",
+      "Schokoladen-Creme",
+      "Nüsse"
+    ],
+    "allergens_uk": [
+      "молоко",
+      "яйця",
+      "пшеничне борошно",
+      "горіхи"
+    ],
+    "allergens_de": [
+      "Milch",
+      "Eier",
+      "Weizenmehl",
+      "Nüsse"
+    ],
+    "full_ingredients_uk": "шоколад, вершки, яйця, борошно, цукор, масло",
+    "full_ingredients_de": "Schokolade, Sahne, Eier, Mehl, Zucker, Butter",
+    "available_designs": [
+      {
+        "id": "classic",
+        "name_uk": "Класичний",
+        "name_de": "Klassisch",
+        "image": "/placeholder-cake.jpg"
+      },
+      {
+        "id": "elegant",
+        "name_uk": "Елегантний",
+        "name_de": "Elegant",
+        "image": "/placeholder-cake.jpg"
+      }
+    ],
+    "image_placeholder": "/placeholder-cake.svg"
+  },
+  {
+    "id": "3",
+    "slug": "erdbeer-torte",
+    "name_uk": "Полунична",
+    "name_de": "Erdbeer-Torte",
+    "description_uk": "Свіжа полунична торт з вершками",
+    "description_de": "Frische Erdbeertorte mit Sahne",
+    "category": "torten",
+    "ingredients_uk": [
+      "Ванильний бісквіт",
+      "Полуничне пюре",
+      "Вершковий крем"
+    ],
+    "ingredients_de": [
+      "Vanille-Biskuit",
+      "Erdbeerpüree",
+      "Sahne-Creme"
+    ],
+    "allergens_uk": [
+      "молоко",
+      "яйця",
+      "пшеничне борошно"
+    ],
+    "allergens_de": [
+      "Milch",
+      "Eier",
+      "Weizenmehl"
+    ],
+    "full_ingredients_uk": "полуниця, вершки, яйця, борошно, цукор",
+    "full_ingredients_de": "Erdbeeren, Sahne, Eier, Mehl, Zucker",
+    "available_designs": [
+      {
+        "id": "classic",
+        "name_uk": "Класичний",
+        "name_de": "Klassisch",
+        "image": "/placeholder-cake.jpg"
+      },
+      {
+        "id": "modern",
+        "name_uk": "Сучасний",
+        "name_de": "Modern",
+        "image": "/placeholder-cake.jpg"
+      }
+    ],
+    "image_placeholder": "/placeholder-cake.svg"
+  },
+  {
+    "id": "4",
+    "slug": "tiramisu",
+    "name_uk": "Тірамісу",
+    "name_de": "Tiramisu",
+    "description_uk": "Класичний італійський десерт з кави та маскарпоне",
+    "description_de": "Klassisches italienisches Dessert mit Kaffee und Mascarpone",
+    "category": "desserts",
+    "ingredients_uk": [
+      "Маскарпоне",
+      "Кава",
+      "Какао",
+      "Печиво"
+    ],
+    "ingredients_de": [
+      "Mascarpone",
+      "Kaffee",
+      "Kakao",
+      "Kekse"
+    ],
+    "allergens_uk": [
+      "молоко",
+      "яйця",
+      "пшеничне борошно"
+    ],
+    "allergens_de": [
+      "Milch",
+      "Eier",
+      "Weizenmehl"
+    ],
+    "full_ingredients_uk": "маскарпоне, кава, какао, печиво, яйця",
+    "full_ingredients_de": "Mascarpone, Kaffee, Kakao, Kekse, Eier",
+    "available_designs": [
+      {
+        "id": "classic",
+        "name_uk": "Класичний",
+        "name_de": "Klassisch",
+        "image": "/placeholder-cake.jpg"
+      }
+    ],
+    "image_placeholder": "/placeholder-cake.svg"
+  }
+]
+
