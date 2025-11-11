@@ -8,6 +8,9 @@ import {
   Building2,
   Sun,
   Sparkles,
+  Heart,
+  Coffee,
+  PartyPopper,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -22,6 +25,11 @@ export interface CategorySubcategories {
 }
 
 export const subcategoryConfig: CategorySubcategories = {
+  torten: [
+    { id: 'hochzeit', icon: Heart, translationKey: 'hochzeit' },
+    { id: 'zum-tee', icon: Coffee, translationKey: 'zum-tee' },
+    { id: 'feier', icon: PartyPopper, translationKey: 'feier' },
+  ],
   desserts: [
     { id: 'tarts', icon: PieChart, translationKey: 'tarts' },
     { id: 'cinabons', icon: Circle, translationKey: 'cinabons' },

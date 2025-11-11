@@ -5,6 +5,104 @@ import { ChevronRight } from 'lucide-react'
 import { ProductDetailWrapper } from '@/components/product-detail-wrapper'
 import { ProductCard } from '@/components/product-card'
 import { createClient } from '@/lib/supabase/server'
+import type { FlavorOption, NutritionFact } from '@/types/product'
+
+interface TortenFlavourRecord {
+  id: string
+  slug: string
+  name_de: string
+  name_uk: string
+  description_de: string | null
+  description_uk: string | null
+  ingredients_de: string[] | null
+  ingredients_uk: string[] | null
+  allergens_de: string[] | null
+  allergens_uk: string[] | null
+  nutrition: Record<string, unknown> | null
+  image_url: string | null
+}
+
+interface TortenDesignRecord {
+  id: string
+  slug: string
+  name_de: string
+  name_uk: string
+  description_de: string | null
+  description_uk: string | null
+  category: string
+  sub_category: string | null
+  image_url: string | null
+}
+
+const FALLBACK_INGREDIENTS_UK: string[] = [
+  'вершковий сир',
+  'вершки 30%',
+  'курячі яйця',
+  'пшеничне борошно',
+  'цукор',
+  'вершкове масло',
+  'білий шоколад (молоко, соєвий лецитин)',
+  'ягідне пюре',
+  'темний шоколад (соєвий лецитин)',
+  'рослинна олія',
+  'молоко',
+  'лимонний сік',
+  'кукурудзяний крохмаль',
+  'какао-масло',
+  'мак',
+  'лимонна цедра',
+  'желатин',
+  'розпушувач',
+  'сіль',
+  'ванільний цукор',
+  'пектин NH',
+  'натуральні ароматизатори',
+  'жиророзчинний барвник',
+]
+
+const FALLBACK_INGREDIENTS_DE: string[] = [
+  'Frischkäse',
+  'Sahne 30%',
+  'Hühnereier',
+  'Weizenmehl',
+  'Zucker',
+  'Butter',
+  'Weiße Schokolade (Milch, Sojalecithin)',
+  'Beerenpüree',
+  'Zartbitterschokolade (Sojalecithin)',
+  'Pflanzenöl',
+  'Milch',
+  'Zitronensaft',
+  'Maisstärke',
+  'Kakaobutter',
+  'Mohn',
+  'Zitronenschale',
+  'Gelatine',
+  'Backtriebmittel',
+  'Salz',
+  'Vanillezucker',
+  'Pektin NH',
+  'Natürliche Aromen',
+  'Fettlöslicher Farbstoff',
+]
+
+const FALLBACK_ALLERGENS_UK: string[] = ['молоко', 'яйця', 'пшеничне борошно', 'соєвий лецитин']
+const FALLBACK_ALLERGENS_DE: string[] = ['Milch', 'Eier', 'Weizenmehl', 'Sojalecithin']
+
+const FALLBACK_NUTRITION_FACTS: Record<'uk' | 'de', NutritionFact[]> = {
+  uk: [
+    { label: 'Енергетична цінність', value: '371,6 ккал (≈1555 кДж)' },
+    { label: 'Білки', value: '3,6 г' },
+    { label: 'Жири', value: '26,8 г' },
+    { label: 'Вуглеводи', value: '28,9 г' },
+  ],
+  de: [
+    { label: 'Energie', value: '371,6 kcal (≈1555 kJ)' },
+    { label: 'Eiweiß', value: '3,6 g' },
+    { label: 'Fett', value: '26,8 g' },
+    { label: 'Kohlenhydrate', value: '28,9 g' },
+  ],
+}
 
 export default async function ProductDetailPage({
   params,
@@ -15,62 +113,177 @@ export default async function ProductDetailPage({
   const t = await getTranslations('product')
   const tNav = await getTranslations('nav')
 
-  // Fetch product from Supabase
   const supabase = await createClient()
-  const { data: product, error } = await supabase
-    .from('products')
-    .select('*')
+
+  const { data: tortenDesign, error: designError } = await supabase
+    .from('torten_designs')
+    .select('id, slug, name_de, name_uk, description_de, description_uk, category, sub_category, image_url')
     .eq('slug', slug)
-    .single()
+    .maybeSingle<TortenDesignRecord>()
 
-  if (error || !product) {
-    notFound()
-  }
+  const isTortenDesign = !designError && tortenDesign
 
-  // Only fetch designs for torten (cakes), other categories don't have designs
-  let availableDesigns: { id: string; name_uk: string; name_de: string; image: string }[] = []
-  
-  if (product.category === 'torten') {
-    const { data: allDesigns, error: designsError } = await supabase
-      .from('designs')
-      .select('id, name_uk, name_de, image_url')
-      .order('name_de')
+  let recordId = ''
+  let name: string
+  let description: string
+  let category: string
+  let subCategory: string | null = null
+  let imageUrl: string | null = null
+  let designFlavours: FlavorOption[] = []
+  let similarProducts: Array<{
+    id: string
+    slug: string
+    name: string
+    description: string
+    imageUrl: string
+    category: string
+  }> = []
 
-    // Transform the designs data to match the expected format
-    availableDesigns = (allDesigns || []).map((design) => ({
-      id: design.id,
-      name_uk: design.name_uk,
-      name_de: design.name_de,
-      image: design.image_url || '/placeholder-cake.svg',
+  if (isTortenDesign && tortenDesign) {
+    recordId = tortenDesign.id
+    name = locale === 'uk' ? tortenDesign.name_uk : tortenDesign.name_de
+    description = (locale === 'uk' ? tortenDesign.description_uk : tortenDesign.description_de) || ''
+    category = tortenDesign.category
+    subCategory = tortenDesign.sub_category
+    imageUrl = tortenDesign.image_url
+
+    const { data: flavourRecords, error: flavourError } = await supabase
+      .from('torten_flavours')
+      .select(
+        `
+          id,
+          slug,
+          name_de,
+          name_uk,
+          description_de,
+          description_uk,
+          ingredients_de,
+          ingredients_uk,
+          allergens_de,
+          allergens_uk,
+          nutrition,
+          image_url
+        `
+      )
+      .order('name_de', { ascending: true })
+
+    if (flavourError) {
+      console.error('Error fetching torten flavours:', flavourError)
+    }
+
+    if (flavourRecords && flavourRecords.length > 0) {
+      designFlavours = flavourRecords.map((flavour, index) => {
+        const displayName = locale === 'uk' ? flavour.name_uk : flavour.name_de
+        const flavourDescription = (locale === 'uk' ? flavour.description_uk : flavour.description_de) || ''
+        const ingredients =
+          locale === 'uk'
+            ? flavour.ingredients_uk || FALLBACK_INGREDIENTS_UK
+            : flavour.ingredients_de || FALLBACK_INGREDIENTS_DE
+        const allergens =
+          locale === 'uk'
+            ? flavour.allergens_uk || FALLBACK_ALLERGENS_UK
+            : flavour.allergens_de || FALLBACK_ALLERGENS_DE
+        const nutritionRaw = flavour.nutrition as Record<string, string> | null
+        const nutritionFacts =
+          nutritionRaw && Object.keys(nutritionRaw).length > 0
+            ? Object.entries(nutritionRaw).map(([label, value]) => ({
+                label,
+                value: String(value),
+              }))
+            : FALLBACK_NUTRITION_FACTS[locale as 'uk' | 'de']
+
+        return {
+          id: flavour.id,
+          slug: flavour.slug,
+          displayName,
+          description: flavourDescription,
+          imageUrl: flavour.image_url || tortenDesign.image_url || '/placeholder-cake.svg',
+          ingredients,
+          allergens,
+          nutritionFacts,
+          priceDelta: null,
+          isDefault: index === 0,
+        }
+      })
+    }
+
+    if (designFlavours.length === 0) {
+      designFlavours = [
+        {
+          id: 'fallback',
+          slug: 'fallback',
+          displayName: locale === 'uk' ? 'Класичний смак' : 'Klassischer Geschmack',
+          description: '',
+          imageUrl: tortenDesign.image_url || '/placeholder-cake.svg',
+          ingredients: locale === 'uk' ? FALLBACK_INGREDIENTS_UK : FALLBACK_INGREDIENTS_DE,
+          allergens: locale === 'uk' ? FALLBACK_ALLERGENS_UK : FALLBACK_ALLERGENS_DE,
+          nutritionFacts: FALLBACK_NUTRITION_FACTS[locale as 'uk' | 'de'],
+          priceDelta: null,
+          isDefault: true,
+        },
+      ]
+    }
+
+    const { data: similarDesigns } = await supabase
+      .from('torten_designs')
+      .select('id, slug, name_de, name_uk, description_de, description_uk, image_url, category')
+      .eq('category', 'torten')
+      .neq('id', tortenDesign.id)
+
+    similarProducts = (similarDesigns || [])
+      .map((design) => ({
+        id: design.id,
+        slug: design.slug,
+        name: locale === 'uk' ? design.name_uk : design.name_de,
+        description: locale === 'uk' ? design.description_uk : design.description_de,
+        imageUrl: design.image_url || '/placeholder-cake.svg',
+        category: 'torten',
+      }))
+      .slice(0, 4)
+  } else {
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .single()
+
+    if (error || !product) {
+      notFound()
+    }
+
+    recordId = product.id
+    name = locale === 'uk' ? product.name_uk : product.name_de
+    description = (locale === 'uk' ? product.description_uk : product.description_de) || ''
+    category = product.category
+    subCategory = product.sub_category
+    imageUrl = product.image_url
+
+    const { data: similarProductsData } = await supabase
+      .from('products')
+      .select('*')
+      .eq('category', product.category)
+      .neq('id', product.id)
+
+    const shuffledSimilar = (similarProductsData || []).sort(() => Math.random() - 0.5).slice(0, 4)
+
+    similarProducts = shuffledSimilar.map((similarProduct) => ({
+      id: similarProduct.id,
+      slug: similarProduct.slug,
+      name: locale === 'uk' ? similarProduct.name_uk : similarProduct.name_de,
+      description: locale === 'uk' ? similarProduct.description_uk : similarProduct.description_de,
+      imageUrl: similarProduct.image_url || '/placeholder-cake.svg',
+      category: similarProduct.category,
     }))
   }
 
-  const name = locale === 'uk' ? product.name_uk : product.name_de
-  const description = locale === 'uk' ? product.description_uk : product.description_de
-  const ingredients = locale === 'uk' ? (product.ingredients_uk || []) : (product.ingredients_de || [])
-  const allergens = locale === 'uk' ? (product.allergens_uk || []) : (product.allergens_de || [])
-  const categoryName = locale === 'uk' 
-    ? (product.category === 'torten' ? 'Торти' : 'Десерти')
-    : (product.category === 'torten' ? tNav('cakes') : tNav('desserts'))
-
-  // Fetch similar products (4 random products from the same category, excluding current product)
-  const { data: similarProductsData } = await supabase
-    .from('products')
-    .select('*')
-    .eq('category', product.category)
-    .neq('id', product.id)
-
-  // Shuffle and take first 4 products
-  const shuffledSimilar = (similarProductsData || []).sort(() => Math.random() - 0.5).slice(0, 4)
-  
-  const similarProducts = shuffledSimilar.map((similarProduct) => ({
-    id: similarProduct.id,
-    slug: similarProduct.slug,
-    name: locale === 'uk' ? similarProduct.name_uk : similarProduct.name_de,
-    description: locale === 'uk' ? similarProduct.description_uk : similarProduct.description_de,
-    imageUrl: similarProduct.image_url || '/placeholder-cake.svg',
-    category: similarProduct.category,
-  }))
+  const categoryName =
+    locale === 'uk'
+      ? category === 'torten'
+        ? 'Торти'
+        : 'Десерти'
+      : category === 'torten'
+        ? tNav('cakes')
+        : tNav('desserts')
 
   return (
     <div className="container py-6">
@@ -80,7 +293,7 @@ export default async function ProductDetailPage({
           {tNav('catalog')}
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <Link href={`/?category=${product.category}`} className="hover:text-primary transition-colors">
+        <Link href={`/?category=${category}`} className="hover:text-primary transition-colors">
           {categoryName}
         </Link>
         <ChevronRight className="h-4 w-4" />
@@ -89,33 +302,18 @@ export default async function ProductDetailPage({
 
       <ProductDetailWrapper
         product={{
-          id: product.id,
-          slug: product.slug,
+          id: recordId,
+          slug,
           name,
-          description: description || '',
-          imageUrl: product.image_url,
-          availableDesigns,
-          category: product.category,
+          description,
+          imageUrl: imageUrl || '/placeholder-cake.svg',
+          category,
+          subCategory,
+          flavours: designFlavours,
+          isTorten: Boolean(isTortenDesign),
         }}
         locale={locale}
-      >
-        {/* Ingredients & Allergens */}
-        <div className="space-y-3 pt-4 border-0">
-          {ingredients.length > 0 && (
-            <div>
-              <h3 className="text-lg font-semibold mb-1.5">{t('ingredients')}</h3>
-              <p className="text-md text-muted-foreground">{ingredients.join(', ')}</p>
-            </div>
-          )}
-
-          {allergens.length > 0 && (
-            <div>
-              <h3 className="text-md font-semibold mb-1.5">{t('allergens')}</h3>
-              <p className="text-sm text-muted-foreground">{allergens.join(', ')}</p>
-            </div>
-          )}
-        </div>
-      </ProductDetailWrapper>
+      />
 
       {/* Similar Products */}
       {similarProducts.length > 0 && (

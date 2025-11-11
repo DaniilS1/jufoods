@@ -36,7 +36,7 @@ const productSchema = z.object({
   name_de: z.string().min(1, 'Deutscher Name ist erforderlich'),
   description_uk: z.string().optional(),
   description_de: z.string().optional(),
-  category: z.enum(['torten', 'desserts', 'cookies', 'macarons', 'cheesecakes']),
+  category: z.enum(['desserts', 'cookies', 'macarons', 'cheesecakes']),
   sub_category: z.string().optional().nullable(),
   ingredients_uk: z.array(z.string()).default([]),
   ingredients_de: z.array(z.string()).default([]),
@@ -92,7 +92,7 @@ export function AdminProductManagement() {
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      category: 'torten',
+      category: 'desserts',
       sub_category: null,
       ingredients_uk: [],
       ingredients_de: [],
@@ -167,7 +167,11 @@ export function AdminProductManagement() {
 
   async function loadProducts() {
     try {
-      const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false })
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .neq('category', 'torten')
+        .order('created_at', { ascending: false })
       if (error) throw error
       setProducts(data || [])
     } catch (error: any) {
@@ -657,7 +661,6 @@ export function AdminProductManagement() {
                       <SelectValue placeholder="Kategorie auswählen" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="torten">Torten</SelectItem>
                       <SelectItem value="desserts">Desserts</SelectItem>
                       <SelectItem value="cookies">Cookies</SelectItem>
                       <SelectItem value="macarons">Macarons</SelectItem>

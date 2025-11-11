@@ -3,34 +3,22 @@
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight, Heart } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { useFavoritesStore } from '@/stores/favorites-store'
-
-interface Design {
-  id: string
-  name_uk: string
-  name_de: string
-  image: string
-}
+import type { FlavorOption } from '@/types/product'
 
 interface ProductImageSliderProps {
   productImageUrl: string
   productName: string
-  availableDesigns: Design[]
-  selectedDesignId?: string
-  locale: string
   productId?: string
 }
 
 export function ProductImageSlider({
   productImageUrl,
   productName,
-  availableDesigns,
-  selectedDesignId,
-  locale,
   productId,
 }: ProductImageSliderProps) {
   const t = useTranslations('product')
@@ -42,71 +30,17 @@ export function ProductImageSlider({
   useEffect(() => {
     setMounted(true)
   }, [])
-  // Build image list: product image (index 0) + all design images (index 1+)
   const images = [
     {
       url: productImageUrl,
       alt: productName,
-      type: 'product' as const,
     },
-    ...availableDesigns.map((design) => ({
-      url: design.image,
-      alt: locale === 'uk' ? design.name_uk : design.name_de,
-      type: 'design' as const,
-      designId: design.id,
-    })),
   ]
 
-  const [currentIndex, setCurrentIndex] = useState(0)
-
-  // When selectedDesignId changes, jump to the corresponding design image
-  useEffect(() => {
-    if (selectedDesignId) {
-      const designIndex = availableDesigns.findIndex((d) => d.id === selectedDesignId)
-      if (designIndex !== -1) {
-        // Design images start at index 1 (after product image)
-        setCurrentIndex(designIndex + 1)
-      }
-    } else {
-      // If no design selected, show product image
-      setCurrentIndex(0)
-    }
-  }, [selectedDesignId, availableDesigns])
-
-  const goToSlide = (index: number) => {
-    if (index >= 0 && index < images.length) {
-      setCurrentIndex(index)
-    }
-  }
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
-  }
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-  }
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
-      } else if (e.key === 'ArrowRight') {
-        setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [images.length])
-
-  if (images.length === 0) {
-    return null
-  }
+  const [currentIndex] = useState(0)
 
   return (
-    <div className="relative aspect-square w-full max-w-xl mx-auto lg:mx-0 overflow-hidden rounded-lg bg-muted group">
+    <div className="relative aspect-[3/4] w-full max-w-[22rem] sm:max-w-[24rem] lg:max-w-[32rem] mx-auto overflow-hidden rounded-[1rem] bg-muted/80 group shadow-lg">
       {/* Favorite Button */}
       {mounted && productId && (
         <Button
@@ -158,48 +92,7 @@ export function ProductImageSlider({
         })}
       </div>
 
-      {/* Navigation Buttons */}
-      {images.length > 1 && (
-        <>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={goToPrevious}
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={goToNext}
-            aria-label="Next image"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
-        </>
-      )}
-
-      {/* Dot Indicators */}
-      {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={cn(
-                'h-2 rounded-full transition-all',
-                index === currentIndex
-                  ? 'w-8 bg-primary'
-                  : 'w-2 bg-white/50 hover:bg-white/70'
-              )}
-              aria-label={`Go to image ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
+      {/* Navigation and indicators removed since only design image is shown */}
     </div>
   )
 }

@@ -48,7 +48,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <div className="flex min-h-screen flex-col bg-pattern-soft">
+      <div className="flex min-h-screen flex-col bg-background">
         <Suspense fallback={null}>
           <Header />
         </Suspense>

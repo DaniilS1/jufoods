@@ -25,31 +25,70 @@ export default async function CatalogPage({
 
   // Fetch products from Supabase
   const supabase = await createClient()
-  let productsQuery = supabase
-    .from('products')
-    .select('*')
-    .eq('category', activeCategory)
+  let products:
+    | Array<{
+        id: string
+        slug: string
+        name: string
+        description: string
+        imageUrl: string
+        category: string
+        subCategory?: string | null
+        defaultFlavourName?: string | null
+      }>
+    | [] = []
 
-  // Filter by subcategory if specified
-  if (subcategory) {
-    productsQuery = productsQuery.eq('sub_category', subcategory)
+  if (activeCategory === 'torten') {
+    const { data: designs, error } = await supabase
+      .from('torten_designs')
+      .select('id, slug, name_de, name_uk, description_de, description_uk, sub_category, image_url')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching torten designs:', error)
+    }
+
+    products =
+      designs?.map((design) => ({
+        id: design.id,
+        slug: design.slug,
+        name: locale === 'uk' ? design.name_uk : design.name_de,
+        description: (locale === 'uk' ? design.description_uk : design.description_de) || '',
+        imageUrl: design.image_url || '/placeholder-cake.svg',
+        category: 'torten',
+        subCategory: design.sub_category,
+      })) || []
+
+    if (subcategory) {
+      products = products.filter((product) => product.subCategory === subcategory)
+    }
+  } else {
+    let productsQuery = supabase
+      .from('products')
+      .select('*')
+      .eq('category', activeCategory)
+
+    if (subcategory) {
+      productsQuery = productsQuery.eq('sub_category', subcategory)
+    }
+
+    const { data: productsData, error } = await productsQuery.order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching products:', error)
+    }
+
+    products =
+      productsData?.map((product) => ({
+        id: product.id,
+        slug: product.slug,
+        name: locale === 'uk' ? product.name_uk : product.name_de,
+        description: locale === 'uk' ? product.description_uk : product.description_de,
+        imageUrl: product.image_url || '/placeholder-cake.svg',
+        category: product.category,
+        subCategory: product.sub_category,
+      })) || []
   }
-
-  const { data: productsData, error } = await productsQuery.order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching products:', error)
-  }
-
-  // Transform products for the catalog
-  const products = (productsData || []).map((product) => ({
-    id: product.id,
-    slug: product.slug,
-    name: locale === 'uk' ? product.name_uk : product.name_de,
-    description: locale === 'uk' ? product.description_uk : product.description_de,
-    imageUrl: product.image_url || '/placeholder-cake.svg',
-    category: product.category,
-  }))
 
   // Get category name for empty state
   const categoryNames: Record<string, string> = {

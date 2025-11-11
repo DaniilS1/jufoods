@@ -18,7 +18,8 @@ interface Product {
   description_de: string | null
   category: string
   image_url: string | null
-  available_designs: any
+  sub_category?: string | null
+  default_flavour_name?: string | null
 }
 
 export function FavoritesClient() {
@@ -51,15 +52,92 @@ export function FavoritesClient() {
 
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .in('id', favoriteIds)
-        .order('created_at', { ascending: false })
+      const [designsResponse, productsResponse] = await Promise.all([
+        supabase
+          .from('torten_designs')
+          .select(
+            `
+              id,
+              slug,
+              name_uk,
+              name_de,
+              description_uk,
+              description_de,
+              category,
+              sub_category,
+              image_url,
+              torten_design_flavours(
+                is_default,
+                sort_order,
+                torten_flavours(name_uk, name_de, image_url)
+              )
+            `
+          )
+          .in('id', favoriteIds),
+        supabase
+          .from('products')
+          .select('*')
+          .in('id', favoriteIds),
+      ])
 
-      if (error) throw error
+      if (designsResponse.error) throw designsResponse.error
+      if (productsResponse.error) throw productsResponse.error
 
-      setProducts(data || [])
+      const tortenProducts: Product[] =
+        designsResponse.data?.map((design) => {
+          const flavourLinks = design.torten_design_flavours || []
+          const sortedFlavours = flavourLinks
+            .map((link) => {
+              const rawFlavour = link.torten_flavours
+              const flavour = Array.isArray(rawFlavour) ? rawFlavour[0] : rawFlavour
+              if (!flavour) return null
+              return {
+                isDefault: Boolean(link.is_default),
+                sortOrder: link.sort_order ?? Number.MAX_SAFE_INTEGER,
+                nameUk: flavour.name_uk,
+                nameDe: flavour.name_de,
+                imageUrl: flavour.image_url,
+              }
+            })
+            .filter(Boolean) as Array<{
+              isDefault: boolean
+              sortOrder: number
+              nameUk?: string | null
+              nameDe?: string | null
+              imageUrl?: string | null
+            }>
+
+          const defaultFlavour =
+            sortedFlavours.find((flavour) => flavour.isDefault) ||
+            sortedFlavours.sort((a, b) => a.sortOrder - b.sortOrder)[0] ||
+            null
+
+          return {
+            id: design.id,
+            slug: design.slug,
+            name_uk: design.name_uk,
+            name_de: design.name_de,
+            description_uk: design.description_uk,
+            description_de: design.description_de,
+            category: 'torten',
+            image_url: defaultFlavour?.imageUrl || design.image_url,
+            sub_category: design.sub_category,
+            default_flavour_name: defaultFlavour
+              ? locale === 'uk'
+                ? defaultFlavour.nameUk || null
+                : defaultFlavour.nameDe || null
+              : null,
+          }
+        }) || []
+
+      const otherProducts: Product[] = productsResponse.data || []
+
+      const combinedMap = new Map<string, Product>()
+      for (const product of [...tortenProducts, ...otherProducts]) {
+        combinedMap.set(product.id, product)
+      }
+
+      setProducts(favoriteIds.map((id) => combinedMap.get(id)).filter(Boolean) as Product[])
     } catch (error) {
       console.error('Error loading favorite products:', error)
       setProducts([])
@@ -122,6 +200,7 @@ export function FavoritesClient() {
               description={description || ''}
               imageUrl={product.image_url || '/placeholder-cake.svg'}
               category={product.category}
+              defaultFlavourName={product.default_flavour_name || null}
             />
           )
         })}

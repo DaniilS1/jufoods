@@ -18,6 +18,7 @@ interface FavoriteProductCardProps {
   description: string
   imageUrl: string
   category: string
+  defaultFlavourName?: string | null
 }
 
 export function FavoriteProductCard({
@@ -27,6 +28,7 @@ export function FavoriteProductCard({
   description,
   imageUrl,
   category,
+  defaultFlavourName,
 }: FavoriteProductCardProps) {
   const t = useTranslations('product')
   const [mounted, setMounted] = useState(false)
@@ -76,6 +78,11 @@ export function FavoriteProductCard({
                 {name}
               </h3>
             </Link>
+            {category === 'torten' && defaultFlavourName && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary mb-2">
+                {t('defaultFlavour', { flavour: defaultFlavourName })}
+              </span>
+            )}
             <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{description}</p>
           </div>
         </div>

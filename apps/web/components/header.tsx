@@ -3,10 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { ShoppingCart, Heart, Menu, Cake, IceCream, Cookie, Circle, Sparkles, CakeSlice, Donut } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { useCartStore } from '@/stores/cart-store'
 import type { CartStore } from '@/stores/cart-store'
 import { useFavoritesStore } from '@/stores/favorites-store'
@@ -14,6 +12,8 @@ import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 import { SearchBar } from '@/components/search-bar'
 import { AdminTabs } from '@/components/admin-tabs'
+import { ThemeSelect } from '@/components/theme-select'
+import { Button } from '@/components/ui/button'
 
 const categories = [
   { id: 'torten', icon: Cake, key: 'cakes' },
@@ -116,6 +116,9 @@ export function Header() {
           <div className="hidden md:block">
             <SearchBar />
           </div>
+          <div className="hidden md:flex">
+            <ThemeSelect />
+          </div>
           <Button variant="ghost" size="icon" asChild className="relative hover:bg-primary/10 rounded-full">
             <Link href="/favorites">
               <Heart className="h-5 w-5" />
@@ -159,7 +162,7 @@ export function Header() {
                   className={cn(
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
                     isActiveCategory
-                      ? 'text-primary bg-primary/10'
+                      ? 'text-muted-foreground bg-primary/20'
                       : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   )}
                 >

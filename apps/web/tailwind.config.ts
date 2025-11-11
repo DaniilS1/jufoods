@@ -25,35 +25,17 @@ const config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#E8C49A', // lighter caramel
-          50: '#F9F0E5', // lighter vanilla
-          100: '#F5E6D3',
-          200: '#E8C49A', // main caramel
-          300: '#E0B584',
-          400: '#D4A574',
-          500: '#C8955F',
-          600: '#B8854A',
-          700: '#A0753F',
-          800: '#8B6F4F', // lighter coffee
-          900: '#7D5729',
-          foreground: '#FFFFFF',
+          DEFAULT: 'hsl(var(--primary))',
+          50: '#E9D4CF',
+          foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: '#9B7A5F', // lighter coffee
-          50: '#F9F0E5',
-          100: '#F5E6D3',
-          200: '#E8C49A',
-          300: '#D4A574',
-          400: '#C8955F',
-          500: '#B8854A',
-          600: '#A0753F',
-          700: '#9B7A5F',
-          800: '#8B6F4F',
-          900: '#7D5729',
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
         },
         accent: {
-          DEFAULT: '#F9F0E5', // lighter vanilla
-          foreground: '#9B7A5F',
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',

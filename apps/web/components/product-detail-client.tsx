@@ -3,25 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { DesignSelector } from '@/components/design-selector'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
-import { useFavoritesStore } from '@/stores/favorites-store'
-import { ShoppingBasketIcon, Heart, ShoppingCart } from 'lucide-react'
-import { cn } from '@/lib/utils'
-
-interface Design {
-  id: string
-  name_uk: string
-  name_de: string
-  image: string
-}
-
-interface CustomDesign {
-  id: string
-  image: string
-  text: string
-}
+import { ShoppingCart } from 'lucide-react'
+import { FlavourSelector } from '@/components/flavour-selector'
+import type { FlavorOption } from '@/types/product'
 
 interface ProductDetailClientProps {
   product: {
@@ -30,68 +16,61 @@ interface ProductDetailClientProps {
     name: string
     description: string
     imageUrl?: string
-    availableDesigns: Design[]
     category: string
+    flavours: FlavorOption[]
+    isTorten: boolean
   }
   locale: string
-  selectedDesignId?: string
-  onDesignChange?: (designId: string) => void
-  customDesigns?: CustomDesign[]
-  onCustomDesignUpload?: (customDesign: CustomDesign) => void
+  selectedFlavourId?: string
+  onFlavourChange?: (flavourId: string) => void
+  selectedFlavour?: FlavorOption | null
+  showFlavourSelector?: boolean
+  showFlavourDetails?: boolean
+  showProductHeader?: boolean
 }
 
 export function ProductDetailClient({
   product,
   locale,
-  selectedDesignId: externalSelectedDesignId,
-  onDesignChange: externalOnDesignChange,
-  customDesigns = [],
-  onCustomDesignUpload,
+  selectedFlavourId: externalSelectedFlavourId,
+  onFlavourChange: externalOnFlavourChange,
+  selectedFlavour,
+  showFlavourSelector = true,
+  showFlavourDetails = true,
+  showProductHeader = true,
 }: ProductDetailClientProps) {
   const t = useTranslations('product')
-  const tCommon = useTranslations('common')
   const { addItem } = useCartStore()
   const { openCart } = useUIStore()
-  const [mounted, setMounted] = useState(false)
-  const isFavorite = useFavoritesStore((state) => state.isFavorite)
-  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
-  const [internalSelectedDesignId, setInternalSelectedDesignId] = useState<string>(
-    product.availableDesigns[0]?.id || ''
+  const [internalSelectedFlavourId, setInternalSelectedFlavourId] = useState<string>(
+    product.isTorten ? product.flavours[0]?.id || '' : ''
   )
-  const favorite = mounted ? isFavorite(product.id) : false
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    if (product.isTorten) {
+      const defaultFlavour =
+        product.flavours.find((flavour) => flavour.isDefault) ?? product.flavours[0]
+      setInternalSelectedFlavourId(defaultFlavour?.id || '')
+    }
+  }, [product.flavours, product.isTorten])
 
-  // Use external state if provided, otherwise use internal state
-  const selectedDesignId = externalSelectedDesignId ?? internalSelectedDesignId
-  const setSelectedDesignId = externalOnDesignChange ?? setInternalSelectedDesignId
+  const selectedFlavourId = externalSelectedFlavourId ?? internalSelectedFlavourId
+  const setSelectedFlavourId = externalOnFlavourChange ?? setInternalSelectedFlavourId
 
   const handleAddToCart = () => {
-    // Only require design selection for torten (cakes)
-    if (product.category === 'torten') {
-      if (!selectedDesignId) {
-        alert(t('noDesignSelected'))
+    if (product.isTorten) {
+      if (!selectedFlavourId) {
+        alert(t('noFlavourSelected'))
         return
       }
 
-      // Check if it's a custom design
-      const isCustomDesign = selectedDesignId.startsWith('custom-')
-      let designName = ''
-      let designImageUrl = ''
-
-      if (isCustomDesign) {
-        const customDesign = customDesigns.find((d) => d.id === selectedDesignId)
-        designName = customDesign
-          ? t('customDesign') + (customDesign.text ? `: ${customDesign.text}` : '')
-          : t('customDesign')
-        designImageUrl = customDesign?.image || ''
-      } else {
-        const selectedDesign = product.availableDesigns.find((d) => d.id === selectedDesignId)
-        if (!selectedDesign) return
-        designName = locale === 'uk' ? selectedDesign.name_uk : selectedDesign.name_de
-        designImageUrl = selectedDesign.image || ''
+      const flavour =
+        selectedFlavour ??
+        product.flavours.find((flavour) => flavour.id === selectedFlavourId) ??
+        null
+      if (!flavour) {
+        alert(t('noFlavourSelected'))
+        return
       }
 
       addItem({
@@ -99,12 +78,11 @@ export function ProductDetailClient({
         productSlug: product.slug,
         productName: product.name,
         productImageUrl: product.imageUrl,
-        designId: selectedDesignId,
-        designName: designName,
-        designImageUrl: designImageUrl,
+        designId: flavour.id,
+        designName: flavour.displayName,
+        designImageUrl: flavour.imageUrl,
       })
     } else {
-      // For other categories, no design is needed
       addItem({
         productId: product.id,
         productSlug: product.slug,
@@ -119,37 +97,92 @@ export function ProductDetailClient({
     openCart()
   }
 
-  const handleFavoriteClick = () => {
-    if (mounted) {
-      toggleFavorite(product.id)
-    }
-  }
+  const shouldShowFlavourSelector = showFlavourSelector && product.isTorten && product.flavours.length > 0
+  const flavourDetails =
+    selectedFlavour ??
+    (selectedFlavourId ? product.flavours.find((flavour) => flavour.id === selectedFlavourId) : null)
 
-  // Only show design selector for torten (cakes)
-  const showDesignSelector = product.category === 'torten' && (product.availableDesigns.length > 0 || customDesigns.length > 0)
+  const actionButtons = (
+    <div className="flex flex-wrap items-center gap-3">
+      <Button
+        onClick={handleAddToCart}
+        className="rounded-full px-6 py-2 text-sm font-semibold shadow-sm"
+        size="default"
+      >
+        <ShoppingCart className="h-4 w-4 mr-2" />
+        {t('addToCart')}
+      </Button>
+    </div>
+  )
 
   return (
-    <div className="space-y-4">
-      {showDesignSelector && (
-        <DesignSelector
-          designs={product.availableDesigns}
-          customDesigns={customDesigns}
-          selectedDesignId={selectedDesignId}
-          onDesignChange={setSelectedDesignId}
-          locale={locale}
-          productId={product.id}
-          onCustomDesignUpload={onCustomDesignUpload}
+    <div className="relative flex flex-col gap-5 rounded-3xl border border-border/60 bg-card/85 p-6 shadow-sm backdrop-blur-sm">
+      {showProductHeader && (
+        <div className="space-y-3">
+          <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{product.name}</h1>
+          {product.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed md:text-base">{product.description}</p>
+          )}
+        </div>
+      )}
+
+      {shouldShowFlavourSelector && (
+        <FlavourSelector
+          flavours={product.flavours}
+          selectedFlavourId={selectedFlavourId}
+          onFlavourChange={setSelectedFlavourId}
         />
       )}
 
-      <div className={showDesignSelector ? "pt-3 border-0 mx-auto" : "mx-auto"}>
-        <div className="flex items-center gap-3">
-          <Button onClick={handleAddToCart} className="w-fit" size="lg">
-            <ShoppingCart className="h-4 w-4 mr-2" />{t('addToCart')}
-          </Button>
-          
+      {showFlavourDetails && flavourDetails ? (
+        <div className="space-y-5">
+          <div>
+            <h3 className="text-xl font-semibold text-foreground md:text-2xl">{flavourDetails.displayName}</h3>
+            {flavourDetails.description && (
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed md:text-base">
+                {flavourDetails.description}
+              </p>
+            )}
+          </div>
+
+          {actionButtons}
+
+          <div className="space-y-5">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {t('ingredients')}
+              </h4>
+              <p className="text-sm text-foreground/80 leading-relaxed md:text-base">
+                {flavourDetails.ingredients.join(', ')}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {t('allergens')}
+              </h4>
+              <ul className="space-y-1 text-sm text-foreground/80 leading-relaxed md:text-base">
+                {flavourDetails.allergens.map((allergen) => (
+                  <li key={allergen}>{allergen}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                {locale === 'uk' ? 'Харчова цінність (на 100 г)' : t('nutritionPer100g')}
+              </h4>
+              <ul className="space-y-1 text-sm text-foreground/80 md:text-base">
+                {flavourDetails.nutritionFacts.map((fact) => (
+                  <li key={`${fact.label}-${fact.value}`}>
+                    <span className="font-medium text-foreground">{fact.label}:</span> {fact.value}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        actionButtons
+      )}
     </div>
   )
 }

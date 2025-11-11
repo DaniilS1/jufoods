@@ -3,11 +3,12 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
-import { Package, Palette, Users, ShoppingBag } from 'lucide-react'
+import { Package, Palette, Users, ShoppingBag, ChefHat } from 'lucide-react'
 
 const adminTabs = [
   { id: 'products', icon: Package, translationKey: 'products' },
   { id: 'designs', icon: Palette, translationKey: 'designs' },
+  { id: 'flavours', icon: ChefHat, translationKey: 'flavours' },
   { id: 'customers', icon: Users, translationKey: 'customers' },
   { id: 'orders', icon: ShoppingBag, translationKey: 'orders' },
 ] as const
@@ -41,7 +42,7 @@ export function AdminTabs() {
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
                   isActive
-                    ? 'text-primary bg-primary/10'
+                    ? 'text-muted-foreground bg-primary/10'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                 )}
               >

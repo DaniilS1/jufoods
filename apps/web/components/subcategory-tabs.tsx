@@ -68,7 +68,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
                   isActive
-                    ? 'text-primary bg-primary/10'
+                    ? 'text-muted-foreground bg-primary/20'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                 )}
               >
