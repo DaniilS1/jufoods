@@ -18,10 +18,11 @@ interface ProductDetailWrapperProps {
     isTorten: boolean
   }
   locale: string
+  categoryName: string
   children?: (selectedFlavor: FlavorOption | null) => React.ReactNode
 }
 
-export function ProductDetailWrapper({ product, locale, children }: ProductDetailWrapperProps) {
+export function ProductDetailWrapper({ product, locale, categoryName, children }: ProductDetailWrapperProps) {
   const initialFlavorId = useMemo(() => {
     if (!product.isTorten) return ''
     const defaultFlavor = product.flavours.find((flavor) => flavor.isDefault)
@@ -40,11 +41,17 @@ export function ProductDetailWrapper({ product, locale, children }: ProductDetai
       : null
 
   return (
-    <div className="mx-auto grid w-full max-w-[1500px] grid-cols-1 gap-6 px-2 py-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
-      <div className="space-y-4">
-        <ProductImageSlider productImageUrl={product.imageUrl} productName={product.name} productId={product.id} />
+    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-2 lg:grid-cols-2 lg:items-start lg:gap-12 lg:px-6">
+      {/* Product Images */}
+      <div className="w-full">
+        <ProductImageSlider
+          productImageUrl={product.imageUrl}
+          productName={product.name}
+          productId={product.id}
+        />
       </div>
 
+      {/* Product Details */}
       <ProductDetailClient
         product={{
           id: product.id,
@@ -57,6 +64,7 @@ export function ProductDetailWrapper({ product, locale, children }: ProductDetai
           isTorten: product.isTorten,
         }}
         locale={locale}
+        categoryName={categoryName}
         selectedFlavourId={product.isTorten ? selectedFlavorId : undefined}
         onFlavourChange={setSelectedFlavorId}
         selectedFlavour={selectedFlavor}
@@ -64,8 +72,9 @@ export function ProductDetailWrapper({ product, locale, children }: ProductDetai
         showProductHeader
       />
 
+      {/* Additional Content */}
       {typeof children === 'function' ? (
-        <div className="lg:col-span-2">{children(selectedFlavor)}</div>
+        <div className="lg:col-span-2 mt-8">{children(selectedFlavor)}</div>
       ) : null}
     </div>
   )

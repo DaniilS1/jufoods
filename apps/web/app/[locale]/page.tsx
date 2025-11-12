@@ -1,27 +1,51 @@
 import { getTranslations } from 'next-intl/server'
+import { z } from 'zod'
 import { ProductCard } from '@/components/product-card'
 import { createClient } from '@/lib/supabase/server'
 import { SubcategoryTabs } from '@/components/subcategory-tabs'
 import { hasSubcategories } from '@/lib/subcategory-config'
+import type { Locale } from '@/i18n'
 
-export default async function CatalogPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>
-  searchParams: Promise<{ category?: string; subcategory?: string }>
-}) {
-  const { locale } = await params
-  const { category, subcategory } = await searchParams
+const CATEGORY_KEYS = ['torten', 'desserts', 'cookies', 'macarons', 'cheesecakes'] as const
+
+const searchParamsSchema = z.object({
+  category: z.enum(CATEGORY_KEYS).optional(),
+  subcategory: z
+    .string()
+    .trim()
+    .min(1)
+    .optional(),
+})
+
+interface CatalogPageProps {
+  params: { locale: Locale }
+  searchParams?: Record<string, string | string[] | undefined>
+}
+
+function resolveSearchParam(value?: string | string[]): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0]
+  }
+  return value
+}
+
+export default async function CatalogPage({ params, searchParams }: CatalogPageProps) {
+  const locale = params.locale
+  const parsedSearchParams = searchParamsSchema.safeParse({
+    category: resolveSearchParam(searchParams?.category),
+    subcategory: resolveSearchParam(searchParams?.subcategory),
+  })
+
+  const resolvedCategory =
+    parsedSearchParams.success && parsedSearchParams.data.category ? parsedSearchParams.data.category : 'torten'
+  const activeCategory: (typeof CATEGORY_KEYS)[number] = resolvedCategory
+  const subcategory =
+    parsedSearchParams.success && parsedSearchParams.data.subcategory
+      ? parsedSearchParams.data.subcategory
+      : undefined
+
   const t = await getTranslations('nav')
   const tCatalog = await getTranslations('catalog')
-
-  // Default category is 'torten' if no category is specified
-  const selectedCategory = category || 'torten'
-
-  // Valid categories
-  const validCategories = ['torten', 'desserts', 'cookies', 'macarons', 'cheesecakes']
-  const activeCategory = validCategories.includes(selectedCategory) ? selectedCategory : 'torten'
 
   // Fetch products from Supabase
   const supabase = await createClient()
@@ -91,7 +115,7 @@ export default async function CatalogPage({
   }
 
   // Get category name for empty state
-  const categoryNames: Record<string, string> = {
+  const categoryNames: Record<(typeof CATEGORY_KEYS)[number], string> = {
     torten: t('cakes'),
     desserts: t('desserts'),
     cookies: t('cookies'),
@@ -112,7 +136,7 @@ export default async function CatalogPage({
       )}
       <div className="container py-8">
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}

@@ -116,9 +116,7 @@ export function Header() {
           <div className="hidden md:block">
             <SearchBar />
           </div>
-          <div className="hidden md:flex">
-            <ThemeSelect />
-          </div>
+          
           <Button variant="ghost" size="icon" asChild className="relative hover:bg-primary/10 rounded-full">
             <Link href="/favorites">
               <Heart className="h-5 w-5" />
@@ -160,10 +158,10 @@ export function Header() {
                   key={category.id}
                   href={href}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
+                    'flex items-center gap-2 px-4 py-2 rounded-lg text-muted-foreground data-[state=active]:text-muted-foreground text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
                     isActiveCategory
-                      ? 'text-muted-foreground bg-primary/20'
-                      : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
+                      ? 'bg-primary/20'
+                      : 'hover:text-primary hover:bg-primary/5'
                   )}
                 >
                   <Icon className="h-4 w-4" />

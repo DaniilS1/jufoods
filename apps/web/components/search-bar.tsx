@@ -233,6 +233,7 @@ export function SearchBar() {
                           alt={name}
                           fill
                           className="object-cover"
+                          sizes="48px"
                         />
                       </div>
                     )}

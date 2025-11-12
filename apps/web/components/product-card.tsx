@@ -4,12 +4,9 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, ShoppingCart } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useFavoritesStore } from '@/stores/favorites-store'
-import { useCartStore } from '@/stores/cart-store'
-import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 
@@ -36,50 +33,32 @@ export function ProductCard({
   const [mounted, setMounted] = useState(false)
   const favoriteIds = useFavoritesStore((state) => state.favoriteIds)
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
-  const { addItem } = useCartStore()
-  const { openCart } = useUIStore()
   const favorite = mounted ? favoriteIds.includes(id) : false
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    // Only add to cart for non-torten products
-    if (category !== 'torten') {
-      addItem({
-        productId: id,
-        productSlug: slug,
-        productName: name,
-        designId: '',
-        designName: '',
-      })
-      openCart()
-    }
-  }
-
-  const showAddToCartButton = category !== 'torten'
-
   return (
-    <Card className="group overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-white relative flex flex-col">
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-white rounded-t-lg">
+    <div className="group flex flex-col">
+      {/* Image Container */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted mb-3 shadow-sm hover:shadow-md transition-shadow">
         <Link href={`/products/${slug}`} className="absolute inset-0 z-10">
           <Image
             src={normalizeSupabaseImageUrl(imageUrl)}
             alt={name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110 brightness-110"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
         </Link>
+        
+        {/* Heart Icon - Top Right */}
         {mounted && (
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 z-30 h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-sm"
+            className="absolute top-2 right-2 z-30 h-9 w-9 bg-white/95 hover:bg-white rounded-full shadow-sm border border-border/50"
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
@@ -92,26 +71,22 @@ export function ProductCard({
             <span className="sr-only">{favorite ? t('unfavorite') : t('favorite')}</span>
           </Button>
         )}
-      </div>
-      <CardContent className="p-4 flex-1 flex flex-col relative">
-        <div className="flex items-start gap-2 flex-1">
-          <div className="flex-1">
-            <Link href={`/products/${slug}`}>
-              <h3 className="font-semibold text-lg mb-2 hover:text-primary transition-colors text-foreground">
-                {name}
-              </h3>
-            </Link>
-            {category === 'torten' && defaultFlavourName && (
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary mb-2">
-                {t('defaultFlavour', { flavour: defaultFlavourName })}
-              </span>
-            )}
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{description}</p>
-          </div>
+        
+        {/* Product Name Overlay - Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/70 via-black/60 to-transparent px-3 py-4">
+          <Link href={`/products/${slug}`}>
+            <h3 className="font-bold text-lg text-white line-clamp-2 hover:text-primary/90 transition-colors">
+              {name}
+            </h3>
+          </Link>
         </div>
-       
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Description Below Image */}
+      <div>
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{description}</p>
+      </div>
+    </div>
   )
 }
 

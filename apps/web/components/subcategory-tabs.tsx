@@ -24,18 +24,21 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
   }
 
   function handleSubcategoryChange(subcategory: string | null) {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams()
     
     if (subcategory) {
       params.set('subcategory', subcategory)
-    } else {
-      params.delete('subcategory')
     }
 
     // Ensure category is set
     params.set('category', category)
 
-    router.push(`${pathname}?${params.toString()}`)
+    // If we're on a product detail page, navigate to the home page with filters
+    // Otherwise, navigate to the current page with updated params
+    const isProductPage = pathname?.includes('/products/')
+    const targetPath = isProductPage ? `/${locale}` : pathname || `/${locale}`
+    
+    router.push(`${targetPath}?${params.toString()}`)
   }
 
   return (
@@ -45,16 +48,13 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
           <button
             onClick={() => handleSubcategoryChange(null)}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0',
               !currentSubcategory
-                ? 'text-primary bg-primary/10'
+                ? 'text-muted-foreground bg-primary/20'
                 : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
             )}
           >
             <span>{t('all')}</span>
-            {!currentSubcategory && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-            )}
           </button>
           {subcategories.map((subcategory) => {
             const Icon = subcategory.icon
@@ -66,7 +66,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
                 key={subcategory.id}
                 onClick={() => handleSubcategoryChange(subcategory.id)}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0',
                   isActive
                     ? 'text-muted-foreground bg-primary/20'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
@@ -74,9 +74,6 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
               >
                 <Icon className="h-4 w-4" />
                 <span>{t(translationKey)}</span>
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                )}
               </button>
             )
           })}

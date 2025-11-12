@@ -33,19 +33,19 @@ export const subcategoryConfig: CategorySubcategories = {
   desserts: [
     { id: 'tarts', icon: PieChart, translationKey: 'tarts' },
     { id: 'cinabons', icon: Circle, translationKey: 'cinabons' },
-    { id: 'куличи', icon: Cookie, translationKey: 'куличи' },
-    { id: 'капкейки', icon: Cake, translationKey: 'капкейки' },
-    { id: 'кейпопы', icon: Candy, translationKey: 'кейпопы' },
-    { id: 'муссовый', icon: Layers, translationKey: 'муссовый' },
+    { id: 'куличи', icon: Cookie, translationKey: 'kulichi' },
+    { id: 'капкейки', icon: Cake, translationKey: 'kapkeiky' },
+    { id: 'кейпопы', icon: Candy, translationKey: 'cake-pops' },
+    { id: 'муссовый', icon: Layers, translationKey: 'mousse' },
   ],
   cheesecakes: [
-    { id: 'нью-йорк', icon: Building2, translationKey: 'нью-йорк' },
-    { id: 'сан себастьян', icon: Sun, translationKey: 'сан себастьян' },
-    { id: 'чизкейк на палочке', icon: Sparkles, translationKey: 'чизкейк на палочке' },
+    { id: 'нью-йорк', icon: Building2, translationKey: 'new-york' },
+    { id: 'сан себастьян', icon: Sun, translationKey: 'san-sebastian' },
+    { id: 'чизкейк на палочке', icon: Sparkles, translationKey: 'cheesecake-on-a-stick' },
   ],
   cookies: [
-    { id: 'шоколадні', icon: Cookie, translationKey: 'шоколадні' },
-    { id: 'блонді кукіс', icon: Circle, translationKey: 'блонді кукіс' },
+    { id: 'шоколадні', icon: Cookie, translationKey: 'chocolate' },
+    { id: 'блонді кукіс', icon: Circle, translationKey: 'blondie-cookies' },
   ],
 }
 

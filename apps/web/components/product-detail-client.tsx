@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
@@ -21,6 +23,7 @@ interface ProductDetailClientProps {
     isTorten: boolean
   }
   locale: string
+  categoryName: string
   selectedFlavourId?: string
   onFlavourChange?: (flavourId: string) => void
   selectedFlavour?: FlavorOption | null
@@ -32,6 +35,7 @@ interface ProductDetailClientProps {
 export function ProductDetailClient({
   product,
   locale,
+  categoryName,
   selectedFlavourId: externalSelectedFlavourId,
   onFlavourChange: externalOnFlavourChange,
   selectedFlavour,
@@ -40,6 +44,7 @@ export function ProductDetailClient({
   showProductHeader = true,
 }: ProductDetailClientProps) {
   const t = useTranslations('product')
+  const tNav = useTranslations('nav')
   const { addItem } = useCartStore()
   const { openCart } = useUIStore()
   const [internalSelectedFlavourId, setInternalSelectedFlavourId] = useState<string>(
@@ -106,82 +111,120 @@ export function ProductDetailClient({
     <div className="flex flex-wrap items-center gap-3">
       <Button
         onClick={handleAddToCart}
-        className="rounded-full px-6 py-2 text-sm font-semibold shadow-sm"
-        size="default"
+        className="w-full rounded-full px-8 py-2 text-base font-semibold shadow-none transition-shadow"
+        size="lg"
       >
-        <ShoppingCart className="h-4 w-4 mr-2" />
+        <ShoppingCart className="h-5 w-5 mr-2" />
         {t('addToCart')}
       </Button>
     </div>
   )
 
   return (
-    <div className="relative flex flex-col gap-5 rounded-3xl border border-border/60 bg-card/85 p-6 shadow-sm backdrop-blur-sm">
+    <div className="sticky top-8 flex flex-col gap-6">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-2 text-sm text-muted-foreground -mb-2">
+        <Link href={`/${locale}`} className="hover:text-primary transition-colors">
+          {tNav('catalog')}
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <Link href={`/${locale}?category=${product.category}`} className="hover:text-primary transition-colors">
+          {categoryName}
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <span className="text-foreground">{product.name}</span>
+      </nav>
+
+      {/* Product Header */}
       {showProductHeader && (
-        <div className="space-y-3">
-          <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{product.name}</h1>
+        <div className="space-y-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground md:text-4xl lg:text-5xl tracking-tight">
+              {product.name}
+            </h1>
+          </div>
           {product.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed md:text-base">{product.description}</p>
+            <p className="text-base text-muted-foreground leading-relaxed md:text-lg">
+              {product.description}
+            </p>
           )}
         </div>
       )}
 
+      {/* Flavour Selector */}
       {shouldShowFlavourSelector && (
-        <FlavourSelector
-          flavours={product.flavours}
-          selectedFlavourId={selectedFlavourId}
-          onFlavourChange={setSelectedFlavourId}
-        />
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold text-foreground">{t('selectFlavour')}</h2>
+          <FlavourSelector
+            flavours={product.flavours}
+            selectedFlavourId={selectedFlavourId}
+            onFlavourChange={setSelectedFlavourId}
+          />
+        </div>
       )}
 
+      {/* Flavour Details or Action Buttons */}
       {showFlavourDetails && flavourDetails ? (
-        <div className="space-y-5">
-          <div>
-            <h3 className="text-xl font-semibold text-foreground md:text-2xl">{flavourDetails.displayName}</h3>
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <h3 className="text-2xl font-semibold text-foreground md:text-3xl">
+              {flavourDetails.displayName}
+            </h3>
             {flavourDetails.description && (
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed md:text-base">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 {flavourDetails.description}
               </p>
             )}
           </div>
 
-          {actionButtons}
+          {/* Action Buttons */}
+          <div className="pt-2">{actionButtons}</div>
 
-          <div className="space-y-5">
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          {/* Product Information */}
+          <div className="space-y-6 pt-4 border-t border-border/60">
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('ingredients')}
               </h4>
-              <p className="text-sm text-foreground/80 leading-relaxed md:text-base">
+              <p className="text-sm text-foreground/90 leading-relaxed">
                 {flavourDetails.ingredients.join(', ')}
               </p>
             </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('allergens')}
               </h4>
-              <ul className="space-y-1 text-sm text-foreground/80 leading-relaxed md:text-base">
+              <ul className="space-y-1.5 text-sm text-foreground/90">
                 {flavourDetails.allergens.map((allergen) => (
-                  <li key={allergen}>{allergen}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                {locale === 'uk' ? 'Харчова цінність (на 100 г)' : t('nutritionPer100g')}
-              </h4>
-              <ul className="space-y-1 text-sm text-foreground/80 md:text-base">
-                {flavourDetails.nutritionFacts.map((fact) => (
-                  <li key={`${fact.label}-${fact.value}`}>
-                    <span className="font-medium text-foreground">{fact.label}:</span> {fact.value}
+                  <li key={allergen} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                    {allergen}
                   </li>
                 ))}
               </ul>
             </div>
+
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                {locale === 'uk' ? 'Харчова цінність (на 100 г)' : t('nutritionPer100g')}
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                {flavourDetails.nutritionFacts.map((fact) => (
+                  <div
+                    key={`${fact.label}-${fact.value}`}
+                    className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3"
+                  >
+                    <span className="text-xs font-medium text-muted-foreground">{fact.label}</span>
+                    <span className="text-sm font-semibold text-foreground">{fact.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       ) : (
-        actionButtons
+        <div className="pt-4">{actionButtons}</div>
       )}
     </div>
   )

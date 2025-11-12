@@ -23,7 +23,9 @@
     "error": "Fehler",
     "success": "Erfolgreich",
     "language": "Sprache",
-    "addToCart": "In den Warenkorb"
+    "addToCart": "In den Warenkorb",
+    "back": "Zurück",
+    "next": "Weiter"
   },
   "nav": {
     "catalog": "Katalog",
@@ -67,6 +69,13 @@
   },
   "order": {
     "title": "Bestellung aufgeben",
+    "steps": {
+      "customerInfo": "Kunde",
+      "orderDetails": "Bestelldetails",
+      "deliveryInfo": "Lieferung",
+      "additionalInfo": "Zusätzlich",
+      "review": "Überprüfung"
+    },
     "customerInfo": "Kundeninformationen",
     "name": "Name",
     "email": "E-Mail",
@@ -76,7 +85,39 @@
     "required": "Pflichtfeld",
     "submitOrder": "Bestellung abschicken",
     "success": "Ihre Bestellung wurde erfolgreich übermittelt!",
-    "error": "Fehler beim Übermitteln der Bestellung. Bitte versuchen Sie es erneut."
+    "error": "Fehler beim Übermitteln der Bestellung. Bitte versuchen Sie es erneut.",
+    "fields": {
+      "fullName": "Vollständiger Name",
+      "fullNamePlaceholder": "Geben Sie den vollständigen Namen ein",
+      "email": "E-Mail",
+      "emailPlaceholder": "beispiel@email.com",
+      "dessert": "Dessert",
+      "dessertPlaceholder": "Beschreiben Sie das Dessert",
+      "numberOfPeople": "Für wie viele Personen",
+      "numberOfPeoplePlaceholder": "Anzahl der Personen",
+      "eventDate": "Datum des Festes",
+      "celebrationDate": "Datum der Feier",
+      "timeNeeded": "Uhrzeit, zu der das Dessert benötigt wird",
+      "pickupOrDelivery": "Abholung oder Lieferung",
+      "pickup": "Abholung",
+      "delivery": "Lieferung",
+      "cityOfResidence": "Wohnort",
+      "cityOfResidencePlaceholder": "Geben Sie die Stadt ein",
+      "deliveryCity": "Lieferstadt",
+      "deliveryCityPlaceholder": "Geben Sie die Lieferstadt ein",
+      "deliveryPostalCode": "Postleitzahl",
+      "deliveryPostalCodePlaceholder": "Geben Sie die Postleitzahl ein",
+      "phoneOrSocial": "Telefonnummer oder soziale Netzwerke",
+      "phoneOrSocialPlaceholder": "Telefon oder soziale Netzwerke",
+      "referralSource": "Wie haben Sie von uns erfahren",
+      "referralSourcePlaceholder": "Wählen Sie eine Option",
+      "referralOptions": {
+        "socialMedia": "Soziale Medien",
+        "friend": "Von Freunden",
+        "search": "Internetsuche",
+        "other": "Andere"
+      }
+    }
   },
   "auth": {
     "login": "Anmelden",
@@ -122,19 +163,19 @@
       "desserts": {
         "tarts": "Torten",
         "cinabons": "Cinabons",
-        "куличи": "Kulitschi",
-        "капкейки": "Cupcakes",
-        "кейпопы": "Cake Pops",
-        "муссовый": "Mousse"
+        "kulichi": "Kulitschi",
+        "kapkeiky": "Cupcakes",
+        "cake-pops": "Cake Pops",
+        "mousse": "Mousse"
       },
       "cheesecakes": {
-        "нью-йорк": "New York",
-        "сан себастьян": "San Sebastian",
-        "чизкейк на палочке": "Cheesecake am Stiel"
+        "new-york": "New York",
+        "san-sebastian": "San Sebastian",
+        "cheesecake-on-a-stick": "Cheesecake am Stiel"
       },
       "cookies": {
-        "шоколадні": "Schokoladen",
-        "блонді кукіс": "Blondie Cookies"
+        "chocolate": "Schokoladen",
+        "blondie-cookies": "Blondie Cookies"
       }
     }
   },
@@ -171,7 +212,9 @@
       "actions": "Aktionen",
       "noImage": "Kein Bild",
       "editProduct": "Produkt bearbeiten",
-      "createProduct": "Neues Produkt erstellen"
+      "createProduct": "Neues Produkt erstellen",
+      "formDescriptionCreate": "Fülle die Formularfelder aus, um ein neues Produkt im Shop anzulegen.",
+      "formDescriptionEdit": "Aktualisiere die Produktinformationen. Änderungen werden sofort übernommen."
     },
     "designs": {
       "title": "Torten-Designs",
@@ -200,7 +243,9 @@
       "createSuccess": "Design erfolgreich erstellt!",
       "updateSuccess": "Design erfolgreich aktualisiert!",
       "deleteSuccess": "Design erfolgreich gelöscht!",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "formDescriptionCreate": "Lege ein neues Tortendesign mit Bild und Details an.",
+      "formDescriptionEdit": "Passe die Angaben des Tortendesigns an. Änderungen werden direkt veröffentlicht."
     },
     "flavours": {
       "title": "Geschmacksrichtungen",
@@ -236,7 +281,9 @@
       "add": "Hinzufügen",
       "noImage": "Kein Bild verfügbar",
       "itemName": "{name}",
-      "actions": "Aktionen"
+      "actions": "Aktionen",
+      "formDescriptionCreate": "Erstelle eine neue Geschmacksrichtung inklusive Beschreibung, Zutaten und Nährwerten.",
+      "formDescriptionEdit": "Bearbeite die bestehende Geschmacksrichtung. Aktualisierte Informationen gelten sofort."
     },
     "customers": {
       "title": "Kundenverwaltung",

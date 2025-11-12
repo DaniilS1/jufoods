@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { ProductDetailWrapper } from '@/components/product-detail-wrapper'
 import { ProductCard } from '@/components/product-card'
+import { SubcategoryTabs } from '@/components/subcategory-tabs'
 import { createClient } from '@/lib/supabase/server'
+import { hasSubcategories } from '@/lib/subcategory-config'
 import type { FlavorOption, NutritionFact } from '@/types/product'
 
 interface TortenFlavourRecord {
@@ -285,56 +287,55 @@ export default async function ProductDetailPage({
         ? tNav('cakes')
         : tNav('desserts')
 
+  const showSubcategoryTabs = hasSubcategories(category)
+
   return (
-    <div className="container py-6">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-        <Link href="/" className="hover:text-primary transition-colors">
-          {tNav('catalog')}
-        </Link>
-        <ChevronRight className="h-4 w-4" />
-        <Link href={`/?category=${category}`} className="hover:text-primary transition-colors">
-          {categoryName}
-        </Link>
-        <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground">{name}</span>
-      </nav>
-
-      <ProductDetailWrapper
-        product={{
-          id: recordId,
-          slug,
-          name,
-          description,
-          imageUrl: imageUrl || '/placeholder-cake.svg',
-          category,
-          subCategory,
-          flavours: designFlavours,
-          isTorten: Boolean(isTortenDesign),
-        }}
-        locale={locale}
-      />
-
-      {/* Similar Products */}
-      {similarProducts.length > 0 && (
-        <div className="mt-12 pt-8 border-t">
-          <h2 className="text-2xl font-bold mb-6">{t('similarProducts')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {similarProducts.map((similarProduct) => (
-              <ProductCard
-                key={similarProduct.id}
-                id={similarProduct.id}
-                slug={similarProduct.slug}
-                name={similarProduct.name}
-                description={similarProduct.description || ''}
-                imageUrl={similarProduct.imageUrl}
-                category={similarProduct.category}
-              />
-            ))}
-          </div>
-        </div>
+    <>
+      {showSubcategoryTabs && (
+        <SubcategoryTabs
+          category={category}
+          currentSubcategory={subCategory || null}
+          locale={locale}
+        />
       )}
-    </div>
+      <div className="container py-6">
+        <ProductDetailWrapper
+          product={{
+            id: recordId,
+            slug,
+            name,
+            description,
+            imageUrl: imageUrl || '/placeholder-cake.svg',
+            category,
+            subCategory,
+            flavours: designFlavours,
+            isTorten: Boolean(isTortenDesign),
+          }}
+          locale={locale}
+          categoryName={categoryName}
+        />
+
+        {/* Similar Products */}
+        {similarProducts.length > 0 && (
+          <div className="mt-12 pt-8 border-t">
+            <h2 className="text-2xl font-bold mb-6">{t('similarProducts')}</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {similarProducts.map((similarProduct) => (
+                <ProductCard
+                  key={similarProduct.id}
+                  id={similarProduct.id}
+                  slug={similarProduct.slug}
+                  name={similarProduct.name}
+                  description={similarProduct.description || ''}
+                  imageUrl={similarProduct.imageUrl}
+                  category={similarProduct.category}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 

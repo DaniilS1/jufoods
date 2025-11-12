@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -436,6 +437,7 @@ export function AdminProductManagement() {
                           alt={product.name_de}
                           fill
                           className="object-cover"
+                          sizes="64px"
                         />
                       </div>
                     ) : (
@@ -503,6 +505,9 @@ export function AdminProductManagement() {
             <DialogTitle>
               {editingProduct ? tAdmin('editProduct') : tAdmin('createProduct')}
             </DialogTitle>
+            <DialogDescription>
+              {editingProduct ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Tabs defaultValue="de" className="w-full">

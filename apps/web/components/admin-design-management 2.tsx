@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { Plus, Trash2, Upload, Loader2, Edit, X, Check, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -297,6 +298,7 @@ export function AdminDesignManagement() {
                           alt={design.name_de}
                           fill
                           className="object-cover"
+                          sizes="64px"
                         />
                       </div>
                     ) : (
@@ -351,6 +353,9 @@ export function AdminDesignManagement() {
             <DialogTitle>
               {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
             </DialogTitle>
+            <DialogDescription>
+              {editingDesign ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">

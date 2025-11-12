@@ -29,6 +29,14 @@ const NavigationDrawer = dynamic(
   }
 )
 
+const Footer = dynamic(
+  () => import('@/components/footer').then((mod) => ({ default: mod.Footer })),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+)
+
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
@@ -53,6 +61,9 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
           <Header />
         </Suspense>
         <main className="flex-1">{children}</main>
+        <Suspense fallback={null}>
+          <Footer />
+        </Suspense>
         <Suspense fallback={null}>
           <ShoppingCart />
         </Suspense>

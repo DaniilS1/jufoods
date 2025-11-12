@@ -14,6 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import {
   Select,
@@ -394,6 +395,9 @@ export function AdminDesignManagement() {
               <DialogTitle>
                 {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
               </DialogTitle>
+              <DialogDescription>
+                {editingDesign ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
+              </DialogDescription>
             </DialogHeader>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

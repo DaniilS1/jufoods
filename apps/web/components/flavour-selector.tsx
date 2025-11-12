@@ -22,35 +22,49 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
   }
 
   return (
-    <div className="space-y-3">
-      <Label className="text-sm font-semibold text-muted-foreground">{t('selectFlavour')}</Label>
-      <RadioGroup value={selectedFlavourId} onValueChange={onFlavourChange}>
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 sm:flex-wrap sm:justify-start">
+    <div className="space-y-4">
+      <RadioGroup value={selectedFlavourId} onValueChange={onFlavourChange} className="w-full">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {flavours.map((flavour) => {
             const isSelected = selectedFlavourId === flavour.id
 
             return (
-              <div key={flavour.id} className="shrink-0 sm:shrink">
+              <div key={flavour.id} className="relative">
                 <RadioGroupItem value={flavour.id} id={flavour.id} className="peer sr-only" />
                 <Label
                   htmlFor={flavour.id}
-                  className={cn(
-                    'flex w-[140px] flex-col items-center gap-2 rounded-2xl border-2 border-border bg-background/80 p-3 transition-all hover:border-primary/40 hover:bg-accent/60 hover:shadow-sm sm:w-[150px]',
-                    isSelected && 'border-primary bg-accent shadow-md'
-                  )}
+                  className="group relative flex flex-col items-center gap-3 cursor-pointer"
                 >
-                  <div className="relative h-20 w-20 overflow-hidden rounded-xl bg-muted shadow-sm">
+                  {/* Flavour Image with Selection Border */}
+                  <div
+                    className={cn(
+                      'relative h-24 w-24 overflow-hidden rounded-lg bg-muted transition-all duration-200',
+                      isSelected
+                        ? 'ring-2 ring-primary ring-offset-1'
+                        : 'ring-1 ring-transparent group-hover:ring-border'
+                    )}
+                  >
                     <Image
                       src={normalizeSupabaseImageUrl(flavour.imageUrl)}
                       alt={flavour.displayName}
                       fill
                       className="object-cover"
+                      sizes="112px"
                     />
                   </div>
+
+                  {/* Flavour Name */}
                   <div className="flex flex-col items-center gap-1 text-center">
-                    <span className="text-sm font-semibold leading-tight text-foreground">{flavour.displayName}</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {flavour.displayName}
+                    </span>
                     {flavour.priceDelta !== null && flavour.priceDelta !== 0 && (
-                      <span className="text-xs text-muted-foreground">
+                      <span
+                        className={cn(
+                          'text-xs',
+                          flavour.priceDelta > 0 ? 'text-primary' : 'text-muted-foreground'
+                        )}
+                      >
                         {flavour.priceDelta > 0 ? `+${flavour.priceDelta.toFixed(2)} €` : `${flavour.priceDelta.toFixed(2)} €`}
                       </span>
                     )}

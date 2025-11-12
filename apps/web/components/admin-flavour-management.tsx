@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -14,6 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
@@ -63,7 +64,7 @@ const slugify = (value: string) =>
     .replace(/^-+|-+$/g, '')
 
 export function AdminFlavourManagement() {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const tAdmin = useTranslations('admin.flavours')
 
   const [flavours, setFlavours] = useState<FlavourRecord[]>([])
@@ -105,7 +106,7 @@ export function AdminFlavourManagement() {
     fields: ingredientsUkFields,
     append: appendIngredientUk,
     remove: removeIngredientUk,
-  } = useFieldArray({
+  } = useFieldArray<FlavourFormData, 'ingredients_uk'>({
     control,
     name: 'ingredients_uk',
   })
@@ -114,7 +115,7 @@ export function AdminFlavourManagement() {
     fields: ingredientsDeFields,
     append: appendIngredientDe,
     remove: removeIngredientDe,
-  } = useFieldArray({
+  } = useFieldArray<FlavourFormData, 'ingredients_de'>({
     control,
     name: 'ingredients_de',
   })
@@ -123,7 +124,7 @@ export function AdminFlavourManagement() {
     fields: allergensUkFields,
     append: appendAllergenUk,
     remove: removeAllergenUk,
-  } = useFieldArray({
+  } = useFieldArray<FlavourFormData, 'allergens_uk'>({
     control,
     name: 'allergens_uk',
   })
@@ -132,26 +133,12 @@ export function AdminFlavourManagement() {
     fields: allergensDeFields,
     append: appendAllergenDe,
     remove: removeAllergenDe,
-  } = useFieldArray({
+  } = useFieldArray<FlavourFormData, 'allergens_de'>({
     control,
     name: 'allergens_de',
   })
 
-  useEffect(() => {
-    loadFlavours()
-  }, [])
-
-  useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        setError(null)
-        setSuccess(null)
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [error, success])
-
-  async function loadFlavours() {
+  const loadFlavours = useCallback(async () => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -166,7 +153,21 @@ export function AdminFlavourManagement() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    loadFlavours()
+  }, [loadFlavours])
+
+  useEffect(() => {
+    if (error || success) {
+      const timer = setTimeout(() => {
+        setError(null)
+        setSuccess(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error, success])
 
   async function uploadImage(file: File, folder: string = 'torten-flavours'): Promise<string> {
     const formData = new FormData()
@@ -460,6 +461,9 @@ export function AdminFlavourManagement() {
               <DialogTitle>
                 {editingFlavour ? tAdmin('editFlavour') : tAdmin('createFlavour')}
               </DialogTitle>
+              <DialogDescription>
+                {editingFlavour ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
+              </DialogDescription>
             </DialogHeader>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

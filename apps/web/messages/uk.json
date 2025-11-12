@@ -23,7 +23,9 @@
     "error": "Помилка",
     "success": "Успішно",
     "language": "Мова",
-    "addToCart": "Додати до кошика"
+    "addToCart": "Додати до кошика",
+    "back": "Назад",
+    "next": "Далі"
   },
   "nav": {
     "catalog": "Каталог",
@@ -67,6 +69,13 @@
   },
   "order": {
     "title": "Оформлення замовлення",
+    "steps": {
+      "customerInfo": "Клієнт",
+      "orderDetails": "Деталі замовлення",
+      "deliveryInfo": "Доставка",
+      "additionalInfo": "Додатково",
+      "review": "Перевірка"
+    },
     "customerInfo": "Інформація про клієнта",
     "name": "Ім'я",
     "email": "Електронна пошта",
@@ -76,7 +85,39 @@
     "required": "Обов'язкове поле",
     "submitOrder": "Надіслати замовлення",
     "success": "Ваше замовлення успішно надіслано!",
-    "error": "Помилка під час надсилання замовлення. Спробуйте ще раз."
+    "error": "Помилка під час надсилання замовлення. Спробуйте ще раз.",
+    "fields": {
+      "fullName": "ПІБ",
+      "fullNamePlaceholder": "Введіть повне ім'я",
+      "email": "Електронна пошта",
+      "emailPlaceholder": "example@email.com",
+      "dessert": "Десерт",
+      "dessertPlaceholder": "Опишіть десерт",
+      "numberOfPeople": "На яку кількість осіб",
+      "numberOfPeoplePlaceholder": "Кількість осіб",
+      "eventDate": "Дата свята",
+      "celebrationDate": "Дата святкування",
+      "timeNeeded": "Час, на коли потрібен десерт",
+      "pickupOrDelivery": "Як забрати",
+      "pickup": "Самовивіз",
+      "delivery": "Доставка",
+      "cityOfResidence": "Місто проживання",
+      "cityOfResidencePlaceholder": "Введіть місто",
+      "deliveryCity": "Місто доставки",
+      "deliveryCityPlaceholder": "Введіть місто доставки",
+      "deliveryPostalCode": "Поштовий індекс",
+      "deliveryPostalCodePlaceholder": "Введіть індекс",
+      "phoneOrSocial": "Номер телефону або соціальна мережа",
+      "phoneOrSocialPlaceholder": "Телефон або соціальна мережа",
+      "referralSource": "Звідки ви про мене дізналися",
+      "referralSourcePlaceholder": "Оберіть варіант",
+      "referralOptions": {
+        "socialMedia": "Соціальні мережі",
+        "friend": "Від друзів",
+        "search": "Пошук в інтернеті",
+        "other": "Інше"
+      }
+    }
   },
   "auth": {
     "login": "Увійти",
@@ -122,19 +163,19 @@
       "desserts": {
         "tarts": "Тарти",
         "cinabons": "Сінабони",
-        "куличи": "Куличі",
-        "капкейки": "Капкейки",
-        "кейпопы": "Кейк попси",
-        "муссовый": "Мусові"
+        "kulichi": "Куличі",
+        "kapkeiky": "Капкейки",
+        "cake-pops": "Кейк попси",
+        "mousse": "Мусові"
       },
       "cheesecakes": {
-        "нью-йорк": "Нью-Йорк",
-        "сан себастьян": "Сан Себастьян",
-        "чизкейк на палочке": "Чізкейк на паличці"
+        "new-york": "Нью-Йорк",
+        "san-sebastian": "Сан Себастьян",
+        "cheesecake-on-a-stick": "Чізкейк на паличці"
       },
       "cookies": {
-        "шоколадні": "Шоколадне",
-        "блонді кукіс": "Блонді кукіс"
+        "chocolate": "Шоколадне",
+        "blondie-cookies": "Блонді кукіс"
       }
     }
   },
@@ -171,7 +212,9 @@
       "actions": "Дії",
       "noImage": "Немає зображення",
       "editProduct": "Редагувати продукт",
-      "createProduct": "Створити продукт"
+      "createProduct": "Створити продукт",
+      "formDescriptionCreate": "Заповніть форму, щоб додати новий продукт до магазину.",
+      "formDescriptionEdit": "Оновіть інформацію про продукт. Зміни застосовуються відразу."
     },
     "designs": {
       "title": "Дизайни тортів",
@@ -200,7 +243,9 @@
       "createSuccess": "Дизайн успішно створено!",
       "updateSuccess": "Дизайн успішно оновлено!",
       "deleteSuccess": "Дизайн успішно видалено!",
-      "actions": "Дії"
+      "actions": "Дії",
+      "formDescriptionCreate": "Створіть новий дизайн торта з описом та зображенням.",
+      "formDescriptionEdit": "Оновіть дані дизайну торта. Зміни одразу з’являться у магазині."
     },
     "flavours": {
       "title": "Смаки",
@@ -236,7 +281,9 @@
       "add": "Додати",
       "noImage": "Без зображення",
       "itemName": "{name}",
-      "actions": "Дії"
+      "actions": "Дії",
+      "formDescriptionCreate": "Створіть новий смак із описом, інгредієнтами та поживністю.",
+      "formDescriptionEdit": "Оновіть інформацію про смак. Зміни набирають чинності миттєво."
     },
     "customers": {
       "title": "Керування клієнтами",
