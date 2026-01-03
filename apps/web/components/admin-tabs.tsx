@@ -18,7 +18,7 @@ export function AdminTabs() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const t = useTranslations('admin.tabs')
-  
+
   const activeTab = searchParams?.get('tab') || 'products'
 
   function handleTabChange(tabId: string) {
@@ -40,7 +40,7 @@ export function AdminTabs() {
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
+                  'flex items-center gap-2 px-4 py-2 rounded-t-lg data-[state=active]:rounded-t-lg hover:rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
                   isActive
                     ? 'text-muted-foreground bg-primary/10'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5'

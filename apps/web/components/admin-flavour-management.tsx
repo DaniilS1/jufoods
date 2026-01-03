@@ -106,8 +106,9 @@ export function AdminFlavourManagement() {
     fields: ingredientsUkFields,
     append: appendIngredientUk,
     remove: removeIngredientUk,
-  } = useFieldArray<FlavourFormData, 'ingredients_uk'>({
+  } = useFieldArray({
     control,
+    // @ts-ignore
     name: 'ingredients_uk',
   })
 
@@ -115,8 +116,9 @@ export function AdminFlavourManagement() {
     fields: ingredientsDeFields,
     append: appendIngredientDe,
     remove: removeIngredientDe,
-  } = useFieldArray<FlavourFormData, 'ingredients_de'>({
+  } = useFieldArray({
     control,
+    // @ts-ignore
     name: 'ingredients_de',
   })
 
@@ -124,8 +126,9 @@ export function AdminFlavourManagement() {
     fields: allergensUkFields,
     append: appendAllergenUk,
     remove: removeAllergenUk,
-  } = useFieldArray<FlavourFormData, 'allergens_uk'>({
+  } = useFieldArray({
     control,
+    // @ts-ignore
     name: 'allergens_uk',
   })
 
@@ -133,8 +136,9 @@ export function AdminFlavourManagement() {
     fields: allergensDeFields,
     append: appendAllergenDe,
     remove: removeAllergenDe,
-  } = useFieldArray<FlavourFormData, 'allergens_de'>({
+  } = useFieldArray({
     control,
+    // @ts-ignore
     name: 'allergens_de',
   })
 

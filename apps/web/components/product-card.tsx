@@ -40,25 +40,25 @@ export function ProductCard({
   }, [])
 
   return (
-    <div className="group flex flex-col">
-      {/* Image Container */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted mb-3 shadow-sm hover:shadow-md transition-shadow">
-        <Link href={`/products/${slug}`} className="absolute inset-0 z-10">
+    <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      {/* Image Container - Top Section */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted rounded-t-xl">
+        <Link href={`/products/${slug}`} className="block h-full w-full">
           <Image
             src={normalizeSupabaseImageUrl(imageUrl)}
             alt={name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-xl"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
         </Link>
-        
+
         {/* Heart Icon - Top Right */}
         {mounted && (
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-2 right-2 z-30 h-9 w-9 bg-white/95 hover:bg-white rounded-full shadow-sm border border-border/50"
+            className="absolute top-3 right-3 z-30 h-9 w-9 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-sm border border-border/50"
             onClick={(e) => {
               e.preventDefault()
               e.stopPropagation()
@@ -71,20 +71,32 @@ export function ProductCard({
             <span className="sr-only">{favorite ? t('unfavorite') : t('favorite')}</span>
           </Button>
         )}
-        
-        {/* Product Name Overlay - Bottom */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/70 via-black/60 to-transparent px-3 py-4">
-          <Link href={`/products/${slug}`}>
-            <h3 className="font-bold text-lg text-white line-clamp-2 hover:text-primary/90 transition-colors">
-              {name}
-            </h3>
-          </Link>
-        </div>
       </div>
 
-      {/* Description Below Image */}
-      <div>
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{description}</p>
+      {/* Content Container - Bottom Section */}
+      <div className="flex flex-1 flex-col p-5">
+        <div className="mb-2">
+          <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-primary/80">
+            {category}
+          </span>
+        </div>
+
+        <Link href={`/products/${slug}`} className="block">
+          <h3 className="text-lg font-bold text-foreground leading-tight transition-colors group-hover:text-primary mb-2 line-clamp-1">
+            {name}
+          </h3>
+        </Link>
+
+        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1">
+          {description}
+        </p>
+
+        {/* Optional Action / Bottom aligned content */}
+        {defaultFlavourName && (
+          <p className="mt-4 text-xs text-muted-foreground/60 italic">
+            {defaultFlavourName}
+          </p>
+        )}
       </div>
     </div>
   )

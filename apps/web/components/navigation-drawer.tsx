@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useUIStore } from '@/stores/ui-store'
 import { createClient } from '@/lib/supabase/client'
+import { SearchBar } from '@/components/search-bar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -115,6 +116,12 @@ export function NavigationDrawer() {
                 <span className="text-sm font-medium">Українська</span>
               </ToggleGroupItem>
             </ToggleGroup>
+          </div>
+
+
+          {/* Mobile Search */}
+          <div className="w-full">
+            <SearchBar />
           </div>
 
           {/* Navigation Links */}

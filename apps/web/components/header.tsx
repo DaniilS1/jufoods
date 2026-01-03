@@ -43,7 +43,7 @@ export function Header() {
     // Extract category from URL search params
     const category = searchParams?.get('category')
     const validCategories = ['torten', 'desserts', 'cookies', 'macarons', 'cheesecakes']
-    
+
     if (category && validCategories.includes(category)) {
       setActiveCategory(category)
     } else {
@@ -58,13 +58,13 @@ export function Header() {
 
   // Check if we're on auth pages
   const isAuthPage = pathname?.includes('/login') || pathname?.includes('/register')
-  
+
   // Check if we're on admin pages
   const isAdminPage = pathname?.includes('/admin')
-  
+
   // Check if we're on checkout page
   const isCheckoutPage = pathname?.includes('/checkout')
-  
+
   // Show minimal header on auth pages with logo and menu
   if (isAuthPage) {
     const locale = pathname?.split('/')[1] || 'de'
@@ -116,7 +116,7 @@ export function Header() {
           <div className="hidden md:block">
             <SearchBar />
           </div>
-          
+
           <Button variant="ghost" size="icon" asChild className="relative hover:bg-primary/10 rounded-full">
             <Link href="/favorites">
               <Heart className="h-5 w-5" />
@@ -148,30 +148,30 @@ export function Header() {
           <div className="container">
             <nav className="flex gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4">
               {categories.map((category) => {
-              const Icon = category.icon
-              const isActiveCategory = activeCategory === category.id
-              const locale = pathname?.split('/')[1] || 'de'
-              const href = locale ? `/${locale}?category=${category.id}` : `/?category=${category.id}`
+                const Icon = category.icon
+                const isActiveCategory = activeCategory === category.id
+                const locale = pathname?.split('/')[1] || 'de'
+                const href = locale ? `/${locale}?category=${category.id}` : `/?category=${category.id}`
 
-              return (
-                <Link
-                  key={category.id}
-                  href={href}
-                  className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-muted-foreground data-[state=active]:text-muted-foreground text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
-                    isActiveCategory
-                      ? 'bg-primary/20'
-                      : 'hover:text-primary hover:bg-primary/5'
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{tNav(category.key)}</span>
-                  {isActiveCategory && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
-                  )}
-                </Link>
-              )
-            })}
+                return (
+                  <Link
+                    key={category.id}
+                    href={href}
+                    className={cn(
+                      'flex items-center gap-2 px-4 py-2 rounded-t-lg data-[state=active]:rounded-t-lg hover:rounded-lg text-muted-foreground data-[state=active]:text-muted-foreground text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
+                      isActiveCategory
+                        ? 'bg-primary/20'
+                        : 'hover:text-primary hover:bg-primary/5'
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{tNav(category.key)}</span>
+                    {isActiveCategory && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
+                  </Link>
+                )
+              })}
             </nav>
           </div>
         </div>

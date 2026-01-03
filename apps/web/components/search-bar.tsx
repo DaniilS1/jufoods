@@ -65,7 +65,7 @@ export function SearchBar() {
       try {
         // Search in name and description fields (both languages)
         const query = searchQuery.trim().toLowerCase()
-        
+
         const [tortenResponse, otherResponse] = await Promise.all([
           supabase
             .from('torten_designs')
@@ -102,7 +102,9 @@ export function SearchBar() {
             const flavourLinks = design.torten_design_flavours || []
             const sorted = flavourLinks
               .map((link) => {
-                const flavour = link.torten_flavours
+                const flavourData = link.torten_flavours
+                const flavour = Array.isArray(flavourData) ? flavourData[0] : flavourData
+
                 if (!flavour) return null
                 return {
                   isDefault: Boolean(link.is_default),
@@ -141,7 +143,7 @@ export function SearchBar() {
           const nameDe = product.name_de?.toLowerCase() || ''
           const descUk = product.description_uk?.toLowerCase() || ''
           const descDe = product.description_de?.toLowerCase() || ''
-          
+
           return (
             nameUk.includes(query) ||
             nameDe.includes(query) ||
@@ -219,7 +221,7 @@ export function SearchBar() {
               {results.map((product) => {
                 const name = locale === 'uk' ? product.name_uk : product.name_de
                 const description = locale === 'uk' ? product.description_uk : product.description_de
-                
+
                 return (
                   <button
                     key={product.id}
