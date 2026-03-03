@@ -183,10 +183,12 @@ export default async function ProductDetailPage({
     }
 
     if (flavourLinks && flavourLinks.length > 0) {
-      designFlavours = flavourLinks
-        .map((link) => link.torten_flavours)
-        .filter((flavour): flavour is TortenFlavourRecord => Boolean(flavour))
-        .map((flavour, index) => {
+      const flavours = flavourLinks.flatMap((link) => {
+        const tf = link.torten_flavours
+        if (!tf) return []
+        return Array.isArray(tf) ? (tf as TortenFlavourRecord[]) : [tf as TortenFlavourRecord]
+      })
+      designFlavours = flavours.map((flavour, index) => {
         const displayName = locale === 'uk' ? flavour.name_uk : flavour.name_de
         const flavourDescription = (locale === 'uk' ? flavour.description_uk : flavour.description_de) || ''
         const ingredients =

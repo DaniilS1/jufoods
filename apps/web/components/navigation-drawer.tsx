@@ -68,8 +68,13 @@ export function NavigationDrawer() {
 
   const localePrefix = pathname?.split('/')[1] || locale
 
+  const handleDrawerOpenChange = (open: boolean) => {
+    if (open) openNavDrawer()
+    else closeNavDrawer()
+  }
+
   return (
-    <Drawer open={isNavDrawerOpen} onOpenChange={(open) => (open ? openNavDrawer() : closeNavDrawer())} direction="left">
+    <Drawer open={isNavDrawerOpen} onOpenChange={handleDrawerOpenChange} direction="left">
       <DrawerContent
         className="fixed inset-y-0 left-0 right-auto top-0 bottom-0 z-50 h-full w-80 max-w-[85vw] flex flex-col rounded-none border-r bg-background mt-0 [&>div:first-child]:hidden"
       >
@@ -119,12 +124,6 @@ export function NavigationDrawer() {
             </ToggleGroup>
           </div>
 
-<<<<<<< HEAD
-
-          {/* Mobile Search */}
-          <div className="w-full">
-            <SearchBar />
-=======
           {/* Theme Switcher */}
           <div className="space-y-3">
             <ToggleGroup
@@ -160,7 +159,6 @@ export function NavigationDrawer() {
                 </div>
               </ToggleGroupItem>
             </ToggleGroup>
->>>>>>> a60f463 (fix: app shell, Next.js upgrade, pnpm config)
           </div>
 
           {/* Navigation Links */}
