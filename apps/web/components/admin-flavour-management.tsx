@@ -21,6 +21,7 @@ import Image from 'next/image'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const flavourSchema = z.object({
   name_uk: z.string().min(1, 'Українська назва обов’язкова'),
@@ -335,17 +336,6 @@ export function AdminFlavourManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">{tAdmin('title')}</h2>
-          <p className="text-muted-foreground">{tAdmin('description')}</p>
-        </div>
-        <Button onClick={openCreateModal}>
-          <Plus className="h-4 w-4 mr-2" />
-          {tAdmin('newFlavour')}
-        </Button>
-      </div>
-
       {error && (
         <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-destructive">
           <AlertCircle className="h-4 w-4" />
@@ -360,117 +350,139 @@ export function AdminFlavourManagement() {
         </div>
       )}
 
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <TooltipProvider>
+        <div className="rounded-lg border bg-white overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-4">
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">{tAdmin('title')}</h2>
+            <p className="text-sm text-muted-foreground">{tAdmin('description')}</p>
+          </div>
+          <Button onClick={openCreateModal}>
+            <Plus className="h-4 w-4 mr-2" />
+            {tAdmin('newFlavour')}
+          </Button>
         </div>
-      ) : flavours.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>{tAdmin('noFlavours')}</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border text-sm">
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
-                <th className="px-4 py-3 text-left font-semibold w-1/3">{tAdmin('descriptionDe')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('ingredientsDe')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('allergensDe')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/70 bg-background">
-              {flavours.map((flavour) => {
-                const ingredientsPreview = (flavour.ingredients_de || []).join(', ')
-                const allergensPreview = (flavour.allergens_de || []).join(', ')
 
-                return (
-                  <tr key={flavour.id} className="align-top">
-                    <td className="px-4 py-3">
-                      <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
-                        {flavour.image_url ? (
-                          <Image
-                            src={normalizeSupabaseImageUrl(flavour.image_url)}
-                            alt={flavour.name_de}
-                            width={64}
-                            height={64}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                            {tAdmin('noImage')}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-foreground">{flavour.name_de}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{flavour.name_uk}</td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {flavour.description_de ? (
-                        <p className="line-clamp-3 leading-relaxed">{flavour.description_de}</p>
-                      ) : (
-                        <span className="text-xs italic text-muted-foreground/70">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {ingredientsPreview ? (
-                        <p className="line-clamp-3">{ingredientsPreview}</p>
-                      ) : (
-                        <span className="text-xs italic text-muted-foreground/70">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {allergensPreview ? (
-                        <p className="line-clamp-2">{allergensPreview}</p>
-                      ) : (
-                        <span className="text-xs italic text-muted-foreground/70">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" size="sm" onClick={() => startEdit(flavour)}>
-                          <Edit className="h-4 w-4 mr-1" />
-                          {tAdmin('edit')}
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(flavour.id)}
-                          disabled={deletingId === flavour.id}
-                        >
-                          {deletingId === flavour.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : flavours.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>{tAdmin('noFlavours')}</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-border text-sm bg-white">
+              <thead className="text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{tAdmin('ingredientsDe')}</th>
+                  <th className="px-4 py-3 text-left font-semibold">{tAdmin('allergensDe')}</th>
+                  <th className="px-4 py-3 text-right font-semibold">{tAdmin('actions')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/70 bg-white">
+                {flavours.map((flavour) => {
+                  const ingredientsPreview = (flavour.ingredients_de || []).join(', ')
+                  const allergensPreview = (flavour.allergens_de || []).join(', ')
+
+                  return (
+                    <tr key={flavour.id} className="align-top">
+                      <td className="px-4 py-3">
+                        <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
+                          {flavour.image_url ? (
+                            <Image
+                              src={normalizeSupabaseImageUrl(flavour.image_url)}
+                              alt={flavour.name_de}
+                              width={64}
+                              height={64}
+                              className="h-full w-full object-cover"
+                            />
                           ) : (
-                            <Trash2 className="h-4 w-4 mr-1" />
+                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                              {tAdmin('noImage')}
+                            </div>
                           )}
-                          {tAdmin('delete')}
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-foreground">{flavour.name_de}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{flavour.name_uk}</td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {ingredientsPreview ? (
+                          <p className="line-clamp-3">{ingredientsPreview}</p>
+                        ) : (
+                          <span className="text-xs italic text-muted-foreground/70">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {allergensPreview ? (
+                          <p className="line-clamp-2">{allergensPreview}</p>
+                        ) : (
+                          <span className="text-xs italic text-muted-foreground/70">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => startEdit(flavour)}
+                                aria-label={tAdmin('edit')}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{tAdmin('edit')}</TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(flavour.id)}
+                                disabled={deletingId === flavour.id}
+                                aria-label={tAdmin('delete')}
+                              >
+                                {deletingId === flavour.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>{tAdmin('delete')}</TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
         </div>
-      )}
+      </TooltipProvider>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-2">
-            <DialogHeader>
-              <DialogTitle>
-                {editingFlavour ? tAdmin('editFlavour') : tAdmin('createFlavour')}
-              </DialogTitle>
-              <DialogDescription>
-                {editingFlavour ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
-              </DialogDescription>
-            </DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b">
+            <DialogTitle>
+              {editingFlavour ? tAdmin('editFlavour') : tAdmin('createFlavour')}
+            </DialogTitle>
+            <DialogDescription>
+              {editingFlavour ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name_de">{tAdmin('nameDe')}</Label>
                 <Input id="name_de" {...register('name_de')} />
@@ -611,8 +623,9 @@ export function AdminFlavourManagement() {
               )}
               {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
             </div>
+            </div>
 
-            <DialogFooter className="flex gap-2">
+            <DialogFooter className="px-6 py-4 border-t bg-background flex gap-2">
               <Button type="button" variant="outline" onClick={closeModal}>
                 <X className="h-4 w-4 mr-1" />
                 {tAdmin('cancel')}

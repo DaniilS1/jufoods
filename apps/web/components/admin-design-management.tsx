@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ import Image from 'next/image'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const designSchema = z.object({
   name_uk: z.string().min(1, 'Ukrainischer Name ist erforderlich'),
@@ -49,6 +51,12 @@ interface DesignRecord {
   description_de: string | null
   sub_category: string | null
   image_url: string | null
+}
+
+interface FlavourSummary {
+  id: string
+  name_de: string
+  name_uk: string
 }
 
 const TORTEN_SUBCATEGORIES = ['hochzeit', 'zum-tee', 'feier'] as const
@@ -73,6 +81,9 @@ export function AdminDesignManagement() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [flavours, setFlavours] = useState<FlavourSummary[]>([])
+  const [flavoursLoading, setFlavoursLoading] = useState(false)
+  const [selectedFlavourIds, setSelectedFlavourIds] = useState<string[]>([])
 
   const {
     register,
@@ -98,6 +109,7 @@ export function AdminDesignManagement() {
 
   useEffect(() => {
     loadDesigns()
+    loadFlavours()
   }, [])
 
   useEffect(() => {
@@ -137,6 +149,50 @@ export function AdminDesignManagement() {
     } finally {
       setLoadingDesigns(false)
     }
+  }
+
+  async function loadFlavours() {
+    try {
+      setFlavoursLoading(true)
+      const { data, error } = await supabase
+        .from('torten_flavours')
+        .select('id, name_de, name_uk')
+        .order('name_de', { ascending: true })
+
+      if (error) throw error
+      setFlavours((data as FlavourSummary[]) || [])
+    } catch (err: any) {
+      console.error('Error loading flavours:', err)
+      setError(`Fehler beim Laden der Geschmäcker: ${err.message}`)
+    } finally {
+      setFlavoursLoading(false)
+    }
+  }
+
+  async function loadDesignFlavours(designId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('design_flavour')
+        .select('flavour_id')
+        .eq('design_id', designId)
+
+      if (error) throw error
+
+      setSelectedFlavourIds((data || []).map((record) => record.flavour_id))
+    } catch (err: any) {
+      console.error('Error loading design flavours:', err)
+      setError(`Fehler beim Laden der Geschmackszuordnungen: ${err.message}`)
+    }
+  }
+
+  function toggleFlavourSelection(flavourId: string, checked: boolean) {
+    setSelectedFlavourIds((prev) => {
+      if (checked) {
+        if (prev.includes(flavourId)) return prev
+        return [...prev, flavourId]
+      }
+      return prev.filter((id) => id !== flavourId)
+    })
   }
   async function uploadImage(file: File, folder: string = 'torten-designs'): Promise<string> {
     const formData = new FormData()
@@ -185,6 +241,7 @@ export function AdminDesignManagement() {
       sub_category: '',
       image_url: '',
     })
+    setSelectedFlavourIds([])
     setIsModalOpen(true)
   }
 
@@ -199,6 +256,7 @@ export function AdminDesignManagement() {
       sub_category: design.sub_category || '',
       image_url: design.image_url || '',
     })
+    loadDesignFlavours(design.id)
     setIsModalOpen(true)
   }
 
@@ -206,6 +264,7 @@ export function AdminDesignManagement() {
     setIsModalOpen(false)
     setEditingDesign(null)
     reset()
+    setSelectedFlavourIds([])
   }
 
   async function onSubmit(data: DesignFormData) {
@@ -225,6 +284,8 @@ export function AdminDesignManagement() {
         category: 'torten',
       }
 
+      let designId = editingDesign?.id ?? ''
+
       if (editingDesign) {
         const { error: updateError } = await supabase
           .from('torten_designs')
@@ -233,11 +294,30 @@ export function AdminDesignManagement() {
 
         if (updateError) throw updateError
       } else {
-        const { error: insertError } = await supabase
+        const { data: insertData, error: insertError } = await supabase
           .from('torten_designs')
           .insert({ ...payload, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .select('id')
+          .single()
 
         if (insertError) throw insertError
+        designId = insertData?.id || designId
+      }
+
+      const finalDesignId = designId || editingDesign?.id
+
+      if (finalDesignId) {
+        const { error: deleteError } = await supabase.from('design_flavour').delete().eq('design_id', finalDesignId)
+        if (deleteError) throw deleteError
+
+        if (selectedFlavourIds.length > 0) {
+          const insertPayload = selectedFlavourIds.map((flavourId) => ({
+            design_id: finalDesignId,
+            flavour_id: flavourId,
+          }))
+          const { error: insertLinksError } = await supabase.from('design_flavour').insert(insertPayload)
+          if (insertLinksError) throw insertLinksError
+        }
       }
 
       setSuccess(editingDesign ? tAdmin('updateSuccess') : tAdmin('createSuccess'))
@@ -274,17 +354,6 @@ export function AdminDesignManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">{tAdmin('title')}</h2>
-          <p className="text-muted-foreground">{tAdmin('description')}</p>
-        </div>
-        <Button onClick={openCreateModal}>
-          <Plus className="h-4 w-4 mr-2" />
-          {tAdmin('newDesign')}
-        </Button>
-      </div>
-
       {error && (
         <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-destructive">
           <AlertCircle className="h-4 w-4" />
@@ -299,106 +368,129 @@ export function AdminDesignManagement() {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      ) : designs.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>{tAdmin('noDesigns')}</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border text-sm">
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('subCategory')}</th>
-                <th className="px-4 py-3 text-left font-semibold w-1/3">{tAdmin('descriptionDe')}</th>
-                <th className="px-4 py-3 text-left font-semibold">{tAdmin('actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/70 bg-background">
-              {designs.map((design) => {
-                const subCategoryLabel = design.sub_category
-                  ? tTortenSubcategories(design.sub_category)
-                  : tAdmin('noSubCategory')
+      <TooltipProvider>
+        <div className="rounded-lg border bg-white overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-4">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">{tAdmin('title')}</h2>
+              <p className="text-sm text-muted-foreground">{tAdmin('description')}</p>
+            </div>
+            <Button onClick={openCreateModal}>
+              <Plus className="h-4 w-4 mr-2" />
+              {tAdmin('newDesign')}
+            </Button>
+          </div>
 
-                return (
-                  <tr key={design.id} className="align-top">
-                    <td className="px-4 py-3">
-                      <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
-                        {design.image_url ? (
-                          <Image
-                            src={normalizeSupabaseImageUrl(design.image_url)}
-                            alt={design.name_de}
-                            width={64}
-                            height={64}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                            {tAdmin('noImage')}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-foreground">{design.name_de}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{design.name_uk}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
-                        {subCategoryLabel}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {design.description_de ? (
-                        <p className="line-clamp-3 leading-relaxed">{design.description_de}</p>
-                      ) : (
-                        <span className="text-xs italic text-muted-foreground/70">—</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" size="sm" onClick={() => startEdit(design)}>
-                          <Edit className="h-4 w-4 mr-1" />
-                          {tAdmin('edit')}
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(design.id)}
-                          disabled={deletingId === design.id}
-                        >
-                          {deletingId === design.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4 mr-1" />
-                          )}
-                          {tAdmin('delete')}
-                        </Button>
-                      </div>
-                    </td>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : designs.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>{tAdmin('noDesigns')}</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto max-h-[calc(100vh-300px)] overflow-y-auto">
+            <table className="min-w-full divide-y divide-border text-sm bg-white">
+              <thead className="text-muted-foreground sticky top-0 bg-white z-10">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
+                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
+                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
+                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('subCategory')}</th>
+                  <th className="px-4 py-3 text-right font-semibold">{tAdmin('actions')}</th>
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                </thead>
+                <tbody className="divide-y divide-border/70 bg-white">
+                  {designs.map((design) => {
+                    const subCategoryLabel = design.sub_category
+                      ? tTortenSubcategories(design.sub_category)
+                      : tAdmin('noSubCategory')
+
+                    return (
+                      <tr key={design.id} className="align-top">
+                        <td className="px-4 py-3">
+                          <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
+                            {design.image_url ? (
+                              <Image
+                                src={normalizeSupabaseImageUrl(design.image_url)}
+                                alt={design.name_de}
+                                width={64}
+                                height={64}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                                {tAdmin('noImage')}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-foreground">{design.name_de}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{design.name_uk}</td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
+                            {subCategoryLabel}
+                          </span>
+                        </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                variant="ghost"
+                                  size="icon"
+                                  onClick={() => startEdit(design)}
+                                  aria-label={tAdmin('edit')}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{tAdmin('edit')}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDelete(design.id)}
+                                  disabled={deletingId === design.id}
+                                  aria-label={tAdmin('delete')}
+                                >
+                                {deletingId === design.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{tAdmin('delete')}</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
+      </TooltipProvider>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <DialogHeader>
-              <DialogTitle>
-                {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
-              </DialogTitle>
-              <DialogDescription>
-                {editingDesign ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
-              </DialogDescription>
-            </DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b">
+            <DialogTitle>
+              {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
+            </DialogTitle>
+            <DialogDescription>
+              {editingDesign ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -475,7 +567,46 @@ export function AdminDesignManagement() {
               {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
             </div>
 
-            <DialogFooter className="flex gap-2">
+            <div className="space-y-3">
+              <div>
+                <Label>{tAdmin('flavourAssignmentsTitle')}</Label>
+                <p className="text-sm text-muted-foreground">{tAdmin('flavourAssignmentsDescription')}</p>
+              </div>
+              <div className="rounded-md border">
+                {flavoursLoading ? (
+                  <div className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {tAdmin('flavourAssignmentsLoading')}
+                  </div>
+                ) : flavours.length === 0 ? (
+                  <p className="p-4 text-sm text-muted-foreground">{tAdmin('flavourAssignmentsEmpty')}</p>
+                ) : (
+                  <div className="max-h-64 overflow-y-auto divide-y">
+                    {flavours.map((flavour) => {
+                      const checked = selectedFlavourIds.includes(flavour.id)
+                      return (
+                        <label
+                          key={flavour.id}
+                          className="flex items-start gap-3 p-3 hover:bg-muted/50 cursor-pointer"
+                        >
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(value) => toggleFlavourSelection(flavour.id, value === true)}
+                          />
+                          <div>
+                            <p className="font-medium leading-tight">{flavour.name_de}</p>
+                            <p className="text-xs text-muted-foreground">{flavour.name_uk}</p>
+                          </div>
+                        </label>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+            </div>
+
+            <DialogFooter className="px-6 py-4 border-t bg-background flex gap-2">
               <Button type="button" variant="outline" onClick={closeModal}>
                 <X className="h-4 w-4 mr-1" />
                 {tAdmin('cancel')}

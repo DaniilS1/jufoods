@@ -1,59 +1,47 @@
-import {
-  PieChart,
-  Circle,
-  Cookie,
-  Cake,
-  Candy,
-  Layers,
-  Building2,
-  Sun,
-  Sparkles,
-  Heart,
-  Coffee,
-  PartyPopper,
-} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { CakeSlice, Candy, Cookie, Croissant, Donut, IceCream, PartyPopper, Coffee, Lollipop } from 'lucide-react'
 
-export interface SubcategoryConfig {
+interface SubcategoryConfigEntry {
   id: string
-  icon: LucideIcon
   translationKey: string
+  icon: LucideIcon
 }
 
-export interface CategorySubcategories {
-  [category: string]: SubcategoryConfig[]
+interface SubcategoryRegistry {
+  [category: string]: ReadonlyArray<SubcategoryConfigEntry>
 }
 
-export const subcategoryConfig: CategorySubcategories = {
+const SUBCATEGORY_REGISTRY: SubcategoryRegistry = {
   torten: [
-    { id: 'hochzeit', icon: Heart, translationKey: 'hochzeit' },
-    { id: 'zum-tee', icon: Coffee, translationKey: 'zum-tee' },
-    { id: 'feier', icon: PartyPopper, translationKey: 'feier' },
+    { id: 'hochzeit', translationKey: 'hochzeit', icon: PartyPopper },
+    { id: 'zum-tee', translationKey: 'zum-tee', icon: Coffee },
+    { id: 'feier', translationKey: 'feier', icon: CakeSlice },
   ],
   desserts: [
-    { id: 'tarts', icon: PieChart, translationKey: 'tarts' },
-    { id: 'cinabons', icon: Circle, translationKey: 'cinabons' },
-    { id: 'куличи', icon: Cookie, translationKey: 'kulichi' },
-    { id: 'капкейки', icon: Cake, translationKey: 'kapkeiky' },
-    { id: 'кейпопы', icon: Candy, translationKey: 'cake-pops' },
-    { id: 'муссовый', icon: Layers, translationKey: 'mousse' },
+    { id: 'tarts', translationKey: 'tarts', icon: Donut },
+    { id: 'cinabons', translationKey: 'cinabons', icon: Croissant },
+    { id: 'kulichi', translationKey: 'kulichi', icon: CakeSlice },
+    { id: 'kapkeiky', translationKey: 'kapkeiky', icon: Candy },
+    { id: 'cake-pops', translationKey: 'cake-pops', icon: Lollipop },
+    { id: 'mousse', translationKey: 'mousse', icon: IceCream },
   ],
   cheesecakes: [
-    { id: 'нью-йорк', icon: Building2, translationKey: 'new-york' },
-    { id: 'сан себастьян', icon: Sun, translationKey: 'san-sebastian' },
-    { id: 'чизкейк на палочке', icon: Sparkles, translationKey: 'cheesecake-on-a-stick' },
+    { id: 'new-york', translationKey: 'new-york', icon: CakeSlice },
+    { id: 'san-sebastian', translationKey: 'san-sebastian', icon: PartyPopper },
+    { id: 'cheesecake-on-a-stick', translationKey: 'cheesecake-on-a-stick', icon: Candy },
   ],
   cookies: [
-    { id: 'шоколадні', icon: Cookie, translationKey: 'chocolate' },
-    { id: 'блонді кукіс', icon: Circle, translationKey: 'blondie-cookies' },
+    { id: 'chocolate', translationKey: 'chocolate', icon: Cookie },
+    { id: 'blondie-cookies', translationKey: 'blondie-cookies', icon: Candy },
   ],
 }
 
-export function getSubcategoriesForCategory(category: string): SubcategoryConfig[] {
-  return subcategoryConfig[category] || []
+export function getSubcategoriesForCategory(category: string): ReadonlyArray<SubcategoryConfigEntry> {
+  return SUBCATEGORY_REGISTRY[category] ?? []
 }
 
 export function hasSubcategories(category: string): boolean {
-  return category in subcategoryConfig && subcategoryConfig[category].length > 0
+  return (SUBCATEGORY_REGISTRY[category]?.length ?? 0) > 0
 }
+
 

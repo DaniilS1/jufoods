@@ -80,9 +80,8 @@ export function SearchBar() {
                 category,
                 sub_category,
                 image_url,
-                torten_design_flavours(
-                  is_default,
-                  sort_order,
+                design_flavour (
+                  design_id,
                   torten_flavours(name_uk, name_de, image_url)
                 )
               `
@@ -99,7 +98,7 @@ export function SearchBar() {
 
         const tortenResults: SearchResult[] =
           tortenResponse.data?.map((design) => {
-            const flavourLinks = design.torten_design_flavours || []
+            const flavourLinks = design.design_flavour || []
             const sorted = flavourLinks
               .map((link) => {
                 const flavourData = link.torten_flavours
@@ -116,10 +115,7 @@ export function SearchBar() {
               })
               .filter(Boolean) as Array<{ isDefault: boolean; sortOrder: number; nameUk?: string | null; nameDe?: string | null; imageUrl?: string | null }>
 
-            const defaultFlavour =
-              sorted.find((item) => item.isDefault) ||
-              sorted.sort((a, b) => a.sortOrder - b.sortOrder)[0] ||
-              null
+            const defaultFlavour = sorted.sort((a, b) => (a.isDefault ? -1 : b.isDefault ? 1 : a.sortOrder - b.sortOrder))[0] || null
 
             return {
               id: design.id,
@@ -195,7 +191,7 @@ export function SearchBar() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
-          className="pl-8 pr-8 w-50 h-8 rounded-md text-sm opacity-70 transition-all duration-100"
+          className="pl-8 pr-8 w-50 h-8 rounded-md text-sm opacity-70 transition-all bg-primary/10 duration-100"
         />
         {searchQuery && (
           <Button

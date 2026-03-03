@@ -47,24 +47,26 @@ export default function AdminPage() {
   const t = useTranslations('admin')
 
   return (
-    <div className="container py-8">
-      <div className="mb-8">
+    <div className="container py-8 min-h-0">
+      <div className="mb-8 max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold mb-2">{t('title')}</h1>
         <p className="text-muted-foreground">{t('description')}</p>
       </div>
-      {activeTab === 'products' && <AdminProductManagement />}
-      {activeTab === 'designs' && <AdminDesignManagement />}
-      {activeTab === 'flavours' && <AdminFlavourManagement />}
-      {activeTab === 'customers' && (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>{t('customers.comingSoon')}</p>
-        </div>
-      )}
-      {activeTab === 'orders' && (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>{t('orders.comingSoon')}</p>
-        </div>
-      )}
+      <div className="mx-auto max-w-6xl space-y-6 min-h-0">
+        {activeTab === 'products' && <AdminProductManagement />}
+        {activeTab === 'designs' && <AdminDesignManagement />}
+        {activeTab === 'flavours' && <AdminFlavourManagement />}
+        {activeTab === 'customers' && (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>{t('customers.comingSoon')}</p>
+          </div>
+        )}
+        {activeTab === 'orders' && (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>{t('orders.comingSoon')}</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

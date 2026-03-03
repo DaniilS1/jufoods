@@ -62,56 +62,60 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
     }>
     | [] = []
 
-  if (activeCategory === 'torten') {
-    const { data: designs, error } = await supabase
-      .from('torten_designs')
-      .select('id, slug, name_de, name_uk, description_de, description_uk, sub_category, image_url')
-      .order('created_at', { ascending: false })
+  try {
+    if (activeCategory === 'torten') {
+      const { data: designs, error } = await supabase
+        .from('torten_designs')
+        .select('id, slug, name_de, name_uk, description_de, description_uk, sub_category, image_url')
+        .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('Error fetching torten designs:', error)
+      if (error) {
+        console.warn('Error fetching torten designs:', error.message)
+      } else if (designs) {
+        products =
+          designs.map((design) => ({
+            id: design.id,
+            slug: design.slug,
+            name: locale === 'uk' ? design.name_uk : design.name_de,
+            description: (locale === 'uk' ? design.description_uk : design.description_de) || '',
+            imageUrl: design.image_url || '/placeholder-cake.svg',
+            category: 'torten',
+            subCategory: design.sub_category,
+          })) || []
+
+        if (subcategory) {
+          products = products.filter((product) => product.subCategory === subcategory)
+        }
+      }
+    } else {
+      let productsQuery = supabase
+        .from('products')
+        .select('*')
+        .eq('category', activeCategory)
+
+      if (subcategory) {
+        productsQuery = productsQuery.eq('sub_category', subcategory)
+      }
+
+      const { data: productsData, error } = await productsQuery.order('created_at', { ascending: false })
+
+      if (error) {
+        console.warn('Error fetching products:', error.message)
+      } else if (productsData) {
+        products = productsData.map((product) => ({
+          id: product.id,
+          slug: product.slug,
+          name: locale === 'uk' ? product.name_uk : product.name_de,
+          description: locale === 'uk' ? product.description_uk : product.description_de,
+          imageUrl: product.image_url || '/placeholder-cake.svg',
+          category: product.category,
+          subCategory: product.sub_category,
+        }))
+      }
     }
-
-    products =
-      designs?.map((design) => ({
-        id: design.id,
-        slug: design.slug,
-        name: locale === 'uk' ? design.name_uk : design.name_de,
-        description: (locale === 'uk' ? design.description_uk : design.description_de) || '',
-        imageUrl: design.image_url || '/placeholder-cake.svg',
-        category: 'torten',
-        subCategory: design.sub_category,
-      })) || []
-
-    if (subcategory) {
-      products = products.filter((product) => product.subCategory === subcategory)
-    }
-  } else {
-    let productsQuery = supabase
-      .from('products')
-      .select('*')
-      .eq('category', activeCategory)
-
-    if (subcategory) {
-      productsQuery = productsQuery.eq('sub_category', subcategory)
-    }
-
-    const { data: productsData, error } = await productsQuery.order('created_at', { ascending: false })
-
-    if (error) {
-      console.error('Error fetching products:', error)
-    }
-
-    products =
-      productsData?.map((product) => ({
-        id: product.id,
-        slug: product.slug,
-        name: locale === 'uk' ? product.name_uk : product.name_de,
-        description: locale === 'uk' ? product.description_uk : product.description_de,
-        imageUrl: product.image_url || '/placeholder-cake.svg',
-        category: product.category,
-        subCategory: product.sub_category,
-      })) || []
+  } catch (error) {
+    console.warn('Failed to fetch products from Supabase:', error instanceof Error ? error.message : 'Unknown error')
+    // Continue with empty products array - app will show "no products" message
   }
 
   // Get category name for empty state
@@ -136,7 +140,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
       )}
       <div className="container py-8">
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}

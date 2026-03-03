@@ -18,5 +18,28 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+
+    "@ss-components": {
+      "url": "https://shadcnstudio.com/r/components/{name}.json",
+      "params": {
+        "email": "d.shuryhin@lvit.de",
+        "license_key": "651C46F3-3A14-470D-B9BE-B16A46AC26E8"
+      }
+    },
+    "@ss-themes": {
+      "url": "https://shadcnstudio.com/r/themes/{name}.json",
+      "params": {
+        "email": "d.shuryhin@lvit.de",
+        "license_key": "651C46F3-3A14-470D-B9BE-B16A46AC26E8"
+      }
+    },
+    "@ss-blocks": {
+      "url": "https://shadcnstudio.com/r/blocks/{name}.json",
+      "params": {
+        "email": "d.shuryhin@lvit.de",
+        "license_key": "651C46F3-3A14-470D-B9BE-B16A46AC26E8"
+      }
+    }
+  }
 }

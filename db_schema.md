@@ -10,11 +10,13 @@ CREATE TABLE public.orders (
   customer_address text,
   notes text,
   items jsonb NOT NULL,
+  custom_design_id uuid,
   status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'confirmed'::text, 'completed'::text, 'cancelled'::text])),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT orders_pkey PRIMARY KEY (id),
-  CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+  CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT orders_custom_design_id_fkey FOREIGN KEY (custom_design_id) REFERENCES public.custom_designs(id)
 );
 CREATE TABLE public.products (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -66,4 +68,41 @@ CREATE TABLE public.torten_flavours (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT torten_flavours_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE public.design_flavour (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  design_id uuid NOT NULL REFERENCES public.torten_designs(id) ON DELETE CASCADE,
+  flavour_id uuid NOT NULL REFERENCES public.torten_flavours(id) ON DELETE CASCADE,
+  CONSTRAINT design_flavour_pkey PRIMARY KEY (id),
+  CONSTRAINT design_flavour_design_flavour_key UNIQUE (design_id, flavour_id)
+);
+
+CREATE TABLE public.users (
+  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name text,
+  phone text,
+  avatar_url text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+CREATE TABLE public.settings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  preferred_language text DEFAULT 'de',
+  marketing_opt_in boolean DEFAULT false,
+  notifications_email boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  UNIQUE (user_id)
+);
+
+CREATE TABLE public.custom_designs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  image_url text NOT NULL,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
 );

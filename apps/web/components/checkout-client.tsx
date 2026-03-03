@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
 import { useForm } from 'react-hook-form'
@@ -44,9 +44,17 @@ const orderSchema = z.object({
   // Step 4: Additional Information
   phoneOrSocial: z.string().min(1, 'Phone or social media is required'),
   referralSource: z.string().optional(),
+  customDesignId: z.string().uuid().optional().or(z.literal('')),
 })
 
 type OrderFormData = z.infer<typeof orderSchema>
+
+interface CustomDesignOption {
+  id: string
+  imageUrl: string
+  notes?: string | null
+  createdAt: string
+}
 
 const STEPS = [
   { id: 1, name: 'customerInfo', title: 'Customer Information' },
@@ -60,12 +68,16 @@ export function CheckoutClient() {
   const t = useTranslations('order')
   const tCart = useTranslations('cart')
   const tCommon = useTranslations('common')
+  const tCustomDesign = useTranslations('order.customDesign')
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
   const { items, clearCart } = useCartStore()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [customDesigns, setCustomDesigns] = useState<CustomDesignOption[]>([])
+  const [customDesignsLoading, setCustomDesignsLoading] = useState(true)
+  const [customDesignsError, setCustomDesignsError] = useState<'unauthorized' | 'error' | null>(null)
 
   const {
     register,
@@ -81,6 +93,54 @@ export function CheckoutClient() {
 
   const watchedValues = watch()
   const pickupOrDelivery = watch('pickupOrDelivery')
+  const selectedCustomDesign = watchedValues.customDesignId
+    ? customDesigns.find((design) => design.id === watchedValues.customDesignId)
+    : null
+
+  const handleSelectCustomDesign = (designId: string) => {
+    const current = watchedValues.customDesignId
+    const nextValue = current === designId ? '' : designId
+    setValue('customDesignId', nextValue, { shouldDirty: true })
+  }
+
+  useEffect(() => {
+    let isMounted = true
+    const fetchDesigns = async () => {
+      try {
+        setCustomDesignsLoading(true)
+        const response = await fetch('/api/account/designs', { cache: 'no-store' })
+        if (!isMounted) return
+
+        if (response.status === 401) {
+          setCustomDesigns([])
+          setCustomDesignsError('unauthorized')
+          return
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to load designs')
+        }
+
+        const payload = await response.json()
+        setCustomDesigns(payload.designs ?? [])
+        setCustomDesignsError(null)
+      } catch (error) {
+        if (isMounted) {
+          setCustomDesignsError('error')
+        }
+      } finally {
+        if (isMounted) {
+          setCustomDesignsLoading(false)
+        }
+      }
+    }
+
+    fetchDesigns()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep)
@@ -141,6 +201,7 @@ export function CheckoutClient() {
           deliveryCity: data.deliveryCity,
           deliveryPostalCode: data.deliveryPostalCode,
         },
+        customDesignId: data.customDesignId && data.customDesignId.length > 0 ? data.customDesignId : null,
       }
 
       const response = await fetch('/api/orders', {
@@ -392,6 +453,68 @@ export function CheckoutClient() {
                 <CardTitle>{t('steps.additionalInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <input type="hidden" {...register('customDesignId')} />
+                <div className="space-y-3 rounded-xl border border-dashed border-border/60 p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <Label className="font-semibold">{tCustomDesign('title')}</Label>
+                      <p className="text-sm text-muted-foreground">{tCustomDesign('description')}</p>
+                    </div>
+                    {watchedValues.customDesignId && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setValue('customDesignId', '', { shouldDirty: true })}
+                      >
+                        {tCommon('remove')}
+                      </Button>
+                    )}
+                  </div>
+                  {customDesignsLoading && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {Array.from({ length: 4 }).map((_, index) => (
+                        <div key={index} className="h-24 animate-pulse rounded-xl bg-muted/60" />
+                      ))}
+                    </div>
+                  )}
+                  {!customDesignsLoading && customDesignsError === 'unauthorized' && (
+                    <p className="text-sm text-muted-foreground">{tCustomDesign('loginPrompt')}</p>
+                  )}
+                  {!customDesignsLoading && customDesignsError === 'error' && (
+                    <p className="text-sm text-destructive">{tCustomDesign('error')}</p>
+                  )}
+                  {!customDesignsLoading && !customDesignsError && customDesigns.length === 0 && (
+                    <p className="text-sm text-muted-foreground">{tCustomDesign('empty')}</p>
+                  )}
+                  {!customDesignsLoading && !customDesignsError && customDesigns.length > 0 && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {customDesigns.map((design) => (
+                        <button
+                          key={design.id}
+                          type="button"
+                          onClick={() => handleSelectCustomDesign(design.id)}
+                          className={cn(
+                            'relative overflow-hidden rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                            watchedValues.customDesignId === design.id
+                              ? 'border-primary ring-2 ring-primary/40'
+                              : 'border-border hover:border-primary/60'
+                          )}
+                        >
+                          <div className="relative h-28 w-full">
+                            <Image
+                              src={normalizeSupabaseImageUrl(design.imageUrl)}
+                              alt={design.notes ?? 'Custom design'}
+                              fill
+                              className="object-cover"
+                              sizes="200px"
+                            />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="phoneOrSocial">
                     {t('fields.phoneOrSocial')} <span className="text-destructive">*</span>
@@ -492,6 +615,24 @@ export function CheckoutClient() {
                       </p>
                     </div>
                   </div>
+
+                  {selectedCustomDesign && (
+                    <>
+                      <Separator />
+                      <div>
+                        <h3 className="font-semibold mb-2">{tCustomDesign('selectedLabel')}</h3>
+                        <div className="relative h-40 w-full overflow-hidden rounded-xl border border-border">
+                          <Image
+                            src={normalizeSupabaseImageUrl(selectedCustomDesign.imageUrl)}
+                            alt={selectedCustomDesign.notes ?? 'Custom design'}
+                            fill
+                            className="object-cover"
+                            sizes="400px"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
               </div>
             </CardContent>
           </Card>

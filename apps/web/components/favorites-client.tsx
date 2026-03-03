@@ -31,26 +31,36 @@ export function FavoritesClient() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     setMounted(true)
+    // Debug: Check localStorage
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('jufoods-favorites')
+      console.log('Favorites from localStorage:', stored)
+    }
   }, [])
 
   useEffect(() => {
     if (mounted) {
       loadFavoriteProducts()
     }
-  }, [favoriteIds, mounted])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [favoriteIds, mounted, locale])
 
   async function loadFavoriteProducts() {
     if (favoriteIds.length === 0) {
       setProducts([])
       setLoading(false)
+      setError(null)
       return
     }
 
+    console.log('Loading favorite products for IDs:', favoriteIds)
     setLoading(true)
+    setError(null)
     try {
       const [designsResponse, productsResponse] = await Promise.all([
         supabase
@@ -65,12 +75,7 @@ export function FavoritesClient() {
               description_de,
               category,
               sub_category,
-              image_url,
-              torten_design_flavours(
-                is_default,
-                sort_order,
-                torten_flavours(name_uk, name_de, image_url)
-              )
+              image_url
             `
           )
           .in('id', favoriteIds),
@@ -80,37 +85,49 @@ export function FavoritesClient() {
           .in('id', favoriteIds),
       ])
 
-      if (designsResponse.error) throw designsResponse.error
-      if (productsResponse.error) throw productsResponse.error
+      if (designsResponse.error) {
+        console.error('Error loading torten designs:', designsResponse.error)
+      }
+      if (productsResponse.error) {
+        console.error('Error loading products:', productsResponse.error)
+      }
+
+      const tortenDesignIds = designsResponse.data?.map((d) => d.id) || []
+      let defaultFlavourMap = new Map<string, { nameUk: string | null; nameDe: string | null }>()
+
+      if (tortenDesignIds.length > 0) {
+        const { data: flavourLinks, error: flavourLinkError } = await supabase
+          .from('design_flavour')
+          .select(
+            `
+              design_id,
+              torten_flavours (
+                name_uk,
+                name_de
+              )
+            `
+          )
+          .in('design_id', tortenDesignIds)
+          .order('name_de', { foreignTable: 'torten_flavours', ascending: true })
+
+        if (flavourLinkError) {
+          console.error('Error loading design flavour links:', flavourLinkError)
+        }
+
+        flavourLinks?.forEach((link) => {
+          if (!link.torten_flavours || defaultFlavourMap.has(link.design_id)) {
+            return
+          }
+          defaultFlavourMap.set(link.design_id, {
+            nameUk: link.torten_flavours.name_uk,
+            nameDe: link.torten_flavours.name_de,
+          })
+        })
+      }
 
       const tortenProducts: Product[] =
         designsResponse.data?.map((design) => {
-          const flavourLinks = design.torten_design_flavours || []
-          const sortedFlavours = flavourLinks
-            .map((link) => {
-              const rawFlavour = link.torten_flavours
-              const flavour = Array.isArray(rawFlavour) ? rawFlavour[0] : rawFlavour
-              if (!flavour) return null
-              return {
-                isDefault: Boolean(link.is_default),
-                sortOrder: link.sort_order ?? Number.MAX_SAFE_INTEGER,
-                nameUk: flavour.name_uk,
-                nameDe: flavour.name_de,
-                imageUrl: flavour.image_url,
-              }
-            })
-            .filter(Boolean) as Array<{
-              isDefault: boolean
-              sortOrder: number
-              nameUk?: string | null
-              nameDe?: string | null
-              imageUrl?: string | null
-            }>
-
-          const defaultFlavour =
-            sortedFlavours.find((flavour) => flavour.isDefault) ||
-            sortedFlavours.sort((a, b) => a.sortOrder - b.sortOrder)[0] ||
-            null
+          const defaultFlavour = defaultFlavourMap.get(design.id)
 
           return {
             id: design.id,
@@ -120,7 +137,7 @@ export function FavoritesClient() {
             description_uk: design.description_uk,
             description_de: design.description_de,
             category: 'torten',
-            image_url: defaultFlavour?.imageUrl || design.image_url,
+            image_url: design.image_url,
             sub_category: design.sub_category,
             default_flavour_name: defaultFlavour
               ? locale === 'uk'
@@ -137,9 +154,26 @@ export function FavoritesClient() {
         combinedMap.set(product.id, product)
       }
 
-      setProducts(favoriteIds.map((id) => combinedMap.get(id)).filter(Boolean) as Product[])
+      const loadedProducts = favoriteIds.map((id) => combinedMap.get(id)).filter(Boolean) as Product[]
+      
+      console.log('Loaded products:', {
+        favoriteIds,
+        tortenCount: tortenProducts.length,
+        otherProductsCount: otherProducts.length,
+        loadedCount: loadedProducts.length,
+      })
+      
+      if (loadedProducts.length === 0 && favoriteIds.length > 0) {
+        console.warn('No products found for favorite IDs:', favoriteIds)
+        console.warn('Torten designs found:', designsResponse.data?.length || 0)
+        console.warn('Other products found:', productsResponse.data?.length || 0)
+        setError('Could not load some favorite products')
+      }
+
+      setProducts(loadedProducts)
     } catch (error) {
       console.error('Error loading favorite products:', error)
+      setError('Failed to load favorite products')
       setProducts([])
     } finally {
       setLoading(false)
@@ -154,7 +188,7 @@ export function FavoritesClient() {
     )
   }
 
-  if (favoriteIds.length === 0 || products.length === 0) {
+  if (favoriteIds.length === 0) {
     return (
       <div className="text-center py-16">
         <div className="flex flex-col items-center gap-4">
@@ -164,6 +198,26 @@ export function FavoritesClient() {
           <div className="space-y-2">
             <h2 className="text-2xl font-bold">{t('emptyTitle')}</h2>
             <p className="text-muted-foreground max-w-md">{t('emptyDescription')}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (products.length === 0 && !loading) {
+    return (
+      <div className="text-center py-16">
+        <div className="flex flex-col items-center gap-4">
+          <div className="rounded-full bg-primary/10 p-6">
+            <Heart className="h-12 w-12 text-primary opacity-50" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold">{t('emptyTitle')}</h2>
+            {error ? (
+              <p className="text-destructive max-w-md">{error}</p>
+            ) : (
+              <p className="text-muted-foreground max-w-md">{t('emptyDescription')}</p>
+            )}
           </div>
         </div>
       </div>

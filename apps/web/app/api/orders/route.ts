@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { items, customer, orderDetails, delivery } = body
+    const { items, customer, orderDetails, delivery, customDesignId } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Items are required' }, { status: 400 })
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         }),
         items: items,
         status: 'pending',
+        custom_design_id: customDesignId || null,
       })
       .select()
       .single()

@@ -24,6 +24,11 @@ interface TortenFlavourRecord {
   image_url: string | null
 }
 
+interface DesignFlavourLink {
+  flavour_id: string
+  torten_flavours: TortenFlavourRecord | null
+}
+
 interface TortenDesignRecord {
   id: string
   slug: string
@@ -149,32 +154,39 @@ export default async function ProductDetailPage({
     subCategory = tortenDesign.sub_category
     imageUrl = tortenDesign.image_url
 
-    const { data: flavourRecords, error: flavourError } = await supabase
-      .from('torten_flavours')
+    const { data: flavourLinks, error: flavourError } = await supabase
+      .from('design_flavour')
       .select(
         `
-          id,
-          slug,
-          name_de,
-          name_uk,
-          description_de,
-          description_uk,
-          ingredients_de,
-          ingredients_uk,
-          allergens_de,
-          allergens_uk,
-          nutrition,
-          image_url
+          flavour_id,
+          torten_flavours (
+            id,
+            slug,
+            name_de,
+            name_uk,
+            description_de,
+            description_uk,
+            ingredients_de,
+            ingredients_uk,
+            allergens_de,
+            allergens_uk,
+            nutrition,
+            image_url
+          )
         `
       )
-      .order('name_de', { ascending: true })
+      .eq('design_id', tortenDesign.id)
+      .order('name_de', { foreignTable: 'torten_flavours', ascending: true })
 
     if (flavourError) {
       console.error('Error fetching torten flavours:', flavourError)
     }
 
-    if (flavourRecords && flavourRecords.length > 0) {
-      designFlavours = flavourRecords.map((flavour, index) => {
+    if (flavourLinks && flavourLinks.length > 0) {
+      designFlavours = flavourLinks
+        .map((link) => link.torten_flavours)
+        .filter((flavour): flavour is TortenFlavourRecord => Boolean(flavour))
+        .map((flavour, index) => {
         const displayName = locale === 'uk' ? flavour.name_uk : flavour.name_de
         const flavourDescription = (locale === 'uk' ? flavour.description_uk : flavour.description_de) || ''
         const ingredients =

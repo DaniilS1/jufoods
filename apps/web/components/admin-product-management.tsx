@@ -28,6 +28,7 @@ import { Plus, Trash2, Upload, Loader2, Edit, X, Check, AlertCircle, Eye } from 
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { getSubcategoriesForCategory, hasSubcategories } from '@/lib/subcategory-config'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -407,15 +408,16 @@ export function AdminProductManagement() {
       )}
 
       {/* Products Table */}
-      <div className="border rounded-lg overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b bg-transparent">
+      <TooltipProvider>
+        <div className="border rounded-lg overflow-hidden bg-white">
+          <div className="flex items-center justify-between p-4 border-b bg-transparent">
           <h2 className="text-lg font-semibold">{tAdmin('title')}</h2>
           <Button onClick={openCreateModal}>
             <Plus className="h-4 w-4 mr-2" />
             {tAdmin('newProduct')}
           </Button>
         </div>
-        <div className="overflow-x-auto">
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b bg-transparent">
@@ -455,35 +457,50 @@ export function AdminProductManagement() {
                   </td>
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleViewProduct(product)}
-                        title={tAdmin('view')}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => startEdit(product)}
-                        title={tAdmin('edit')}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(product.id)}
-                        disabled={deletingId === product.id}
-                        title={tAdmin('delete')}
-                      >
-                        {deletingId === product.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        )}
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewProduct(product)}
+                            aria-label={tAdmin('view')}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{tAdmin('view')}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => startEdit(product)}
+                            aria-label={tAdmin('edit')}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{tAdmin('edit')}</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(product.id)}
+                            disabled={deletingId === product.id}
+                            aria-label={tAdmin('delete')}
+                          >
+                            {deletingId === product.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{tAdmin('delete')}</TooltipContent>
+                      </Tooltip>
                     </div>
                   </td>
                 </tr>
@@ -495,8 +512,9 @@ export function AdminProductManagement() {
               {tAdmin('noProducts')}
             </div>
           )}
+          </div>
         </div>
-      </div>
+      </TooltipProvider>
 
       {/* Product Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

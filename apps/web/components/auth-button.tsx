@@ -21,14 +21,41 @@ export function AuthButton() {
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      setLoading(false)
+    let mounted = true
+
+    supabase.auth
+      .getUser()
+      .then(({ data: { user }, error }) => {
+        if (mounted) {
+          if (error) {
+            console.warn('Failed to get user:', error.message)
+            setUser(null)
+          } else {
+            setUser(user)
+          }
+          setLoading(false)
+        }
+      })
+      .catch((error) => {
+        if (mounted) {
+          console.warn('Auth error:', error.message)
+          setUser(null)
+          setLoading(false)
+        }
+      })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setUser(session?.user ?? null)
+      }
     })
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [supabase])
 
   const handleSignOut = async () => {

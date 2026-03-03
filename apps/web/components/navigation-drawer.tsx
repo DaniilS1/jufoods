@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useUIStore } from '@/stores/ui-store'
 import { createClient } from '@/lib/supabase/client'
-import { SearchBar } from '@/components/search-bar'
+import { useTheme } from '@/components/theme-provider'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +29,8 @@ export function NavigationDrawer() {
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
-  const { isNavDrawerOpen, closeNavDrawer } = useUIStore()
+  const { isNavDrawerOpen, openNavDrawer, closeNavDrawer } = useUIStore()
+  const { theme, setTheme } = useTheme()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -68,7 +69,7 @@ export function NavigationDrawer() {
   const localePrefix = pathname?.split('/')[1] || locale
 
   return (
-    <Drawer open={isNavDrawerOpen} onOpenChange={(open) => !open && closeNavDrawer()} direction="left">
+    <Drawer open={isNavDrawerOpen} onOpenChange={(open) => (open ? openNavDrawer() : closeNavDrawer())} direction="left">
       <DrawerContent
         className="fixed inset-y-0 left-0 right-auto top-0 bottom-0 z-50 h-full w-80 max-w-[85vw] flex flex-col rounded-none border-r bg-background mt-0 [&>div:first-child]:hidden"
       >
@@ -118,10 +119,48 @@ export function NavigationDrawer() {
             </ToggleGroup>
           </div>
 
+<<<<<<< HEAD
 
           {/* Mobile Search */}
           <div className="w-full">
             <SearchBar />
+=======
+          {/* Theme Switcher */}
+          <div className="space-y-3">
+            <ToggleGroup
+              type="single"
+              value={theme}
+              onValueChange={(value) => value && setTheme(value as 'jufoods' | 'neutral')}
+              className="w-full grid grid-cols-2 gap-2 bg-muted/50 p-1 rounded-lg"
+            >
+              <ToggleGroupItem
+                value="jufoods"
+                aria-label="Classic"
+                className={cn(
+                  'flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2.5',
+                  theme === 'jufoods' && 'bg-background shadow-sm'
+                )}
+              >
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-sm font-medium">Classic</span>
+                  <span className="text-xs text-muted-foreground">Karamell</span>
+                </div>
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="neutral"
+                aria-label="Atelier"
+                className={cn(
+                  'flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2.5',
+                  theme === 'neutral' && 'bg-background shadow-sm'
+                )}
+              >
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-sm font-medium">Atelier</span>
+                  <span className="text-xs text-muted-foreground">Nude</span>
+                </div>
+              </ToggleGroupItem>
+            </ToggleGroup>
+>>>>>>> a60f463 (fix: app shell, Next.js upgrade, pnpm config)
           </div>
 
           {/* Navigation Links */}

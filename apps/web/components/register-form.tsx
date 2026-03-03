@@ -15,6 +15,7 @@ import { createClient } from '@/lib/supabase/client'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 const createRegisterSchema = (t: any) => z.object({
   email: z.string().email(t('invalidEmail') || 'Invalid email address'),
@@ -37,6 +38,7 @@ export function RegisterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false)
   
   const localePrefix = pathname?.split('/')[1] || locale
   
@@ -56,25 +58,37 @@ export function RegisterForm() {
     setSuccess(false)
 
     try {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/${localePrefix}`,
+        },
       })
 
       if (signUpError) {
-        setError(signUpError.message)
+        setError(signUpError.message || t('registerError') || 'Registration failed. Please try again.')
+        setIsSubmitting(false)
         return
       }
 
-      setSuccess(true)
-      // Redirect to home page after successful registration
-      setTimeout(() => {
-        router.push(`/${localePrefix}`)
-        router.refresh()
-      }, 2000)
+      // Check if email confirmation is required
+      if (signUpData.user && !signUpData.session) {
+        setSuccess(true)
+        setShowVerifyDialog(true)
+        setIsSubmitting(false)
+      } else if (signUpData.session) {
+        // User is immediately logged in (if email confirmation is disabled)
+        setSuccess(true)
+        setTimeout(() => {
+          router.push(`/${localePrefix}`)
+          router.refresh()
+        }, 1500)
+        setIsSubmitting(false)
+      }
     } catch (err) {
-      setError(t('registerError'))
-    } finally {
+      const errorMessage = err instanceof Error ? err.message : t('registerError') || 'An unexpected error occurred'
+      setError(errorMessage)
       setIsSubmitting(false)
     }
   }
@@ -99,7 +113,9 @@ export function RegisterForm() {
           {success && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 text-sm">
               <CheckCircle2 className="h-4 w-4" />
-              <span>{t('registerSuccess')}</span>
+              <span>
+                {t('registerSuccess') || 'Registration successful! Please check your email to confirm your account.'}
+              </span>
             </div>
           )}
 
@@ -157,6 +173,22 @@ export function RegisterForm() {
           </div>
         </form>
       </CardContent>
+      <Dialog open={showVerifyDialog} onOpenChange={setShowVerifyDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('verifyEmailTitle') || 'Bitte bestätige deine E-Mail'}</DialogTitle>
+            <DialogDescription>
+              {t('verifyEmailDescription') ||
+                'Wir haben dir einen Bestätigungslink gesendet. Öffne deine Mailbox und klicke auf den Link, um dein Konto zu aktivieren.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setShowVerifyDialog(false)}>
+              {t('verifyEmailCta') || 'Alles klar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

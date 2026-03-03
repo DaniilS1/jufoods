@@ -1,77 +1,38 @@
-import { Suspense } from 'react'
-import dynamic from 'next/dynamic'
+import { ReactNode } from 'react'
+import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-import { notFound } from 'next/navigation'
-import { locales } from '@/i18n'
+import { ThemeProvider } from '@/components/theme-provider'
+import { AppShell } from '@/components/app-shell'
+import { locales, type Locale } from '@/i18n'
 
-const Header = dynamic(
-  () => import('@/components/header').then((mod) => ({ default: mod.Header })),
-  {
-    ssr: false,
-    loading: () => null,
+interface LocaleLayoutProps {
+  children: ReactNode
+  params: {
+    locale: Locale
   }
-)
-
-const ShoppingCart = dynamic(
-  () => import('@/components/shopping-cart').then((mod) => ({ default: mod.ShoppingCart })),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-)
-
-const NavigationDrawer = dynamic(
-  () => import('@/components/navigation-drawer').then((mod) => ({ default: mod.NavigationDrawer })),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-)
-
-const Footer = dynamic(
-  () => import('@/components/footer').then((mod) => ({ default: mod.Footer })),
-  {
-    ssr: false,
-    loading: () => null,
-  }
-)
+}
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
 
-interface LocaleLayoutProps {
-  children: React.ReactNode
-  params: { locale: string }
-}
-
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const { locale } = params
-  if (!locales.includes(locale as any)) {
+
+  if (!locales.includes(locale)) {
     notFound()
   }
 
-  const messages = await getMessages()
+  const messages = await getMessages({ locale })
 
   return (
-    <NextIntlClientProvider messages={messages}>
-      <div className="flex min-h-screen flex-col bg-background">
-        <Suspense fallback={null}>
-          <Header />
-        </Suspense>
-        <main className="flex-1">{children}</main>
-        <Suspense fallback={null}>
-          <Footer />
-        </Suspense>
-        <Suspense fallback={null}>
-          <ShoppingCart />
-        </Suspense>
-        <Suspense fallback={null}>
-          <NavigationDrawer />
-        </Suspense>
-      </div>
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <ThemeProvider>
+        <AppShell>{children}</AppShell>
+      </ThemeProvider>
     </NextIntlClientProvider>
   )
 }
+
 

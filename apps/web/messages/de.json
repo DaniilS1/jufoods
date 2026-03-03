@@ -117,6 +117,14 @@
         "search": "Internetsuche",
         "other": "Andere"
       }
+    },
+    "customDesign": {
+      "title": "Eigenes Design auswählen",
+      "description": "Nutze eines deiner hochgeladenen Designs oder lade neue im Konto hoch.",
+      "empty": "Noch keine Designs verfügbar.",
+      "loginPrompt": "Bitte melden Sie sich an, um Ihre Designs zu verwenden.",
+      "error": "Designs konnten nicht geladen werden.",
+      "selectedLabel": "Ausgewähltes Design"
     }
   },
   "auth": {
@@ -136,7 +144,10 @@
     "registerDescription": "Erstellen Sie ein neues Konto",
     "invalidEmail": "Ungültige E-Mail-Adresse",
     "passwordMinLength": "Passwort muss mindestens 6 Zeichen lang sein",
-    "passwordsDoNotMatch": "Passwörter stimmen nicht überein"
+    "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+    "verifyEmailTitle": "E-Mail bestätigen",
+    "verifyEmailDescription": "Wir haben dir einen Bestätigungslink gesendet. Öffne deine Mailbox und klicke auf den Link, um dein Konto zu aktivieren.",
+    "verifyEmailCta": "Alles klar"
   },
   "about": {
     "title": "Über uns",
@@ -186,6 +197,52 @@
     "emptyDescription": "Sie haben noch keine Favoriten hinzugefügt. Durchsuchen Sie unseren Katalog und fügen Sie Ihre Lieblingsprodukte hinzu!",
     "clearAll": "Alle Favoriten entfernen",
     "count": "{count} Favorit{count, plural, =1 {} other {en}}"
+  },
+  "account": {
+    "title": "Mein Konto",
+    "subtitle": "Verwalten Sie Ihre persönlichen Daten, Sicherheit und Bestellungen.",
+    "profileHeading": "Profil & Einstellungen",
+    "profileDescription": "Aktualisieren Sie Ihre Kontaktinformationen und bevorzugte Sprache.",
+    "nameLabel": "Vollständiger Name",
+    "phoneLabel": "Telefonnummer",
+    "languageLabel": "Bevorzugte Sprache",
+    "marketingLabel": "Ich möchte Infos zu neuen Produkten und Aktionen erhalten.",
+    "notificationsLabel": "E-Mail-Benachrichtigungen zu Bestellungen erhalten.",
+    "saveProfile": "Profil speichern",
+    "profileSuccess": "Profil erfolgreich aktualisiert.",
+    "profileError": "Profil konnte nicht aktualisiert werden.",
+    "passwordHeading": "Passwort aktualisieren",
+    "passwordDescription": "Vergeben Sie ein neues sicheres Passwort für Ihr Konto.",
+    "newPassword": "Neues Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "passwordSave": "Passwort speichern",
+    "passwordSuccess": "Passwort erfolgreich geändert.",
+    "passwordError": "Passwort konnte nicht geändert werden.",
+    "ordersHeading": "Letzte Bestellungen",
+    "ordersDescription": "Überblick über Ihre kürzlich aufgegebenen Bestellungen.",
+    "ordersEmpty": "Noch keine Bestellungen vorhanden.",
+    "ordersError": "Bestellungen konnten nicht geladen werden.",
+    "designsHeading": "Eigene Designs",
+    "designsDescription": "Laden Sie individuelle Designs hoch und wählen Sie sie später bei Bestellungen aus.",
+    "uploadButton": "Design hochladen",
+    "modalTitle": "Design hochladen",
+    "modalDescription": "Füge ein Bild hinzu, damit wir dein individuelles Design nachempfinden können.",
+    "fileLabel": "Bilddatei",
+    "notesLabel": "Notizen (optional)",
+    "submitDesign": "Design speichern",
+    "designSuccess": "Design gespeichert.",
+    "designError": "Design konnte nicht gespeichert werden.",
+    "designsEmpty": "Noch keine Designs hochgeladen.",
+    "uploading": "Wird hochgeladen...",
+    "ordersCta": "Zum Shop",
+    "retry": "Erneut versuchen",
+    "orderStatus": {
+      "pending": "Eingegangen",
+      "confirmed": "Bestätigt",
+      "completed": "Abgeschlossen",
+      "cancelled": "Storniert"
+    },
+    "orderItemCount": "{count, plural, one {# Artikel} other {# Artikel}}"
   },
   "admin": {
     "title": "Admin Panel",
@@ -245,7 +302,11 @@
       "deleteSuccess": "Design erfolgreich gelöscht!",
       "actions": "Aktionen",
       "formDescriptionCreate": "Lege ein neues Tortendesign mit Bild und Details an.",
-      "formDescriptionEdit": "Passe die Angaben des Tortendesigns an. Änderungen werden direkt veröffentlicht."
+      "formDescriptionEdit": "Passe die Angaben des Tortendesigns an. Änderungen werden direkt veröffentlicht.",
+      "flavourAssignmentsTitle": "Geschmackszuordnung",
+      "flavourAssignmentsDescription": "Wähle aus, welche Geschmacksrichtungen für dieses Design verfügbar sind.",
+      "flavourAssignmentsEmpty": "Noch keine Geschmacksrichtungen vorhanden. Bitte lege zuerst welche an.",
+      "flavourAssignmentsLoading": "Lade verfügbare Geschmacksrichtungen..."
     },
     "flavours": {
       "title": "Geschmacksrichtungen",

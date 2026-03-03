@@ -32,9 +32,9 @@ export function FavoriteProductCard({
 }: FavoriteProductCardProps) {
   const t = useTranslations('product')
   const [mounted, setMounted] = useState(false)
-  const isFavorite = useFavoritesStore((state) => state.isFavorite)
+  const favoriteIds = useFavoritesStore((state) => state.favoriteIds)
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
-  const favorite = mounted ? isFavorite(id) : false
+  const favorite = mounted ? favoriteIds.includes(id) : false
 
   useEffect(() => {
     setMounted(true)
@@ -70,20 +70,20 @@ export function FavoriteProductCard({
           </Button>
         )}
       </div>
-      <CardContent className="p-5">
-        <div className="flex items-start gap-2">
+      <CardContent className="p-6">
+        <div className="flex flex-col gap-3">
           <div className="flex-1">
             <Link href={`/products/${slug}`}>
-              <h3 className="font-semibold text-lg mb-2 hover:text-primary transition-colors text-foreground">
+              <h3 className="font-bold text-xl mb-3 hover:text-primary transition-colors text-foreground group-hover:underline">
                 {name}
               </h3>
             </Link>
             {category === 'torten' && defaultFlavourName && (
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary mb-2">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary mb-3">
                 {t('defaultFlavour', { flavour: defaultFlavourName })}
               </span>
             )}
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{description}</p>
+            <p className="text-base text-foreground/70 line-clamp-3 leading-relaxed">{description}</p>
           </div>
         </div>
       </CardContent>
