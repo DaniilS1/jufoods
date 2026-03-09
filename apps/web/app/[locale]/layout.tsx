@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 import { AppShell } from '@/components/app-shell'
 import { locales, type Locale } from '@/i18n'
 
@@ -30,6 +31,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     <NextIntlClientProvider locale={locale} messages={messages}>
       <ThemeProvider>
         <AppShell>{children}</AppShell>
+        <Toaster />
       </ThemeProvider>
     </NextIntlClientProvider>
   )

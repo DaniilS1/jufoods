@@ -10,6 +10,9 @@ export interface CartItem {
   designName: string
   designImageUrl?: string
   quantity: number
+  personCount?: number
+  deliveryDate?: string
+  remarks?: string
 }
 
 export interface CartStore {

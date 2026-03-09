@@ -78,15 +78,7 @@ export function ShoppingCart() {
                 </DialogDescription>
               )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={closeCart}
-              className="h-8 w-8 rounded-full"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </Button>
+          
           </div>
         </DialogHeader>
 
