@@ -91,7 +91,7 @@ export function ProductImageSlider({
                 )}
 
                 {/* Image Container */}
-                <div className="relative w-full h-full">
+                <div className="relative w-full  mx-auto h-full">
                     {allImages.map((imageUrl, index) => {
                         const normalizedUrl = normalizeSupabaseImageUrl(imageUrl)
                         const isVisible = index === currentIndex

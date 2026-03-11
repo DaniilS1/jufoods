@@ -1,17 +1,13 @@
 "use client"
 
-import { useTheme } from "@/components/theme-provider"
 import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme } = useTheme()
-  const sonnerTheme = (theme === "neutral" || theme === "jufoods" ? "light" : theme) as ToasterProps["theme"]
-
   return (
     <Sonner
-      theme={sonnerTheme}
+      theme="light"
       className="toaster group"
       toastOptions={{
         classNames: {

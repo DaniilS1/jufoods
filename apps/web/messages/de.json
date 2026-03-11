@@ -41,7 +41,7 @@
   },
   "product": {
     "addToCart": "In den Warenkorb",
-    "selectFlavour": "Geschmack auswählen",
+    "flavour": "Geschmack",
     "noFlavourSelected": "Bitte wähle einen Geschmack aus",
     "flavourDetails": "Geschmacksprofil",
     "nutritionPer100g": "Nährwerte (pro 100 g)",
@@ -53,7 +53,11 @@
     "unfavorite": "Aus Favoriten entfernen",
     "favoriteButton": "Favorit",
     "unfavoriteButton": "Entfernen",
-    "similarProducts": "Ähnliche Produkte"
+    "similarProducts": "Ähnliche Produkte",
+    "deliveryDate": "Lieferdatum",
+    "personCount": "Anzahl Personen",
+    "personCountPlaceholder": "z. B. 10…",
+    "selectDeliveryDate": "Datum wählen"
   },
   "cart": {
     "title": "Warenkorb",

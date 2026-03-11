@@ -246,7 +246,7 @@ export function CheckoutClient() {
               <div className="flex flex-col items-center flex-1">
                 <div
                   className={cn(
-                    'flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors',
+                    'flex items-center justify-center size-8 sm:size-10 rounded-full border-2 transition-colors shrink-0',
                     currentStep > step.id
                       ? 'bg-primary border-primary text-primary-foreground'
                       : currentStep === step.id
@@ -690,7 +690,7 @@ export function CheckoutClient() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm leading-tight">{item.productName}</p>
+                      <p className="font-semibold text-sm leading-tight truncate">{item.productName}</p>
                       {item.designName && (
                         <div className="mt-1.5 flex items-center gap-2">
                           {item.designImageUrl && (

@@ -51,7 +51,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
     <>
       <div className="border-t border-primary/10 bg-white/50">
         <div className="container">
-          <nav className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4">
+          <nav className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4 overscroll-contain touch-manipulation">
             <button
               onClick={() => handleSubcategoryChange(null)}
               className={cn(
@@ -88,7 +88,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
             {category === 'torten' && (
               <button
                 onClick={() => setModalOpen(true)}
-                className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm touch-manipulation"
               >
                 <Plus className="h-4 w-4" />
                 <span>{tModal('orderButton')}</span>

@@ -81,7 +81,7 @@ export function AuthButton() {
             <Link href="/account">{t('account')}</Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/orders">{t('myOrders')}</Link>
+            <Link href="/account">{t('myOrders')}</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut}>{t('logout')}</DropdownMenuItem>

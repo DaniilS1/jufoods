@@ -30,7 +30,7 @@ export function AdminTabs() {
   return (
     <div className="border-t border-primary/10 bg-transparent">
       <div className="container">
-        <nav className="flex gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4">
+        <nav className="flex gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4 overscroll-contain touch-manipulation">
           {adminTabs.map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id

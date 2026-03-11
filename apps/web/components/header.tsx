@@ -12,7 +12,6 @@ import { useUIStore } from '@/stores/ui-store'
 import { cn } from '@/lib/utils'
 import { SearchBar } from '@/components/search-bar'
 import { AdminTabs } from '@/components/admin-tabs'
-import { ThemeSelect } from '@/components/theme-select'
 import { Button } from '@/components/ui/button'
 
 const categories = [
@@ -146,7 +145,7 @@ export function Header() {
       ) : isCheckoutPage ? null : (
         <div className="border-t border-primary/10 bg-transparent">
           <div className="container">
-            <nav className="flex gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4">
+            <nav className="flex gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4 overscroll-contain touch-manipulation">
               {categories.map((category) => {
                 const Icon = category.icon
                 const isActiveCategory = activeCategory === category.id

@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { ChevronRight } from 'lucide-react'
 import { ProductImageSlider } from './product-image-slider'
 import { ProductDetailClient } from './product-detail-client'
 import type { FlavorOption } from '@/types/product'
@@ -40,10 +43,32 @@ export function ProductDetailWrapper({ product, locale, categoryName, children }
       ? product.flavours.find((flavor) => flavor.id === selectedFlavorId) ?? product.flavours[0] ?? null
       : null
 
+  const tNav = useTranslations('nav')
+
   return (
-    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-4 py-2 lg:grid-cols-2 lg:items-start lg:gap-12 lg:px-6">
+    <div className="mx-auto w-full max-w-7xl px-4 py-2">
+      {/* Breadcrumbs - above image and details */}
+      <nav
+        className="mb-6 flex items-center gap-2 text-sm text-muted-foreground"
+        aria-label="Breadcrumb"
+      >
+        <Link href={`/${locale}`} className="hover:text-primary transition-colors">
+          {tNav('catalog')}
+        </Link>
+        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+        <Link
+          href={`/${locale}?category=${product.category}`}
+          className="hover:text-primary transition-colors"
+        >
+          {categoryName}
+        </Link>
+        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+        <span className="text-foreground truncate min-w-0">{product.name}</span>
+      </nav>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
       {/* Product Images */}
-      <div className="w-full">
+      <div className="w-full max-w-md lg:max-w-lg">
         <ProductImageSlider
           productImageUrl={product.imageUrl}
           productName={product.name}
@@ -76,6 +101,7 @@ export function ProductDetailWrapper({ product, locale, categoryName, children }
       {typeof children === 'function' ? (
         <div className="lg:col-span-2 mt-8">{children(selectedFlavor)}</div>
       ) : null}
+      </div>
     </div>
   )
 }

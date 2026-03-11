@@ -1,14 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ShoppingCart, Calendar as CalendarIcon, Users, UtensilsCrossed } from 'lucide-react'
+import { format } from 'date-fns'
+import { de, uk } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
-import { ShoppingCart } from 'lucide-react'
 import { FlavourSelector } from '@/components/flavour-selector'
+import { cn } from '@/lib/utils'
 import type { FlavorOption } from '@/types/product'
 
 interface ProductDetailClientProps {
@@ -32,6 +39,18 @@ interface ProductDetailClientProps {
   showProductHeader?: boolean
 }
 
+function parseLocalDate(iso: string): Date {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
+
+function toLocalDateString(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 export function ProductDetailClient({
   product,
   locale,
@@ -44,12 +63,13 @@ export function ProductDetailClient({
   showProductHeader = true,
 }: ProductDetailClientProps) {
   const t = useTranslations('product')
-  const tNav = useTranslations('nav')
   const { addItem } = useCartStore()
   const { openCart } = useUIStore()
   const [internalSelectedFlavourId, setInternalSelectedFlavourId] = useState<string>(
     product.isTorten ? product.flavours[0]?.id || '' : ''
   )
+  const [deliveryDate, setDeliveryDate] = useState<string>('')
+  const [personCount, setPersonCount] = useState<string>('')
 
   useEffect(() => {
     if (product.isTorten) {
@@ -62,21 +82,24 @@ export function ProductDetailClient({
   const selectedFlavourId = externalSelectedFlavourId ?? internalSelectedFlavourId
   const setSelectedFlavourId = externalOnFlavourChange ?? setInternalSelectedFlavourId
 
-  const handleAddToCart = () => {
+  const dateFnsLocale = locale === 'uk' ? uk : de
+  const minDate = new Date(new Date().setHours(0, 0, 0, 0))
+
+  const handleAddToCart = useCallback(() => {
     if (product.isTorten) {
       if (!selectedFlavourId) {
-        alert(t('noFlavourSelected'))
         return
       }
 
       const flavour =
         selectedFlavour ??
-        product.flavours.find((flavour) => flavour.id === selectedFlavourId) ??
+        product.flavours.find((f) => f.id === selectedFlavourId) ??
         null
-      if (!flavour) {
-        alert(t('noFlavourSelected'))
-        return
-      }
+      if (!flavour) return
+
+      const parsedCount = parseInt(personCount, 10)
+      const validCount = !Number.isNaN(parsedCount) && parsedCount >= 1 ? parsedCount : undefined
+      if (!deliveryDate || !validCount) return
 
       addItem({
         productId: product.id,
@@ -86,6 +109,8 @@ export function ProductDetailClient({
         designId: flavour.id,
         designName: flavour.displayName,
         designImageUrl: flavour.imageUrl,
+        personCount: validCount,
+        deliveryDate,
       })
     } else {
       addItem({
@@ -98,107 +123,208 @@ export function ProductDetailClient({
         designImageUrl: '',
       })
     }
-
     openCart()
-  }
+  }, [
+    product,
+    selectedFlavourId,
+    selectedFlavour,
+    deliveryDate,
+    personCount,
+    addItem,
+    openCart,
+  ])
 
   const shouldShowFlavourSelector = showFlavourSelector && product.isTorten && product.flavours.length > 0
   const flavourDetails =
     selectedFlavour ??
-    (selectedFlavourId ? product.flavours.find((flavour) => flavour.id === selectedFlavourId) : null)
+    (selectedFlavourId ? product.flavours.find((f) => f.id === selectedFlavourId) : null)
 
-  const actionButtons = (
-    <div className="flex flex-wrap items-center gap-3">
-      <Button
-        onClick={handleAddToCart}
-        className="w-full rounded-full px-8 py-2 text-base font-semibold shadow-none transition-shadow"
-        size="lg"
-      >
-        <ShoppingCart className="h-5 w-5 mr-2" />
-        {t('addToCart')}
-      </Button>
-    </div>
-  )
+  const parsedCount = parseInt(personCount, 10)
+  const isValidCount = !Number.isNaN(parsedCount) && parsedCount >= 1
+  const canAddTorte = !!selectedFlavourId && !!deliveryDate && isValidCount
+  const canAddNonTorte = !product.isTorten
+  const canAddToCart = product.isTorten ? canAddTorte : canAddNonTorte
 
   return (
-    <div className="sticky top-8 flex flex-col gap-6">
-      {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-sm text-muted-foreground -mb-2">
-        <Link href={`/${locale}`} className="hover:text-primary transition-colors">
-          {tNav('catalog')}
-        </Link>
-        <ChevronRight className="h-4 w-4" />
-        <Link href={`/${locale}?category=${product.category}`} className="hover:text-primary transition-colors">
-          {categoryName}
-        </Link>
-        <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground">{product.name}</span>
-      </nav>
-
+    <div className="flex flex-col gap-8 lg:sticky lg:top-8">
       {/* Product Header */}
       {showProductHeader && (
-        <div className="space-y-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground md:text-4xl lg:text-5xl tracking-tight">
-              {product.name}
-            </h1>
-          </div>
+        <section className="space-y-4" aria-labelledby="product-title">
+          <h1
+            id="product-title"
+            className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance"
+          >
+            {product.name}
+          </h1>
           {product.description && (
-            <p className="text-base text-muted-foreground leading-relaxed md:text-lg">
+            <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
               {product.description}
             </p>
           )}
-        </div>
+        </section>
       )}
 
-      {/* Flavour Selector */}
+      {/* Flavour Selector + Details */}
       {shouldShowFlavourSelector && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">{t('selectFlavour')}</h2>
+        <section className="space-y-4" aria-labelledby="flavour-heading">
+
+          {showFlavourDetails && flavourDetails && (
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
+                  <UtensilsCrossed className="size-3.5 shrink-0" aria-hidden />
+                  {flavourDetails.displayName}
+                </Badge>
+              
+                {isValidCount && (
+                  <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
+                    <Users className="size-3.5 shrink-0" aria-hidden />
+                    {personCount}
+                  </Badge>
+                )}
+                {deliveryDate && (
+                  <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
+                    <CalendarIcon className="size-3.5 shrink-0" aria-hidden />
+                    {format(parseLocalDate(deliveryDate), 'PPP', { locale: dateFnsLocale })}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
           <FlavourSelector
             flavours={product.flavours}
             selectedFlavourId={selectedFlavourId}
             onFlavourChange={setSelectedFlavourId}
           />
-        </div>
+          {flavourDetails?.description && (
+            <p className="text-base leading-relaxed text-muted-foreground">
+              {flavourDetails.description}
+            </p>
+          )}
+        </section>
       )}
 
-      {/* Flavour Details or Action Buttons */}
-      {showFlavourDetails && flavourDetails ? (
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <h3 className="text-2xl font-semibold text-foreground md:text-3xl">
-              {flavourDetails.displayName}
-            </h3>
-            {flavourDetails.description && (
-              <p className="text-base text-muted-foreground leading-relaxed">
-                {flavourDetails.description}
-              </p>
-            )}
-          </div>
+      {/* Order Options (Torten only): Delivery Date & Person Count */}
+      {product.isTorten && (
+        <section
+          className="space-y-4 rounded-xl border-none border-border/60 p-0"
+          aria-labelledby="order-options-heading"
+        >
 
-          {/* Action Buttons */}
-          <div className="pt-2">{actionButtons}</div>
-
-          {/* Product Information */}
-          <div className="space-y-6 pt-4 border-t border-border/60">
-            <div className="space-y-3">
-              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('ingredients')}
-              </h4>
-              <p className="text-sm text-foreground/90 leading-relaxed">
-                {flavourDetails.ingredients.join(', ')}
-              </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="person-count" className="flex items-center gap-1.5 text-sm font-medium">
+                <Users className="h-4 w-4 shrink-0 text-primary/70" aria-hidden />
+                {t('personCount')} <span className="text-destructive" aria-hidden>*</span>
+              </Label>
+              <Input
+                id="person-count"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={500}
+                value={personCount}
+                onChange={(e) => setPersonCount(e.target.value)}
+                placeholder={t('personCountPlaceholder')}
+                className="min-h-[44px]"
+                aria-required
+                aria-invalid={personCount !== '' && !isValidCount}
+                aria-describedby={personCount !== '' && !isValidCount ? 'person-count-error' : undefined}
+              />
+              {personCount !== '' && !isValidCount && (
+                <p id="person-count-error" className="text-sm text-destructive" role="alert">
+                  {locale === 'uk' ? 'Мінімум 1 особа' : 'Mindestens 1 Person'}
+                </p>
+              )}
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="delivery-date" className="flex items-center gap-1.5 text-sm font-medium">
+                <CalendarIcon className="h-4 w-4 shrink-0 text-primary/70" aria-hidden />
+                {t('deliveryDate')} <span className="text-destructive" aria-hidden>*</span>
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="delivery-date"
+                    variant="outline"
+                    className={cn(
+                      'w-full min-h-[44px] justify-start text-left font-normal touch-manipulation rounded-lg',
+                      !deliveryDate && 'text-muted-foreground'
+                    )}
+                    aria-haspopup="dialog"
+                    aria-expanded={undefined}
+                    aria-label={
+                      deliveryDate
+                        ? `${t('deliveryDate')}: ${format(parseLocalDate(deliveryDate), 'PPP', {
+                            locale: dateFnsLocale,
+                          })}`
+                        : t('selectDeliveryDate')
+                    }
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 shrink-0" aria-hidden />
+                    {deliveryDate ? (
+                      format(parseLocalDate(deliveryDate), 'PPP', { locale: dateFnsLocale })
+                    ) : (
+                      <span>{t('selectDeliveryDate')}</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 overscroll-contain" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={deliveryDate ? parseLocalDate(deliveryDate) : undefined}
+                    onSelect={(date) => date && setDeliveryDate(toLocalDateString(date))}
+                    disabled={(date) => date < minDate}
+                    locale={dateFnsLocale}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Add to Cart */}
+      <div>
+        <Button
+          onClick={handleAddToCart}
+          disabled={!canAddToCart}
+          className="w-full min-h-[48px] rounded-full px-8 py-6 text-base font-semibold shadow-none transition-shadow touch-manipulation"
+          size="lg"
+          aria-label={
+            !canAddToCart && product.isTorten
+              ? t('noFlavourSelected')
+              : undefined
+          }
+        >
+          <ShoppingCart className="mr-2 h-5 w-5 shrink-0" aria-hidden />
+          {t('addToCart')}
+        </Button>
+      </div>
+
+      {/* Product Information (ingredients, allergens, nutrition) - only for Torten */}
+      {showFlavourDetails && flavourDetails && (
+        <>
+          <Separator />
+          <section
+            className="space-y-6"
+            aria-labelledby="product-info-heading"
+          >
+            <h2 id="product-info-heading" className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              {t('ingredients')}
+            </h2>
+            <p className="text-sm leading-relaxed text-foreground/90">
+              {flavourDetails.ingredients.join(', ')}
+            </p>
 
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('allergens')}
-              </h4>
+              </h3>
               <ul className="space-y-1.5 text-sm text-foreground/90">
                 {flavourDetails.allergens.map((allergen) => (
                   <li key={allergen} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" aria-hidden />
                     {allergen}
                   </li>
                 ))}
@@ -206,9 +332,9 @@ export function ProductDetailClient({
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 {locale === 'uk' ? 'Харчова цінність (на 100 г)' : t('nutritionPer100g')}
-              </h4>
+              </h3>
               <div className="grid grid-cols-2 gap-3">
                 {flavourDetails.nutritionFacts.map((fact) => (
                   <div
@@ -216,17 +342,16 @@ export function ProductDetailClient({
                     className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3"
                   >
                     <span className="text-xs font-medium text-muted-foreground">{fact.label}</span>
-                    <span className="text-sm font-semibold text-foreground">{fact.value}</span>
+                    <span className="text-sm font-semibold tabular-nums text-foreground">
+                      {fact.value}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      ) : (
-        <div className="pt-4">{actionButtons}</div>
+          </section>
+        </>
       )}
     </div>
   )
 }
-

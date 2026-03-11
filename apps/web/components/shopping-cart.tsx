@@ -1,6 +1,8 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
+import { format } from 'date-fns'
+import { de, uk } from 'date-fns/locale'
 import Image from 'next/image'
 import { ChevronDown, ChevronLeft, ChevronRight, Minus, Plus, ShoppingCart as ShoppingCartIcon, Trash2, X } from 'lucide-react'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
@@ -19,7 +21,7 @@ import { useUIStore } from '@/stores/ui-store'
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 
-interface CartItem {
+interface CartItemDisplay {
   productId: string
   productSlug: string
   productName: string
@@ -28,10 +30,13 @@ interface CartItem {
   designName: string
   designImageUrl?: string
   quantity: number
+  personCount?: number
+  deliveryDate?: string
 }
 
 export function ShoppingCart() {
   const t = useTranslations('cart')
+  const tProduct = useTranslations('product')
   const tOrder = useTranslations('order')
   const tCommon = useTranslations('common')
   const locale = useLocale()
@@ -67,7 +72,7 @@ export function ShoppingCart() {
 
   return (
     <Dialog open={isCartOpen} onOpenChange={(open) => !open && closeCart()}>
-      <DialogContent className="max-h-[96vh] max-w-3xl bg-background flex flex-col p-0 gap-0">
+      <DialogContent className="max-h-[96vh] max-w-3xl bg-background flex flex-col p-0 gap-0 overflow-hidden overscroll-contain">
         <DialogHeader className="border-b px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
@@ -82,7 +87,7 @@ export function ShoppingCart() {
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="rounded-full bg-muted p-6 mb-6">
@@ -99,7 +104,7 @@ export function ShoppingCart() {
             </div>
           ) : (
             <div className="space-y-3">
-              {items.map((item) => {
+              {items.map((item: CartItemDisplay) => {
                 const itemKey = `${item.productId}-${item.designId}`
                 const isExpanded = expandedItems.has(itemKey)
                 const hasDesign = !!item.designName
@@ -122,13 +127,13 @@ export function ShoppingCart() {
                       </div>
 
                       {/* Product Info */}
-                      <div className="flex flex-1 flex-col gap-3">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 space-y-1">
+                      <div className="flex flex-1 flex-col gap-3 min-w-0">
+                        <div className="flex items-start justify-between gap-4 min-w-0">
+                          <div className="flex-1 min-w-0 space-y-1">
                             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                               {t('product')}
                             </p>
-                            <h3 className="font-semibold text-base leading-tight">{item.productName}</h3>
+                            <h3 className="font-semibold text-base leading-tight truncate">{item.productName}</h3>
                             {hasDesign && (
                               <button
                                 onClick={() => toggleItem(itemKey)}
@@ -223,8 +228,25 @@ export function ShoppingCart() {
                                     />
                                   </div>
                                 )}
-                            <div className="flex-1">
+                            <div className="flex-1 space-y-1">
                               <p className="font-medium text-foreground">{item.designName}</p>
+                              {(item.deliveryDate || item.personCount) && (
+                                <div className="text-sm text-muted-foreground">
+                                  {item.deliveryDate && (
+                                    <p>
+                                      {tProduct('deliveryDate')}:{' '}
+                                      {format(new Date(item.deliveryDate + 'T12:00:00'), 'PPP', {
+                                        locale: locale === 'uk' ? uk : de,
+                                      })}
+                                    </p>
+                                  )}
+                                  {item.personCount != null && (
+                                    <p>
+                                      {tProduct('personCount')}: {item.personCount}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>

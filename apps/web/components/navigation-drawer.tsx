@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useId } from 'react'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
@@ -10,10 +10,10 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useUIStore } from '@/stores/ui-store'
 import { createClient } from '@/lib/supabase/client'
-import { useTheme } from '@/components/theme-provider'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +30,6 @@ export function NavigationDrawer() {
   const router = useRouter()
   const pathname = usePathname()
   const { isNavDrawerOpen, openNavDrawer, closeNavDrawer } = useUIStore()
-  const { theme, setTheme } = useTheme()
   const [user, setUser] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -85,6 +84,12 @@ export function NavigationDrawer() {
     else closeNavDrawer()
   }
 
+  const languageSelectId = useId()
+  const languages = [
+    { value: 'de', label: 'Deutsch', flag: '🇩🇪' },
+    { value: 'uk', label: 'Українська', flag: '🇺🇦' },
+  ]
+
   return (
     <Drawer open={isNavDrawerOpen} onOpenChange={handleDrawerOpenChange} direction="left">
       <DrawerContent
@@ -104,75 +109,7 @@ export function NavigationDrawer() {
           </div>
         </DrawerHeader>
 
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-          {/* Language Switcher */}
-          <div className="space-y-3">
-            <ToggleGroup
-              type="single"
-              value={locale}
-              onValueChange={(value) => value && switchLocale(value)}
-              className="w-full grid grid-cols-2 gap-2 bg-muted/50 p-1 rounded-lg"
-            >
-              <ToggleGroupItem
-                value="de"
-                aria-label="Deutsch"
-                className={cn(
-                  'flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2.5',
-                  locale === 'de' && 'bg-background shadow-sm'
-                )}
-              >
-                <span className="text-sm font-medium">Deutsch</span>
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="uk"
-                aria-label="Українська"
-                className={cn(
-                  'flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2.5',
-                  locale === 'uk' && 'bg-background shadow-sm'
-                )}
-              >
-                <span className="text-sm font-medium">Українська</span>
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
-          {/* Theme Switcher */}
-          <div className="space-y-3">
-            <ToggleGroup
-              type="single"
-              value={theme}
-              onValueChange={(value) => value && setTheme(value as 'jufoods' | 'neutral')}
-              className="w-full grid grid-cols-2 gap-2 bg-muted/50 p-1 rounded-lg"
-            >
-              <ToggleGroupItem
-                value="jufoods"
-                aria-label="Classic"
-                className={cn(
-                  'flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2.5',
-                  theme === 'jufoods' && 'bg-background shadow-sm'
-                )}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-sm font-medium">Classic</span>
-                  <span className="text-xs text-muted-foreground">Karamell</span>
-                </div>
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="neutral"
-                aria-label="Atelier"
-                className={cn(
-                  'flex-1 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded-md px-4 py-2.5',
-                  theme === 'neutral' && 'bg-background shadow-sm'
-                )}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-sm font-medium">Atelier</span>
-                  <span className="text-xs text-muted-foreground">Nude</span>
-                </div>
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-6 flex flex-col gap-6">
           {/* Navigation Links */}
           <nav className="flex flex-col gap-1 w-full">
             <Link
@@ -243,10 +180,34 @@ export function NavigationDrawer() {
               </Link>
             )}
           </nav>
+
+          {/* Language Switcher - at bottom */}
+          <div className="mt-auto space-y-2">
+
+            <Select value={locale} onValueChange={(value) => value && switchLocale(value)}>
+              <SelectTrigger
+                id={languageSelectId}
+                className="[&>span]:flex [&>span]:items-center [&>span]:gap-2 [&>span>svg]:shrink-0"
+                aria-label={locale === 'uk' ? 'Оберіть мову' : 'Sprache wählen'}
+              >
+                <SelectValue placeholder={locale === 'uk' ? 'Оберіть мову' : 'Sprache wählen'} />
+              </SelectTrigger>
+              <SelectContent className="[&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2">
+                {languages.map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    <span aria-hidden className="text-lg leading-none">
+                      {lang.flag}
+                    </span>
+                    <span className="truncate">{lang.label}</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Footer with Avatar */}
-        <div className="border-t border-primary/10 bg-background p-4">
+        <div className="border-t border-primary/50 bg-background p-4">
           {loading ? (
             <div className="flex items-center justify-center py-2">
               <div className="text-sm text-muted-foreground">{t('loading')}</div>
@@ -277,7 +238,7 @@ export function NavigationDrawer() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={`/${localePrefix}/orders`} onClick={handleLinkClick} className="flex items-center gap-2">
+                  <Link href={`/${localePrefix}/account`} onClick={handleLinkClick} className="flex items-center gap-2">
                     <Package className="h-4 w-4" />
                     {t('myOrders')}
                   </Link>

@@ -40,7 +40,7 @@ export function ProductCard({
   }, [])
 
   return (
-    <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <div className="group relative flex flex-col h-full overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0">
       {/* Image Container - Top Section */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted rounded-t-xl">
         <Link href={`/products/${slug}`} className="block h-full w-full">
@@ -48,7 +48,7 @@ export function ProductCard({
             src={normalizeSupabaseImageUrl(imageUrl)}
             alt={name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-xl"
+            className="object-cover transition-transform duration-500 group-hover:scale-105 rounded-t-xl"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
         </Link>
@@ -82,7 +82,7 @@ export function ProductCard({
         </div>
 
         <Link href={`/products/${slug}`} className="block">
-          <h3 className="text-lg font-bold text-foreground leading-tight transition-colors group-hover:text-primary mb-2 line-clamp-1">
+          <h3 className="text-lg font-bold text-foreground leading-tight transition-colors  mb-2 line-clamp-1">
             {name}
           </h3>
         </Link>

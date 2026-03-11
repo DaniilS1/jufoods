@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Cake, Facebook, Instagram, Mail, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { LanguageSwitcher } from '@/components/language-switcher'
 
 export function Footer() {
   const t = useTranslations('nav')
@@ -133,6 +134,7 @@ export function Footer() {
                 : `© ${new Date().getFullYear()} jufoods. Alle Rechte vorbehalten.`}
             </p>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <LanguageSwitcher />
               <Link href={`/${locale}/about`} className="hover:text-primary transition-colors">
                 {t('about')}
               </Link>
