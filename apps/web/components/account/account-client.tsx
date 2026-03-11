@@ -76,7 +76,7 @@ export function AccountClient({ userId, email, locale }: AccountClientProps) {
       </TabsContent>
 
       <TabsContent value="designs" className="mt-6">
-        <DesignUpload userId={userId} locale={locale} />
+        <DesignUpload />
       </TabsContent>
 
       <TabsContent value="orders" className="mt-6">

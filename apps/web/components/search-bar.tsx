@@ -105,9 +105,10 @@ export function SearchBar() {
                 const flavour = Array.isArray(flavourData) ? flavourData[0] : flavourData
 
                 if (!flavour) return null
+                const linkAny = link as { is_default?: boolean; sort_order?: number }
                 return {
-                  isDefault: Boolean(link.is_default),
-                  sortOrder: link.sort_order ?? Number.MAX_SAFE_INTEGER,
+                  isDefault: Boolean(linkAny.is_default),
+                  sortOrder: linkAny.sort_order ?? Number.MAX_SAFE_INTEGER,
                   nameUk: flavour.name_uk,
                   nameDe: flavour.name_de,
                   imageUrl: flavour.image_url,

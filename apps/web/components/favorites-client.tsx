@@ -115,12 +115,15 @@ export function FavoritesClient() {
         }
 
         flavourLinks?.forEach((link) => {
-          if (!link.torten_flavours || defaultFlavourMap.has(link.design_id)) {
+          const flavour = Array.isArray(link.torten_flavours)
+            ? link.torten_flavours[0]
+            : link.torten_flavours
+          if (!flavour || defaultFlavourMap.has(link.design_id)) {
             return
           }
           defaultFlavourMap.set(link.design_id, {
-            nameUk: link.torten_flavours.name_uk,
-            nameDe: link.torten_flavours.name_de,
+            nameUk: flavour.name_uk,
+            nameDe: flavour.name_de,
           })
         })
       }
