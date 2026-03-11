@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 
 // Create admin client with service role key (bypasses RLS)
 function createAdminClient() {
@@ -20,6 +21,25 @@ function createAdminClient() {
 
 export async function POST(request: NextRequest) {
   try {
+    const serverClient = await createServerClient()
+    const {
+      data: { user },
+    } = await serverClient.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { data: userRow } = await serverClient
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (userRow?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File
     const folder = (formData.get('folder') as string) || 'products'

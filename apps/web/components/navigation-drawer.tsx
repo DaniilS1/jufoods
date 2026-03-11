@@ -32,6 +32,7 @@ export function NavigationDrawer() {
   const { isNavDrawerOpen, openNavDrawer, closeNavDrawer } = useUIStore()
   const { theme, setTheme } = useTheme()
   const [user, setUser] = useState<any>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -45,6 +46,17 @@ export function NavigationDrawer() {
       setUser(session?.user ?? null)
     })
   }, [supabase])
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false)
+      return
+    }
+    fetch('/api/auth/me', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : { role: 'customer' }))
+      .then((data) => setIsAdmin(data.role === 'admin'))
+      .catch(() => setIsAdmin(false))
+  }, [user])
 
   const switchLocale = (newLocale: string) => {
     const newPath = pathname?.replace(`/${locale}`, `/${newLocale}`) || `/${newLocale}`
@@ -215,19 +227,21 @@ export function NavigationDrawer() {
               <Mail className="h-4 w-4" />
               {tNav('contact')}
             </Link>
-            <Link
-              href={`/${localePrefix}/admin`}
-              className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
-                isActive('admin')
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              )}
-              onClick={handleLinkClick}
-            >
-              <Shield className="h-4 w-4" />
-              Admin
-            </Link>
+            {isAdmin && (
+              <Link
+                href={`/${localePrefix}/admin`}
+                className={cn(
+                  'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
+                  isActive('admin')
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                )}
+                onClick={handleLinkClick}
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
 

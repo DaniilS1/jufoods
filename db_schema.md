@@ -1,6 +1,24 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.custom_designs (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  image_url text NOT NULL,
+  notes text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT custom_designs_pkey PRIMARY KEY (id),
+  CONSTRAINT custom_designs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.design_flavour (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  design_id uuid NOT NULL,
+  flavour_id uuid NOT NULL,
+  CONSTRAINT design_flavour_pkey PRIMARY KEY (id),
+  CONSTRAINT design_flavour_design_id_fkey FOREIGN KEY (design_id) REFERENCES public.torten_designs(id),
+  CONSTRAINT design_flavour_flavour_id_fkey FOREIGN KEY (flavour_id) REFERENCES public.torten_flavours(id)
+);
 CREATE TABLE public.orders (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid,
@@ -10,10 +28,10 @@ CREATE TABLE public.orders (
   customer_address text,
   notes text,
   items jsonb NOT NULL,
-  custom_design_id uuid,
   status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'confirmed'::text, 'completed'::text, 'cancelled'::text])),
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
+  custom_design_id uuid,
   CONSTRAINT orders_pkey PRIMARY KEY (id),
   CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
   CONSTRAINT orders_custom_design_id_fkey FOREIGN KEY (custom_design_id) REFERENCES public.custom_designs(id)
@@ -37,6 +55,17 @@ CREATE TABLE public.products (
   images_urls ARRAY,
   sub_category text,
   CONSTRAINT products_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.settings (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL UNIQUE,
+  preferred_language text DEFAULT 'de'::text,
+  marketing_opt_in boolean NOT NULL DEFAULT false,
+  notifications_email boolean NOT NULL DEFAULT true,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT settings_pkey PRIMARY KEY (id),
+  CONSTRAINT settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
 CREATE TABLE public.torten_designs (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -69,40 +98,14 @@ CREATE TABLE public.torten_flavours (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT torten_flavours_pkey PRIMARY KEY (id)
 );
-
-CREATE TABLE public.design_flavour (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  design_id uuid NOT NULL REFERENCES public.torten_designs(id) ON DELETE CASCADE,
-  flavour_id uuid NOT NULL REFERENCES public.torten_flavours(id) ON DELETE CASCADE,
-  CONSTRAINT design_flavour_pkey PRIMARY KEY (id),
-  CONSTRAINT design_flavour_design_flavour_key UNIQUE (design_id, flavour_id)
-);
-
 CREATE TABLE public.users (
-  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  id uuid NOT NULL,
   full_name text,
   phone text,
   avatar_url text,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now()
-);
-
-CREATE TABLE public.settings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  preferred_language text DEFAULT 'de',
-  marketing_opt_in boolean DEFAULT false,
-  notifications_email boolean DEFAULT true,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  UNIQUE (user_id)
-);
-
-CREATE TABLE public.custom_designs (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  image_url text NOT NULL,
-  notes text,
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now()
+  role text NOT NULL DEFAULT 'customer'::text CHECK (role IN ('customer', 'admin')),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );

@@ -5,6 +5,7 @@ export interface UserProfileRecord {
   full_name: string | null
   phone: string | null
   avatar_url: string | null
+  role: 'customer' | 'admin'
   created_at: string
   updated_at: string
 }
@@ -52,7 +53,7 @@ export async function ensureUserProfile(supabase: Supabase, userId: string): Pro
 
   const { data: inserted, error: insertError } = await supabase
     .from('users')
-    .insert({ id: userId })
+    .insert({ id: userId, role: 'customer' })
     .select('*')
     .single()
 
