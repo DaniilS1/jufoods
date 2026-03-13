@@ -31,7 +31,7 @@ export function Footer() {
   return (
     <footer className="border-t border-primary/10 bg-gradient-to-br from-primary-50/50 via-accent/30 to-primary-50/50">
       <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href={`/${locale}`} className="flex items-center space-x-2">

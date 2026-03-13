@@ -25,7 +25,7 @@ export default async function AccountPage({ params }: AccountPageProps) {
     <div className="container py-8 space-y-8">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">{tCommon('account')}</p>
-        <h1 className="text-4xl font-bold">{tAccount('title')}</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl md:text-4xl">{tAccount('title')}</h1>
         <p className="text-muted-foreground max-w-2xl">{tAccount('subtitle')}</p>
       </div>
 

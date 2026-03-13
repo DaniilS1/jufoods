@@ -52,7 +52,7 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
                   {/* Flavour Image */}
                   <div
                     className={cn(
-                      'relative h-28 w-28 overflow-hidden rounded-lg bg-muted transition-all duration-300',
+                      'relative w-full aspect-square overflow-hidden rounded-lg bg-muted transition-all duration-300',
                       isSelected
                         ? ''
                         : 'group-hover:ring-2 group-hover:ring-primary/30'

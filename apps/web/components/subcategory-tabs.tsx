@@ -51,11 +51,11 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
     <>
       <div className="border-t border-primary/10 bg-white/50">
         <div className="container">
-          <nav className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4 overscroll-contain touch-manipulation">
+          <nav className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-1.5 -mx-4 px-4 overscroll-contain touch-manipulation sm:gap-2 sm:py-2">
             <button
               onClick={() => handleSubcategoryChange(null)}
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0',
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm',
                 !currentSubcategory
                   ? 'text-muted-foreground bg-primary/20'
                   : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
@@ -73,13 +73,13 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
                   key={subcategory.id}
                   onClick={() => handleSubcategoryChange(subcategory.id)}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0',
+                    'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm',
                     isActive
                       ? 'text-muted-foreground bg-primary/20'
                       : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
                   <span>{t(translationKey)}</span>
                 </button>
               )
@@ -88,15 +88,25 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
             {category === 'torten' && (
               <button
                 onClick={() => setModalOpen(true)}
-                className="ml-auto flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm touch-manipulation"
+                className="hidden sm:flex ml-auto items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm touch-manipulation"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4" aria-hidden="true" />
                 <span>{tModal('orderButton')}</span>
               </button>
             )}
           </nav>
         </div>
       </div>
+
+      {category === 'torten' && (
+        <button
+          onClick={() => setModalOpen(true)}
+          aria-label={tModal('orderButton')}
+          className="fixed bottom-6 right-6 z-40 sm:hidden flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 active:scale-95 transition-all touch-manipulation"
+        >
+          <Plus className="h-5 w-5" aria-hidden="true" />
+        </button>
+      )}
 
       {category === 'torten' && (
         <TorteBestellenModal

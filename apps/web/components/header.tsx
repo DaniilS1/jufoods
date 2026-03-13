@@ -68,7 +68,7 @@ export function Header() {
   if (isAuthPage) {
     const locale = pathname?.split('/')[1] || 'de'
     return (
-      <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 shadow-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 shadow-sm pt-[env(safe-area-inset-top)]">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
@@ -77,11 +77,11 @@ export function Header() {
               onClick={openNavDrawer}
               className="hover:bg-primary/10 rounded-full"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5" aria-hidden="true" />
               <span className="sr-only">Menu</span>
             </Button>
             <Link href={`/${locale}`} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <Cake className="h-5 w-5 text-primary" />
+              <Cake className="h-5 w-5 text-primary" aria-hidden="true" />
               <span className="text-xl font-bold text-primary hidden sm:inline-block">jufoods</span>
             </Link>
           </div>
@@ -91,7 +91,7 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 shadow-sm pt-[env(safe-area-inset-top)]">
       {/* Top Row: Logo, Search, and Actions */}
       <div className="container flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-4 shrink-0">
@@ -101,11 +101,11 @@ export function Header() {
             onClick={openNavDrawer}
             className="hover:bg-primary/10 rounded-full"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Menu</span>
           </Button>
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity shrink-0">
-            <Cake className="h-5 w-5 text-primary" />
+            <Cake className="h-5 w-5 text-primary" aria-hidden="true" />
             <span className="text-xl font-bold text-primary hidden sm:inline-block">jufoods</span>
           </Link>
         </div>
@@ -118,7 +118,7 @@ export function Header() {
 
           <Button variant="ghost" size="icon" asChild className="relative hover:bg-primary/10 rounded-full">
             <Link href="/favorites">
-              <Heart className="h-5 w-5" />
+              <Heart className="h-5 w-5" aria-hidden="true" />
               {mounted && favoriteCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
                   {favoriteCount}
@@ -128,7 +128,7 @@ export function Header() {
             </Link>
           </Button>
           <Button variant="ghost" size="icon" onClick={openCart} className="relative hover:bg-primary/10 rounded-full">
-            <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="h-5 w-5" aria-hidden="true" />
             {mounted && totalItems > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
                 {totalItems}
@@ -145,7 +145,7 @@ export function Header() {
       ) : isCheckoutPage ? null : (
         <div className="border-t border-primary/10 bg-transparent">
           <div className="container">
-            <nav className="flex gap-2 overflow-x-auto scrollbar-hide py-2 -mx-4 px-4 overscroll-contain touch-manipulation">
+            <nav className="flex gap-1 overflow-x-auto scrollbar-hide py-1.5 -mx-4 px-4 overscroll-contain touch-manipulation sm:gap-2 sm:py-2">
               {categories.map((category) => {
                 const Icon = category.icon
                 const isActiveCategory = activeCategory === category.id
@@ -157,13 +157,13 @@ export function Header() {
                     key={category.id}
                     href={href}
                     className={cn(
-                      'flex items-center gap-2 px-4 py-2 rounded-t-lg data-[state=active]:rounded-t-lg hover:rounded-lg text-muted-foreground data-[state=active]:text-muted-foreground text-sm font-medium transition-all whitespace-nowrap shrink-0 relative',
+                      'flex items-center gap-1.5 px-2.5 py-1.5 rounded-t-lg hover:rounded-lg text-muted-foreground text-xs font-medium transition-all whitespace-nowrap shrink-0 relative sm:gap-2 sm:px-4 sm:py-2 sm:text-sm',
                       isActiveCategory
                         ? 'bg-primary/20'
                         : 'hover:text-primary hover:bg-primary/5'
                     )}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
                     <span>{tNav(category.key)}</span>
                     {isActiveCategory && (
                       <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />

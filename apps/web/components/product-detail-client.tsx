@@ -269,7 +269,7 @@ export function ProductDetailClient({
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 overscroll-contain" align="start">
+                <PopoverContent className="w-auto max-w-[calc(100vw-2rem)] p-0 overscroll-contain" align="start">
                   <Calendar
                     mode="single"
                     selected={deliveryDate ? parseLocalDate(deliveryDate) : undefined}

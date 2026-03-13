@@ -109,6 +109,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image:
       radial-gradient(circle at 0% 0%, hsl(var(--foreground) / 0.045) 0px, hsl(var(--foreground) / 0.045) 1px, transparent 1px),

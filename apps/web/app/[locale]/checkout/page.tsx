@@ -6,7 +6,7 @@ export default async function CheckoutPage() {
 
   return (
     <div className="container py-8">
-      <h1 className="text-4xl font-bold mb-8">{t('title')}</h1>
+      <h1 className="text-2xl font-bold mb-8 sm:text-3xl md:text-4xl">{t('title')}</h1>
       <CheckoutClient />
     </div>
   )
