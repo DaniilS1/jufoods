@@ -70,7 +70,8 @@
     "orderSummary": "Підсумок замовлення",
     "total": "Всього",
     "product": "Товар",
-    "design": "Дизайн"
+    "design": "Дизайн",
+    "quantity": "Кількість"
   },
   "order": {
     "title": "Оформити замовлення",
@@ -96,10 +97,6 @@
       "fullNamePlaceholder": "Введіть повне ім'я",
       "email": "Електронна пошта",
       "emailPlaceholder": "приклад@email.com",
-      "dessert": "Десерт",
-      "dessertPlaceholder": "Опишіть десерт",
-      "numberOfPeople": "Для скількох осіб",
-      "numberOfPeoplePlaceholder": "Кількість осіб",
       "eventDate": "Дата свята",
       "celebrationDate": "Дата святкування",
       "timeNeeded": "Час, коли потрібен десерт",
@@ -121,15 +118,18 @@
         "friend": "Від друзів",
         "search": "Пошук в інтернеті",
         "other": "Інше"
-      }
+      },
+      "selectDate": "Вибрати дату",
+      "hour": "Година",
+      "minute": "Хвилина",
+      "remarks": "Примітки",
+      "remarksPlaceholder": "Особливі побажання, алергії або інші коментарі...",
+      "deliveryStreet": "Вулиця та номер будинку",
+      "deliveryStreetPlaceholder": "напр. вул. Зразкова 42"
     },
-    "customDesign": {
-      "title": "Виберіть власний дизайн",
-      "description": "Використайте один з ваших завантажених дизайнів або завантажте нові в акаунті.",
-      "empty": "Поки що немає доступних дизайнів.",
-      "loginPrompt": "Будь ласка, увійдіть, щоб використовувати свої дизайни.",
-      "error": "Не вдалося завантажити дизайни.",
-      "selectedLabel": "Вибраний дизайн"
+    "review": {
+      "checkDetails": "Будь ласка, перевірте ваші дані перед відправкою.",
+      "deliveryAddress": "Адреса доставки"
     }
   },
   "auth": {

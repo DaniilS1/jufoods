@@ -102,8 +102,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80 shadow-sm pt-[env(safe-area-inset-top)]">
       {/* Top Row: Logo, Search, and Actions */}
-      <div className="container flex h-16 items-center justify-between gap-4">
-        <div className="flex items-center gap-4 shrink-0">
+      <div className="container flex h-16 items-center justify-between gap-2.5">
+        <div className="flex items-center gap-1 shrink-0">
           <Button
             variant="ghost"
             size="icon"
@@ -116,7 +116,7 @@ export function Header() {
           <Logo href="/" size="sm" priority />
         </div>
 
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           {/* Search Bar - Right aligned */}
           <div className="hidden md:block">
             <SearchBar />

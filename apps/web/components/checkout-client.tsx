@@ -3,57 +3,58 @@
 import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
+import { format } from 'date-fns'
+import { ChevronLeft, ChevronRight, Check, CalendarIcon, MailIcon, MapPinIcon, UserIcon, PhoneIcon, CalendarDaysIcon, ClockIcon, FileTextIcon, TruckIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useCartStore } from '@/stores/cart-store'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { cn } from '@/lib/utils'
+import { DateTimePicker } from '@/components/date-time-picker'
 
-// Updated schema with all 11 fields
 const orderSchema = z.object({
   // Step 1: Customer Information
   fullName: z.string().min(1, 'Full name is required'),
   email: z.string().email('Invalid email address'),
-  
+
   // Step 2: Order Details
-  dessert: z.string().min(1, 'Dessert selection is required'),
-  numberOfPeople: z.string().min(1, 'Number of people is required'),
-  eventDate: z.string().min(1, 'Event date is required'),
-  celebrationDate: z.string().min(1, 'Celebration date is required'),
+  eventDate: z.date({ required_error: 'Event date is required' }),
+  celebrationDate: z.date({ required_error: 'Celebration date is required' }),
   timeNeeded: z.string().min(1, 'Time needed is required'),
-  
+  remarks: z.string().optional(),
+
   // Step 3: Delivery Information
   pickupOrDelivery: z.enum(['pickup', 'delivery'], {
     required_error: 'Please select pickup or delivery',
   }),
-  cityOfResidence: z.string().min(1, 'City of residence is required'),
-  deliveryCity: z.string().optional(),
+  residenceCity: z.string().min(1, 'City of residence is required'),
+  deliveryStreet: z.string().optional(),
   deliveryPostalCode: z.string().optional(),
-  
+  deliveryCity: z.string().optional(),
+
   // Step 4: Additional Information
   phoneOrSocial: z.string().min(1, 'Phone or social media is required'),
   referralSource: z.string().optional(),
-  customDesignId: z.string().uuid().optional().or(z.literal('')),
 })
 
 type OrderFormData = z.infer<typeof orderSchema>
 
-interface CustomDesignOption {
-  id: string
-  imageUrl: string
-  notes?: string | null
-  createdAt: string
+interface UserProfile {
+  fullName: string
+  email: string
 }
 
 const STEPS = [
@@ -64,28 +65,36 @@ const STEPS = [
   { id: 5, name: 'review', title: 'Review & Submit' },
 ] as const
 
-export function CheckoutClient() {
+const REFERRAL_LABEL_MAP: Record<string, string> = {
+  'social-media': 'socialMedia',
+  friend: 'friend',
+  search: 'search',
+  other: 'other',
+}
+
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+
+export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | null }) {
   const t = useTranslations('order')
   const tCart = useTranslations('cart')
   const tCommon = useTranslations('common')
-  const tCustomDesign = useTranslations('order.customDesign')
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
   const { items, clearCart } = useCartStore()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [customDesigns, setCustomDesigns] = useState<CustomDesignOption[]>([])
-  const [customDesignsLoading, setCustomDesignsLoading] = useState(true)
-  const [customDesignsError, setCustomDesignsError] = useState<'unauthorized' | 'error' | null>(null)
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     watch,
     setValue,
     trigger,
+    reset,
   } = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
     mode: 'onChange',
@@ -93,59 +102,22 @@ export function CheckoutClient() {
 
   const watchedValues = watch()
   const pickupOrDelivery = watch('pickupOrDelivery')
-  const selectedCustomDesign = watchedValues.customDesignId
-    ? customDesigns.find((design) => design.id === watchedValues.customDesignId)
-    : null
 
-  const handleSelectCustomDesign = (designId: string) => {
-    const current = watchedValues.customDesignId
-    const nextValue = current === designId ? '' : designId
-    setValue('customDesignId', nextValue, { shouldDirty: true })
-  }
-
+  // Auto-fill user profile when logged in
   useEffect(() => {
-    let isMounted = true
-    const fetchDesigns = async () => {
-      try {
-        setCustomDesignsLoading(true)
-        const response = await fetch('/api/account/designs', { cache: 'no-store' })
-        if (!isMounted) return
-
-        if (response.status === 401) {
-          setCustomDesigns([])
-          setCustomDesignsError('unauthorized')
-          return
-        }
-
-        if (!response.ok) {
-          throw new Error('Failed to load designs')
-        }
-
-        const payload = await response.json()
-        setCustomDesigns(payload.designs ?? [])
-        setCustomDesignsError(null)
-      } catch (error) {
-        if (isMounted) {
-          setCustomDesignsError('error')
-        }
-      } finally {
-        if (isMounted) {
-          setCustomDesignsLoading(false)
-        }
-      }
+    if (userProfile) {
+      reset((prev) => ({
+        ...prev,
+        fullName: userProfile.fullName || '',
+        email: userProfile.email || '',
+      }))
     }
-
-    fetchDesigns()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile])
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep)
-    const isValid = await trigger(fieldsToValidate as any)
-    
+    const isValid = await trigger(fieldsToValidate as (keyof OrderFormData)[])
     if (isValid && currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1)
     }
@@ -162,9 +134,9 @@ export function CheckoutClient() {
       case 1:
         return ['fullName', 'email']
       case 2:
-        return ['dessert', 'numberOfPeople', 'eventDate', 'celebrationDate', 'timeNeeded']
+        return ['eventDate', 'celebrationDate', 'timeNeeded']
       case 3:
-        return ['pickupOrDelivery', 'cityOfResidence', 'deliveryCity', 'deliveryPostalCode']
+        return ['pickupOrDelivery', 'residenceCity']
       case 4:
         return ['phoneOrSocial', 'referralSource']
       default:
@@ -174,8 +146,14 @@ export function CheckoutClient() {
 
   const onSubmit = async (data: OrderFormData) => {
     setIsSubmitting(true)
-
     try {
+      const deliveryAddress =
+        data.pickupOrDelivery === 'delivery'
+          ? [data.deliveryStreet, data.deliveryPostalCode, data.deliveryCity]
+              .filter(Boolean)
+              .join(', ')
+          : null
+
       const orderData = {
         items: items.map((item) => ({
           productId: item.productId,
@@ -186,22 +164,22 @@ export function CheckoutClient() {
           fullName: data.fullName,
           email: data.email,
           phoneOrSocial: data.phoneOrSocial,
-          cityOfResidence: data.cityOfResidence,
+          residenceCity: data.residenceCity,
           referralSource: data.referralSource,
         },
         orderDetails: {
-          dessert: data.dessert,
-          numberOfPeople: data.numberOfPeople,
-          eventDate: data.eventDate,
-          celebrationDate: data.celebrationDate,
+          eventDate: data.eventDate.toISOString(),
+          celebrationDate: data.celebrationDate.toISOString(),
           timeNeeded: data.timeNeeded,
+          remarks: data.remarks,
         },
         delivery: {
           pickupOrDelivery: data.pickupOrDelivery,
-          deliveryCity: data.deliveryCity,
+          deliveryStreet: data.deliveryStreet,
           deliveryPostalCode: data.deliveryPostalCode,
+          deliveryCity: data.deliveryCity,
+          deliveryAddress,
         },
-        customDesignId: data.customDesignId && data.customDesignId.length > 0 ? data.customDesignId : null,
       }
 
       const response = await fetch('/api/orders', {
@@ -276,33 +254,43 @@ export function CheckoutClient() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Prevent native form submission on Enter so step 5 is never skipped */}
+        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           {/* Step 1: Customer Information */}
           {currentStep === 1 && (
-          <Card>
-            <CardHeader>
+            <Card>
+              <CardHeader>
                 <CardTitle>{t('steps.customerInfo')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
                   <Label htmlFor="fullName">
                     {t('fields.fullName')} <span className="text-destructive">*</span>
-                </Label>
-                  <Input id="fullName" {...register('fullName')} placeholder={t('fields.fullNamePlaceholder')} />
+                  </Label>
+                  <Input
+                    id="fullName"
+                    {...register('fullName')}
+                    placeholder={t('fields.fullNamePlaceholder')}
+                  />
                   {errors.fullName && (
                     <p className="text-sm text-destructive">{errors.fullName.message}</p>
-                )}
-              </div>
+                  )}
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">
+                <div className="space-y-2">
+                  <Label htmlFor="email">
                     {t('fields.email')} <span className="text-destructive">*</span>
-                </Label>
-                  <Input id="email" type="email" {...register('email')} placeholder={t('fields.emailPlaceholder')} />
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
-                )}
-              </div>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...register('email')}
+                    placeholder={t('fields.emailPlaceholder')}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email.message}</p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
@@ -314,61 +302,93 @@ export function CheckoutClient() {
                 <CardTitle>{t('steps.orderDetails')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Event date — simple calendar popover */}
                 <div className="space-y-2">
-                  <Label htmlFor="dessert">
-                    {t('fields.dessert')} <span className="text-destructive">*</span>
+                  <Label>
+                    {t('fields.eventDate')} <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="dessert" {...register('dessert')} placeholder={t('fields.dessertPlaceholder')} />
-                  {errors.dessert && (
-                    <p className="text-sm text-destructive">{errors.dessert.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="numberOfPeople">
-                    {t('fields.numberOfPeople')} <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="numberOfPeople"
-                    type="number"
-                    {...register('numberOfPeople')}
-                    placeholder={t('fields.numberOfPeoplePlaceholder')}
+                  <Controller
+                    name="eventDate"
+                    control={control}
+                    render={({ field }) => (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className={cn(
+                              'w-full justify-start text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {field.value
+                              ? format(field.value, 'dd.MM.yyyy')
+                              : t('fields.selectDate')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) => date < today}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   />
-                  {errors.numberOfPeople && (
-                    <p className="text-sm text-destructive">{errors.numberOfPeople.message}</p>
+                  {errors.eventDate && (
+                    <p className="text-sm text-destructive">{errors.eventDate.message}</p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="eventDate">
-                      {t('fields.eventDate')} <span className="text-destructive">*</span>
-                    </Label>
-                    <Input id="eventDate" type="date" {...register('eventDate')} />
-                    {errors.eventDate && (
-                      <p className="text-sm text-destructive">{errors.eventDate.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="celebrationDate">
-                      {t('fields.celebrationDate')} <span className="text-destructive">*</span>
-                    </Label>
-                    <Input id="celebrationDate" type="date" {...register('celebrationDate')} />
-                    {errors.celebrationDate && (
-                      <p className="text-sm text-destructive">{errors.celebrationDate.message}</p>
-                    )}
-                  </div>
-                </div>
-
+                {/* Celebration date + delivery time — combined DateTimePicker */}
                 <div className="space-y-2">
-                  <Label htmlFor="timeNeeded">
-                    {t('fields.timeNeeded')} <span className="text-destructive">*</span>
+                  <Label>
+                    {t('fields.celebrationDate')} &amp; {t('fields.timeNeeded')}{' '}
+                    <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="timeNeeded" type="time" {...register('timeNeeded')} />
-                  {errors.timeNeeded && (
-                    <p className="text-sm text-destructive">{errors.timeNeeded.message}</p>
+                  <Controller
+                    name="celebrationDate"
+                    control={control}
+                    render={({ field: dateField }) => (
+                      <Controller
+                        name="timeNeeded"
+                        control={control}
+                        render={({ field: timeField }) => (
+                          <DateTimePicker
+                            date={dateField.value}
+                            time={timeField.value ?? ''}
+                            onDateChange={dateField.onChange}
+                            onTimeChange={(t) =>
+                              timeField.onChange(t)
+                            }
+                            locale={locale === 'uk' ? 'uk-UA' : 'de-DE'}
+                            placeholder={t('fields.selectDate')}
+                          />
+                        )}
+                      />
+                    )}
+                  />
+                  {(errors.celebrationDate || errors.timeNeeded) && (
+                    <p className="text-sm text-destructive">
+                      {errors.celebrationDate?.message ?? errors.timeNeeded?.message}
+                    </p>
                   )}
+                </div>
+
+                {/* Remarks */}
+                <div className="space-y-2">
+                  <Label htmlFor="remarks">{t('fields.remarks')}</Label>
+                  <Textarea
+                    id="remarks"
+                    {...register('remarks')}
+                    placeholder={t('fields.remarksPlaceholder')}
+                    className="resize-none"
+                    rows={3}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -387,7 +407,9 @@ export function CheckoutClient() {
                   </Label>
                   <RadioGroup
                     value={pickupOrDelivery}
-                    onValueChange={(value) => setValue('pickupOrDelivery', value as 'pickup' | 'delivery')}
+                    onValueChange={(value) =>
+                      setValue('pickupOrDelivery', value as 'pickup' | 'delivery')
+                    }
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="pickup" id="pickup" />
@@ -407,38 +429,67 @@ export function CheckoutClient() {
                   )}
                 </div>
 
-              <div className="space-y-2">
-                  <Label htmlFor="cityOfResidence">
+                <div className="space-y-2">
+                  <Label htmlFor="residenceCity">
                     {t('fields.cityOfResidence')} <span className="text-destructive">*</span>
                   </Label>
                   <Input
-                    id="cityOfResidence"
-                    {...register('cityOfResidence')}
+                    id="residenceCity"
+                    {...register('residenceCity')}
                     placeholder={t('fields.cityOfResidencePlaceholder')}
                   />
-                  {errors.cityOfResidence && (
-                    <p className="text-sm text-destructive">{errors.cityOfResidence.message}</p>
+                  {errors.residenceCity && (
+                    <p className="text-sm text-destructive">{errors.residenceCity.message}</p>
                   )}
                 </div>
 
                 {pickupOrDelivery === 'delivery' && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="deliveryCity">{t('fields.deliveryCity')}</Label>
+                      <Label htmlFor="deliveryStreet">
+                        {t('fields.deliveryStreet')} <span className="text-destructive">*</span>
+                      </Label>
                       <Input
-                        id="deliveryCity"
-                        {...register('deliveryCity')}
-                        placeholder={t('fields.deliveryCityPlaceholder')}
+                        id="deliveryStreet"
+                        {...register('deliveryStreet')}
+                        placeholder={t('fields.deliveryStreetPlaceholder')}
                       />
-              </div>
+                      {errors.deliveryStreet && (
+                        <p className="text-sm text-destructive">{errors.deliveryStreet.message}</p>
+                      )}
+                    </div>
 
-              <div className="space-y-2">
-                      <Label htmlFor="deliveryPostalCode">{t('fields.deliveryPostalCode')}</Label>
-                      <Input
-                        id="deliveryPostalCode"
-                        {...register('deliveryPostalCode')}
-                        placeholder={t('fields.deliveryPostalCodePlaceholder')}
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="deliveryPostalCode">
+                          {t('fields.deliveryPostalCode')}{' '}
+                          <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="deliveryPostalCode"
+                          {...register('deliveryPostalCode')}
+                          placeholder={t('fields.deliveryPostalCodePlaceholder')}
+                        />
+                        {errors.deliveryPostalCode && (
+                          <p className="text-sm text-destructive">
+                            {errors.deliveryPostalCode.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="deliveryCity">
+                          {t('fields.deliveryCity')} <span className="text-destructive">*</span>
+                        </Label>
+                        <Input
+                          id="deliveryCity"
+                          {...register('deliveryCity')}
+                          placeholder={t('fields.deliveryCityPlaceholder')}
+                        />
+                        {errors.deliveryCity && (
+                          <p className="text-sm text-destructive">{errors.deliveryCity.message}</p>
+                        )}
+                      </div>
                     </div>
                   </>
                 )}
@@ -453,68 +504,6 @@ export function CheckoutClient() {
                 <CardTitle>{t('steps.additionalInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <input type="hidden" {...register('customDesignId')} />
-                <div className="space-y-3 rounded-xl border border-dashed border-border/60 p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <Label className="font-semibold">{tCustomDesign('title')}</Label>
-                      <p className="text-sm text-muted-foreground">{tCustomDesign('description')}</p>
-                    </div>
-                    {watchedValues.customDesignId && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setValue('customDesignId', '', { shouldDirty: true })}
-                      >
-                        {tCommon('remove')}
-                      </Button>
-                    )}
-                  </div>
-                  {customDesignsLoading && (
-                    <div className="grid grid-cols-2 gap-3">
-                      {Array.from({ length: 4 }).map((_, index) => (
-                        <div key={index} className="h-24 animate-pulse rounded-xl bg-muted/60" />
-                      ))}
-                    </div>
-                  )}
-                  {!customDesignsLoading && customDesignsError === 'unauthorized' && (
-                    <p className="text-sm text-muted-foreground">{tCustomDesign('loginPrompt')}</p>
-                  )}
-                  {!customDesignsLoading && customDesignsError === 'error' && (
-                    <p className="text-sm text-destructive">{tCustomDesign('error')}</p>
-                  )}
-                  {!customDesignsLoading && !customDesignsError && customDesigns.length === 0 && (
-                    <p className="text-sm text-muted-foreground">{tCustomDesign('empty')}</p>
-                  )}
-                  {!customDesignsLoading && !customDesignsError && customDesigns.length > 0 && (
-                    <div className="grid grid-cols-2 gap-3">
-                      {customDesigns.map((design) => (
-                        <button
-                          key={design.id}
-                          type="button"
-                          onClick={() => handleSelectCustomDesign(design.id)}
-                          className={cn(
-                            'relative overflow-hidden rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-                            watchedValues.customDesignId === design.id
-                              ? 'border-primary ring-2 ring-primary/40'
-                              : 'border-border hover:border-primary/60'
-                          )}
-                        >
-                          <div className="relative h-28 w-full">
-                            <Image
-                              src={normalizeSupabaseImageUrl(design.imageUrl)}
-                              alt={design.notes ?? 'Custom design'}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 640px) 45vw, 200px"
-                            />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="phoneOrSocial">
                     {t('fields.phoneOrSocial')} <span className="text-destructive">*</span>
@@ -527,9 +516,9 @@ export function CheckoutClient() {
                   {errors.phoneOrSocial && (
                     <p className="text-sm text-destructive">{errors.phoneOrSocial.message}</p>
                   )}
-              </div>
+                </div>
 
-              <div className="space-y-2">
+                <div className="space-y-2">
                   <Label htmlFor="referralSource">{t('fields.referralSource')}</Label>
                   <Select
                     value={watchedValues.referralSource}
@@ -539,10 +528,18 @@ export function CheckoutClient() {
                       <SelectValue placeholder={t('fields.referralSourcePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="social-media">{t('fields.referralOptions.socialMedia')}</SelectItem>
-                      <SelectItem value="friend">{t('fields.referralOptions.friend')}</SelectItem>
-                      <SelectItem value="search">{t('fields.referralOptions.search')}</SelectItem>
-                      <SelectItem value="other">{t('fields.referralOptions.other')}</SelectItem>
+                      <SelectItem value="social-media">
+                        {t('fields.referralOptions.socialMedia')}
+                      </SelectItem>
+                      <SelectItem value="friend">
+                        {t('fields.referralOptions.friend')}
+                      </SelectItem>
+                      <SelectItem value="search">
+                        {t('fields.referralOptions.search')}
+                      </SelectItem>
+                      <SelectItem value="other">
+                        {t('fields.referralOptions.other')}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -550,92 +547,148 @@ export function CheckoutClient() {
             </Card>
           )}
 
-          {/* Step 5: Review & Submit */}
+          {/* Step 5: Review & Submit — order-summary-04 layout */}
           {currentStep === 5 && (
-            <Card>
+            <Card className="w-full">
               <CardHeader>
-                <CardTitle>{t('steps.review')}</CardTitle>
+                <CardTitle className="text-2xl">{t('steps.review')}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="font-semibold mb-2">{t('steps.customerInfo')}</h3>
-                    <div className="space-y-1 text-sm">
-                      <p><strong>{t('fields.fullName')}:</strong> {watchedValues.fullName}</p>
-                      <p><strong>{t('fields.email')}:</strong> {watchedValues.email}</p>
+
+              <CardContent className="grid gap-12 py-6 md:grid-cols-2 lg:grid-cols-2">
+                {/* Column 1 — Customer & Contact */}
+                <div className="space-y-8">
+                  <h5 className="text-lg font-semibold text-muted-foreground">
+                    {t('steps.customerInfo')}
+                  </h5>
+
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <UserIcon className="size-5 shrink-0 text-muted-foreground" />
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        {t('fields.fullName')}
+                      </Label>
                     </div>
+                    <p className="pl-8 text-foreground font-medium">
+                      {watchedValues.fullName || '—'}
+                    </p>
                   </div>
 
-                  <Separator />
-
-                  <div>
-                    <h3 className="font-semibold mb-2">{t('steps.orderDetails')}</h3>
-                    <div className="space-y-1 text-sm">
-                      <p><strong>{t('fields.dessert')}:</strong> {watchedValues.dessert}</p>
-                      <p><strong>{t('fields.numberOfPeople')}:</strong> {watchedValues.numberOfPeople}</p>
-                      <p><strong>{t('fields.eventDate')}:</strong> {watchedValues.eventDate}</p>
-                      <p><strong>{t('fields.celebrationDate')}:</strong> {watchedValues.celebrationDate}</p>
-                      <p><strong>{t('fields.timeNeeded')}:</strong> {watchedValues.timeNeeded}</p>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <MailIcon className="size-5 shrink-0 text-muted-foreground" />
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        {t('fields.email')}
+                      </Label>
                     </div>
+                    <p className="pl-8 text-foreground font-medium">
+                      {watchedValues.email || '—'}
+                    </p>
                   </div>
 
-                  <Separator />
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <PhoneIcon className="size-5 shrink-0 text-muted-foreground" />
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        {t('fields.phoneOrSocial')}
+                      </Label>
+                    </div>
+                    <p className="pl-8 text-foreground font-medium">
+                      {watchedValues.phoneOrSocial || '—'}
+                    </p>
+                  </div>
+                </div>
 
-                  <div>
-                    <h3 className="font-semibold mb-2">{t('steps.deliveryInfo')}</h3>
-                    <div className="space-y-1 text-sm">
-                      <p>
-                        <strong>{t('fields.pickupOrDelivery')}:</strong>{' '}
-                        {watchedValues.pickupOrDelivery === 'pickup' ? t('fields.pickup') : t('fields.delivery')}
+                {/* Column 2 — Order & Delivery Details */}
+                <div className="space-y-8">
+                  <h5 className="text-lg font-semibold text-muted-foreground">
+                    {t('steps.orderDetails')}
+                  </h5>
+
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <CalendarDaysIcon className="size-5 shrink-0 text-muted-foreground" />
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        {t('fields.eventDate')}
+                      </Label>
+                    </div>
+                    <p className="pl-8 text-foreground font-medium">
+                      {watchedValues.eventDate
+                        ? format(watchedValues.eventDate, 'dd.MM.yyyy')
+                        : '—'}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <ClockIcon className="size-5 shrink-0 text-muted-foreground" />
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        {t('fields.celebrationDate')}
+                      </Label>
+                    </div>
+                    <p className="pl-8 text-foreground font-medium">
+                      {watchedValues.celebrationDate
+                        ? format(watchedValues.celebrationDate, 'dd.MM.yyyy')
+                        : '—'}
+                      {watchedValues.timeNeeded ? ` · ${watchedValues.timeNeeded} Uhr` : ''}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <TruckIcon className="size-5 shrink-0 text-muted-foreground" />
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        {t('fields.pickupOrDelivery')}
+                      </Label>
+                    </div>
+                    <div className="flex flex-col gap-2 pl-8">
+                      <Badge
+                        variant={
+                          watchedValues.pickupOrDelivery === 'pickup' ? 'secondary' : 'default'
+                        }
+                        className="w-fit"
+                      >
+                        {watchedValues.pickupOrDelivery === 'pickup'
+                          ? t('fields.pickup')
+                          : t('fields.delivery')}
+                      </Badge>
+                      <p className="text-foreground font-medium text-sm">
+                        {watchedValues.pickupOrDelivery === 'delivery'
+                          ? [
+                              watchedValues.deliveryStreet,
+                              watchedValues.deliveryPostalCode && watchedValues.deliveryCity
+                                ? `${watchedValues.deliveryPostalCode} ${watchedValues.deliveryCity}`
+                                : watchedValues.deliveryCity ||
+                                  watchedValues.deliveryPostalCode,
+                            ]
+                              .filter(Boolean)
+                              .join(', ')
+                          : watchedValues.residenceCity}
                       </p>
-                      <p><strong>{t('fields.cityOfResidence')}:</strong> {watchedValues.cityOfResidence}</p>
-                      {watchedValues.pickupOrDelivery === 'delivery' && (
-                        <>
-                          <p><strong>{t('fields.deliveryCity')}:</strong> {watchedValues.deliveryCity || 'N/A'}</p>
-                          <p>
-                            <strong>{t('fields.deliveryPostalCode')}:</strong>{' '}
-                            {watchedValues.deliveryPostalCode || 'N/A'}
-                          </p>
-                        </>
-                      )}
                     </div>
                   </div>
 
-                  <Separator />
-
-                  <div>
-                    <h3 className="font-semibold mb-2">{t('steps.additionalInfo')}</h3>
-                    <div className="space-y-1 text-sm">
-                      <p><strong>{t('fields.phoneOrSocial')}:</strong> {watchedValues.phoneOrSocial}</p>
-                      <p>
-                        <strong>{t('fields.referralSource')}:</strong>{' '}
-                        {watchedValues.referralSource
-                          ? t(`fields.referralOptions.${watchedValues.referralSource}`)
-                          : 'N/A'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {selectedCustomDesign && (
-                    <>
-                      <Separator />
-                      <div>
-                        <h3 className="font-semibold mb-2">{tCustomDesign('selectedLabel')}</h3>
-                        <div className="relative h-40 w-full overflow-hidden rounded-xl border border-border">
-                          <Image
-                            src={normalizeSupabaseImageUrl(selectedCustomDesign.imageUrl)}
-                            alt={selectedCustomDesign.notes ?? 'Custom design'}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 1024px) 100vw, 400px"
-                          />
-                        </div>
+                  {watchedValues.remarks && (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <FileTextIcon className="size-5 shrink-0 text-muted-foreground" />
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          {t('fields.remarks')}
+                        </Label>
                       </div>
-                    </>
+                      <p className="pl-8 text-foreground font-medium whitespace-pre-wrap">
+                        {watchedValues.remarks}
+                      </p>
+                    </div>
                   )}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+
+              <CardFooter className="justify-between gap-6 border-t max-sm:flex-col max-sm:items-start">
+                <p className="text-muted-foreground text-base">
+                  {t('review.checkDetails')}
+                </p>
+              </CardFooter>
+            </Card>
           )}
 
           {/* Navigation Buttons */}
@@ -656,9 +709,13 @@ export function CheckoutClient() {
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? tCommon('loading') : t('submitOrder')}
-          </Button>
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => handleSubmit(onSubmit)()}
+              >
+                {isSubmitting ? tCommon('loading') : t('submitOrder')}
+              </Button>
             )}
           </div>
         </form>
@@ -690,7 +747,9 @@ export function CheckoutClient() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm leading-tight truncate">{item.productName}</p>
+                      <p className="font-semibold text-sm leading-tight truncate">
+                        {item.productName}
+                      </p>
                       {item.designName && (
                         <div className="mt-1.5 flex items-center gap-2">
                           {item.designImageUrl && (
@@ -724,7 +783,9 @@ export function CheckoutClient() {
                 <span className="text-lg font-semibold">{tCart('total')}</span>
                 <span className="text-lg font-semibold text-primary">
                   {items.reduce((sum, item) => sum + item.quantity, 0)}{' '}
-                  {items.reduce((sum, item) => sum + item.quantity, 0) === 1 ? tCart('item') : tCart('items')}
+                  {items.reduce((sum, item) => sum + item.quantity, 0) === 1
+                    ? tCart('item')
+                    : tCart('items')}
                 </span>
               </div>
             </div>

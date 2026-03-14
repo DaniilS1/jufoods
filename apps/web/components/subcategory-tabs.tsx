@@ -55,7 +55,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
             <button
               onClick={() => handleSubcategoryChange(null)}
               className={cn(
-                'flex items-center gap-1.5 px-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
                 !currentSubcategory
                   ? 'text-muted-foreground bg-primary/20'
                   : 'text-muted-foreground hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/5'
@@ -73,7 +73,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
                   key={subcategory.id}
                   onClick={() => handleSubcategoryChange(subcategory.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
+                    'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
                     isActive
                       ? 'text-muted-foreground bg-primary/20'
                       : 'text-muted-foreground hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/5'
@@ -88,7 +88,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
             {category === 'torten' && (
               <button
                 onClick={() => setModalOpen(true)}
-                className="hidden sm:flex ml-auto items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm touch-manipulation"
+                className="hidden sm:flex ml-auto items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm touch-manipulation"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 <span>{tModal('orderButton')}</span>

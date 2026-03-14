@@ -70,7 +70,8 @@
     "orderSummary": "Bestellübersicht",
     "total": "Gesamt",
     "product": "Produkt",
-    "design": "Design"
+    "design": "Design",
+    "quantity": "Menge"
   },
   "order": {
     "title": "Bestellung aufgeben",
@@ -96,10 +97,6 @@
       "fullNamePlaceholder": "Geben Sie den vollständigen Namen ein",
       "email": "E-Mail",
       "emailPlaceholder": "beispiel@email.com",
-      "dessert": "Dessert",
-      "dessertPlaceholder": "Beschreiben Sie das Dessert",
-      "numberOfPeople": "Für wie viele Personen",
-      "numberOfPeoplePlaceholder": "Anzahl der Personen",
       "eventDate": "Datum des Festes",
       "celebrationDate": "Datum der Feier",
       "timeNeeded": "Uhrzeit, zu der das Dessert benötigt wird",
@@ -121,15 +118,18 @@
         "friend": "Von Freunden",
         "search": "Internetsuche",
         "other": "Andere"
-      }
+      },
+      "selectDate": "Datum auswählen",
+      "hour": "Stunde",
+      "minute": "Minute",
+      "remarks": "Bemerkungen",
+      "remarksPlaceholder": "Besondere Wünsche, Allergien oder sonstige Hinweise...",
+      "deliveryStreet": "Straße und Hausnummer",
+      "deliveryStreetPlaceholder": "z.B. Musterstraße 42"
     },
-    "customDesign": {
-      "title": "Eigenes Design auswählen",
-      "description": "Nutze eines deiner hochgeladenen Designs oder lade neue im Konto hoch.",
-      "empty": "Noch keine Designs verfügbar.",
-      "loginPrompt": "Bitte melden Sie sich an, um Ihre Designs zu verwenden.",
-      "error": "Designs konnten nicht geladen werden.",
-      "selectedLabel": "Ausgewähltes Design"
+    "review": {
+      "checkDetails": "Bitte überprüfen Sie Ihre Angaben vor dem Absenden.",
+      "deliveryAddress": "Lieferadresse"
     }
   },
   "auth": {
@@ -277,8 +277,8 @@
     "description": "Verwalten Sie Produkte, Designs, Kunden und Bestellungen",
     "tabs": {
       "products": "Produkte",
-    "designs": "Torten-Designs",
-    "flavours": "Torten-Geschmäcker",
+      "designs": "Torten-Designs",
+      "flavours": "Torten-Geschmäcker",
       "customers": "Kunden",
       "orders": "Bestellungen"
     },
@@ -436,4 +436,3 @@
     "addedToCart": "Torte wurde zum Warenkorb hinzugefügt!"
   }
 }
-
