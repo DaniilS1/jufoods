@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ShoppingCart, Heart, Menu, Cake, Cookie, Circle, CakeSlice, Donut } from 'lucide-react'
+import { ShoppingCart, Heart, Menu, Cake, Cookie, Circle, CakeSlice, Donut, User } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { useCartStore } from '@/stores/cart-store'
 import type { CartStore } from '@/stores/cart-store'
@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils'
 import { SearchBar } from '@/components/search-bar'
 import { AdminTabs } from '@/components/admin-tabs'
 import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { createClient } from '@/lib/supabase/client'
 
 const categories = [
   { id: 'torten', icon: Cake, key: 'cakes' },
@@ -30,13 +32,22 @@ export function Header() {
   const searchParams = useSearchParams()
   const [mounted, setMounted] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string>('torten')
+  const [userEmail, setUserEmail] = useState<string | null>(null)
   const totalItems = useCartStore((state: CartStore) => state.getTotalItems())
   const favoriteIds = useFavoritesStore((state) => state.favoriteIds)
   const favoriteCount = favoriteIds.length
   const { openCart, openNavDrawer } = useUIStore()
+  const supabase = createClient()
 
   useEffect(() => {
     setMounted(true)
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserEmail(user?.email ?? null)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user?.email ?? null)
+    })
+    return () => subscription.unsubscribe()
   }, [])
 
   useEffect(() => {
@@ -130,6 +141,27 @@ export function Header() {
               </span>
             )}
             <span className="sr-only">{t('cart')}</span>
+          </Button>
+
+          {/* Account avatar */}
+          <Button
+            variant="ghost"
+            size="icon"
+            asChild
+            className="hover:bg-primary/10 rounded-full"
+            aria-label={t('account')}
+          >
+            <Link href={userEmail ? `/${pathname?.split('/')[1] || 'de'}/account` : `/${pathname?.split('/')[1] || 'de'}/login`}>
+              {mounted && userEmail ? (
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/15 text-primary text-xs font-semibold">
+                    {userEmail.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <User className="h-5 w-5" aria-hidden="true" />
+              )}
+            </Link>
           </Button>
         </div>
       </div>

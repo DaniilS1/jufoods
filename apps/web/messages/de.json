@@ -25,7 +25,8 @@
     "language": "Sprache",
     "addToCart": "In den Warenkorb",
     "back": "Zurück",
-    "next": "Weiter"
+    "next": "Weiter",
+    "memberSince": "Mitglied seit"
   },
   "nav": {
     "catalog": "Katalog",
