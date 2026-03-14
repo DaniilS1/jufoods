@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -144,6 +145,7 @@ export function CustomDesignUpload({
               type="button"
               variant="ghost"
               size="icon"
+              className="h-11 w-11 shrink-0"
               onClick={handleRemoveFile}
               disabled={isUploading}
             >
@@ -153,7 +155,7 @@ export function CustomDesignUpload({
         </div>
         {previewUrl && (
           <div className="relative w-32 h-32 rounded-md overflow-hidden border">
-            <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+            <Image src={previewUrl} alt="Preview" fill className="object-cover" sizes="128px" unoptimized />
           </div>
         )}
       </div>
@@ -183,7 +185,6 @@ export function CustomDesignUpload({
         onClick={handleUpload}
         disabled={!selectedFile || isUploading}
         className="w-full"
-        size="sm"
       >
         {isUploading ? (
           <>

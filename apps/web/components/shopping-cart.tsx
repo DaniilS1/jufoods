@@ -73,7 +73,7 @@ export function ShoppingCart() {
   return (
     <Dialog open={isCartOpen} onOpenChange={(open) => !open && closeCart()}>
       <DialogContent className="max-h-[96vh] max-w-3xl bg-background flex flex-col p-0 gap-0 overflow-hidden overscroll-contain">
-        <DialogHeader className="border-b px-6 py-5">
+        <DialogHeader className="border-b px-4 sm:px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-3xl font-bold text-foreground">{t('title')}</DialogTitle>
@@ -87,7 +87,7 @@ export function ShoppingCart() {
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-6">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="rounded-full bg-muted p-6 mb-6">
@@ -112,7 +112,7 @@ export function ShoppingCart() {
                 return (
                   <div
                     key={itemKey}
-                    className="group relative rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-all"
+                    className="group relative rounded-xl border border-border bg-card p-4 shadow-sm hover:shadow-md active:shadow-md transition-all"
                   >
                     <div className="flex gap-4">
                       {/* Product Image */}
@@ -155,7 +155,7 @@ export function ShoppingCart() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8"
+                                className="h-11 w-11"
                                 onClick={() => toggleItem(itemKey)}
                               >
                                 <ChevronDown
@@ -169,7 +169,7 @@ export function ShoppingCart() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10 active:bg-destructive/10"
                               onClick={() => removeItem(item.productId, item.designId)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -184,7 +184,7 @@ export function ShoppingCart() {
                           <Button
                             variant="outline"
                             size="icon"
-                              className="h-9 w-9 rounded-lg"
+                              className="h-11 w-11 rounded-lg touch-manipulation"
                               onClick={() => updateQuantity(item.productId, item.designId, item.quantity - 1)}
                           >
                               <Minus className="h-4 w-4" />
@@ -194,7 +194,7 @@ export function ShoppingCart() {
                           <Button
                             variant="outline"
                             size="icon"
-                              className="h-9 w-9 rounded-lg"
+                              className="h-11 w-11 rounded-lg touch-manipulation"
                               onClick={() => updateQuantity(item.productId, item.designId, item.quantity + 1)}
                           >
                               <Plus className="h-4 w-4" />
@@ -260,7 +260,7 @@ export function ShoppingCart() {
         </div>
 
         {items.length > 0 && (
-          <DialogFooter className="border-t bg-muted/30 px-6 py-5">
+          <DialogFooter className="border-t bg-muted/30 px-4 sm:px-6 py-5">
             <div className="w-full space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-lg font-semibold text-foreground">{t('orderSummary')}</span>

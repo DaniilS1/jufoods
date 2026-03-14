@@ -18,6 +18,8 @@ import Link from 'next/link'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 
 const createRegisterSchema = (t: any) => z.object({
+  firstName: z.string().min(1, t('firstName')),
+  lastName: z.string().min(1, t('lastName')),
   email: z.string().email(t('invalidEmail') || 'Invalid email address'),
   password: z.string().min(6, t('passwordMinLength') || 'Password must be at least 6 characters'),
   confirmPassword: z.string().min(6, t('passwordMinLength') || 'Password must be at least 6 characters'),
@@ -39,9 +41,9 @@ export function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [showVerifyDialog, setShowVerifyDialog] = useState(false)
-  
+
   const localePrefix = pathname?.split('/')[1] || locale
-  
+
   const registerSchema = createRegisterSchema(t)
 
   const {
@@ -57,12 +59,15 @@ export function RegisterForm() {
     setError(null)
     setSuccess(false)
 
+    const fullName = `${data.firstName.trim()} ${data.lastName.trim()}`
+
     try {
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/${localePrefix}`,
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${localePrefix}`,
+          data: { full_name: fullName },
         },
       })
 
@@ -72,13 +77,11 @@ export function RegisterForm() {
         return
       }
 
-      // Check if email confirmation is required
       if (signUpData.user && !signUpData.session) {
         setSuccess(true)
         setShowVerifyDialog(true)
         setIsSubmitting(false)
       } else if (signUpData.session) {
-        // User is immediately logged in (if email confirmation is disabled)
         setSuccess(true)
         setTimeout(() => {
           router.push(`/${localePrefix}`)
@@ -105,26 +108,60 @@ export function RegisterForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {error && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-              <AlertCircle className="h-4 w-4" />
+              <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span>{error}</span>
             </div>
           )}
 
           {success && (
             <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 text-sm">
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
               <span>
                 {t('registerSuccess') || 'Registration successful! Please check your email to confirm your account.'}
               </span>
             </div>
           )}
 
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">{t('firstName')}</Label>
+              <Input
+                id="firstName"
+                type="text"
+                autoComplete="given-name"
+                placeholder={t('firstNamePlaceholder') || 'Max'}
+                {...register('firstName')}
+                className={cn(errors.firstName && 'border-destructive')}
+              />
+              {errors.firstName && (
+                <p className="text-sm text-destructive">{errors.firstName.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="lastName">{t('lastName')}</Label>
+              <Input
+                id="lastName"
+                type="text"
+                autoComplete="family-name"
+                placeholder={t('lastNamePlaceholder') || 'Müller'}
+                {...register('lastName')}
+                className={cn(errors.lastName && 'border-destructive')}
+              />
+              {errors.lastName && (
+                <p className="text-sm text-destructive">{errors.lastName.message}</p>
+              )}
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">{t('email')}</Label>
             <Input
               id="email"
               type="email"
-              placeholder={t('email')}
+              autoComplete="email"
+              placeholder={t('emailPlaceholder') || 'beispiel@gmail.com'}
+              spellCheck={false}
               {...register('email')}
               className={cn(errors.email && 'border-destructive')}
             />
@@ -138,7 +175,8 @@ export function RegisterForm() {
             <Input
               id="password"
               type="password"
-              placeholder={t('password')}
+              autoComplete="new-password"
+              placeholder={t('passwordPlaceholder') || '••••••••'}
               {...register('password')}
               className={cn(errors.password && 'border-destructive')}
             />
@@ -152,7 +190,8 @@ export function RegisterForm() {
             <Input
               id="confirmPassword"
               type="password"
-              placeholder={t('confirmPassword')}
+              autoComplete="new-password"
+              placeholder={t('confirmPasswordPlaceholder') || '••••••••'}
               {...register('confirmPassword')}
               className={cn(errors.confirmPassword && 'border-destructive')}
             />
@@ -192,4 +231,3 @@ export function RegisterForm() {
     </Card>
   )
 }
-

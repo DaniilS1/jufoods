@@ -3,7 +3,8 @@
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Cake, Facebook, Instagram, Mail, Phone } from 'lucide-react'
+import { Facebook, Instagram, Mail, Phone } from 'lucide-react'
+import { Logo } from '@/components/logo'
 import { cn } from '@/lib/utils'
 import { LanguageSwitcher } from '@/components/language-switcher'
 
@@ -29,26 +30,23 @@ export function Footer() {
   }
 
   return (
-    <footer className="border-t border-primary/10 bg-gradient-to-br from-primary-50/50 via-accent/30 to-primary-50/50">
+    <footer className="border-t border-primary/10 bg-gradient-to-br from-primary-50/50 via-accent/30 to-primary-50/50 pb-[env(safe-area-inset-bottom)]">
       <div className="container py-12 md:py-16">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-4">
-            <Link href={`/${locale}`} className="flex items-center space-x-2">
-              <Cake className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold text-primary">jufoods</span>
-            </Link>
+            <Logo href={`/${locale}`} size="md" />
             <p className="text-sm text-muted-foreground">
               {locale === 'uk'
                 ? 'Ручне виготовлення тортів та десертів з любов\'ю та увагою до деталей.'
                 : 'Handgemachte Torten und Desserts mit Liebe und Aufmerksamkeit für Details.'}
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:text-primary active:text-primary transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5" />
@@ -57,7 +55,7 @@ export function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground hover:text-primary active:text-primary transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
@@ -73,7 +71,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="block py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -90,7 +88,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    className="block py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -107,7 +105,7 @@ export function Footer() {
                 <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <a
                   href="mailto:info@jufoods.com"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  className="py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                 >
                   info@jufoods.com
                 </a>
@@ -116,7 +114,7 @@ export function Footer() {
                 <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <a
                   href="tel:+49123456789"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  className="py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                 >
                   +49 123 456 789
                 </a>
@@ -135,10 +133,10 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <LanguageSwitcher />
-              <Link href={`/${locale}/about`} className="hover:text-primary transition-colors">
+              <Link href={`/${locale}/about`} className="py-1.5 hover:text-primary active:text-primary transition-colors">
                 {t('about')}
               </Link>
-              <Link href={`/${locale}/contact`} className="hover:text-primary transition-colors">
+              <Link href={`/${locale}/contact`} className="py-1.5 hover:text-primary active:text-primary transition-colors">
                 {t('contact')}
               </Link>
             </div>

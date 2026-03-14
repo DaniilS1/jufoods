@@ -55,10 +55,10 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
             <button
               onClick={() => handleSubcategoryChange(null)}
               className={cn(
-                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm',
+                'flex items-center gap-1.5 px-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
                 !currentSubcategory
                   ? 'text-muted-foreground bg-primary/20'
-                  : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
+                  : 'text-muted-foreground hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/5'
               )}
             >
               <span>{t('all')}</span>
@@ -73,10 +73,10 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
                   key={subcategory.id}
                   onClick={() => handleSubcategoryChange(subcategory.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm',
+                    'flex items-center gap-1.5 px-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
                     isActive
                       ? 'text-muted-foreground bg-primary/20'
-                      : 'text-muted-foreground hover:text-primary hover:bg-primary/5'
+                      : 'text-muted-foreground hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/5'
                   )}
                 >
                   <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />
@@ -102,7 +102,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale }: Subcat
         <button
           onClick={() => setModalOpen(true)}
           aria-label={tModal('orderButton')}
-          className="fixed bottom-6 right-6 z-40 sm:hidden flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 active:scale-95 transition-all touch-manipulation"
+          className="fixed bottom-6 right-6 z-40 sm:hidden flex items-center justify-center size-11 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 active:scale-95 transition-all touch-manipulation"
         >
           <Plus className="h-5 w-5" aria-hidden="true" />
         </button>

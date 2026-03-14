@@ -39,7 +39,7 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
                     'hover:scale-[1.02] active:scale-[0.98]',
                     isSelected
                       ? 'bg-primary shadow-lg shadow-primary/20 '
-                      : 'bg-primary/30 hover:bg-primary/50 hover:shadow-md'
+                      : 'bg-primary/30 hover:bg-primary/50 hover:shadow-md active:bg-primary/50 active:shadow-md'
                   )}
                 >
                   {/* Checkmark Badge for Selected */}
@@ -55,7 +55,7 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
                       'relative w-full aspect-square overflow-hidden rounded-lg bg-muted transition-all duration-300',
                       isSelected
                         ? ''
-                        : 'group-hover:ring-2 group-hover:ring-primary/30'
+                        : 'group-hover:ring-2 group-hover:ring-primary/30 group-active:ring-2 group-active:ring-primary/30'
                     )}
                   >
                     <Image
@@ -64,7 +64,7 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
                       fill
                       className={cn(
                         'object-cover transition-transform duration-300',
-                        isSelected ? 'scale-100' : 'group-hover:scale-105'
+                        isSelected ? 'scale-100' : 'group-hover:scale-105 group-active:scale-105'
                       )}
                       sizes="(max-width: 640px) 112px, 128px"
                     />

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { ShoppingCart, Heart, Menu, Cake, IceCream, Cookie, Circle, Sparkles, CakeSlice, Donut } from 'lucide-react'
+import { ShoppingCart, Heart, Menu, Cake, Cookie, Circle, CakeSlice, Donut } from 'lucide-react'
+import { Logo } from '@/components/logo'
 import { useCartStore } from '@/stores/cart-store'
 import type { CartStore } from '@/stores/cart-store'
 import { useFavoritesStore } from '@/stores/favorites-store'
@@ -80,10 +81,7 @@ export function Header() {
               <Menu className="h-5 w-5" aria-hidden="true" />
               <span className="sr-only">Menu</span>
             </Button>
-            <Link href={`/${locale}`} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <Cake className="h-5 w-5 text-primary" aria-hidden="true" />
-              <span className="text-xl font-bold text-primary hidden sm:inline-block">jufoods</span>
-            </Link>
+            <Logo href={`/${locale}`} size="sm" priority />
           </div>
         </div>
       </header>
@@ -104,10 +102,7 @@ export function Header() {
             <Menu className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Menu</span>
           </Button>
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity shrink-0">
-            <Cake className="h-5 w-5 text-primary" aria-hidden="true" />
-            <span className="text-xl font-bold text-primary hidden sm:inline-block">jufoods</span>
-          </Link>
+          <Logo href="/" size="sm" priority />
         </div>
 
         <div className="flex items-center gap-4 shrink-0">

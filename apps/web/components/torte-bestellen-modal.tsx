@@ -394,7 +394,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
   return (
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl w-full h-[90vh] p-0 gap-0 overflow-hidden flex flex-col">
+      <DialogContent className="max-w-6xl w-full h-[90dvh] p-0 gap-0 overflow-hidden flex flex-col">
         <DialogTitle className="sr-only">{t('title')}</DialogTitle>
 
         {/* Header with step indicator */}
@@ -429,8 +429,8 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                       }
                     }}
                     className={cn(
-                      'flex items-center gap-2 shrink-0 transition-colors rounded-lg px-2 py-1.5',
-                      isActive ? 'text-primary' : isCompleted ? 'text-primary/80 cursor-pointer hover:text-primary hover:bg-primary/5' : 'text-muted-foreground cursor-default'
+                      'flex items-center gap-2 shrink-0 transition-colors rounded-lg px-2 py-1.5 min-h-[44px] touch-manipulation',
+                      isActive ? 'text-primary' : isCompleted ? 'text-primary/80 cursor-pointer hover:text-primary hover:bg-primary/5 active:text-primary' : 'text-muted-foreground cursor-default'
                     )}
                   >
                     <span
@@ -634,14 +634,14 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="absolute bottom-1.5 right-1.5 z-10 h-6 w-6 rounded-full bg-black/50 text-white hover:bg-black/70"
+                                  className="absolute bottom-1.5 right-1.5 z-10 h-9 w-9 rounded-full bg-black/50 text-white hover:bg-black/70 active:bg-black/80"
                                   onClick={(e) => e.stopPropagation()}
                                   title={t('details')}
                                 >
                                   <Info className="h-4 w-4" />
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent className="w-80 p-0" align="start" onClick={(e) => e.stopPropagation()}>
+                              <PopoverContent className="w-[min(20rem,calc(100vw-2rem))] p-0" align="start" onClick={(e) => e.stopPropagation()}>
                                 <div
                                   className="h-[380px] overflow-y-auto"
                                   onWheel={(e) => e.nativeEvent.stopPropagation()}
@@ -800,7 +800,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                 </div>
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="rounded-2xl border-2 border-border bg-card p-4 shadow-sm overflow-hidden">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -884,7 +884,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="rounded-2xl border-2 border-border bg-card p-4 shadow-sm">
                       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2">
                         <CalendarDays className="h-3.5 w-3.5" />
@@ -1032,7 +1032,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
           )}
         </div>
 
-        <div className="flex-none border-t bg-background px-6 py-4 flex items-center justify-between">
+        <div className="flex-none border-t bg-background px-6 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] flex items-center justify-between">
           <Button variant="ghost" onClick={handleBack} disabled={step === 1} className="gap-1.5">
             <ChevronLeft className="h-4 w-4" />
             {t('back')}
@@ -1071,7 +1071,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
             <Label className="text-sm font-medium mb-1.5 block">{t('uploadImage')} *</Label>
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
             {customImagePreview ? (
-              <div className="relative w-40 h-40 rounded-lg overflow-hidden border-2 border-primary/30 group">
+              <div className="relative w-full max-w-[160px] aspect-square rounded-lg overflow-hidden border-2 border-primary/30">
                 <Image src={customImagePreview} alt="Custom" fill className="object-cover" sizes="160px" />
                 <button
                   type="button"
@@ -1079,7 +1079,8 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                     setCustomImage(null)
                     setCustomImagePreview(null)
                   }}
-                  className="absolute top-1 right-1 bg-background/90 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 bg-background/90 rounded-full p-1.5 touch-manipulation shadow-sm"
+                  aria-label="Remove image"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -1088,7 +1089,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center justify-center w-40 h-40 rounded-lg border-2 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/10 transition-all gap-1.5 text-muted-foreground hover:text-primary"
+                className="flex flex-col items-center justify-center w-full max-w-[160px] aspect-square rounded-lg border-2 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/10 active:bg-primary/10 transition-all gap-1.5 text-muted-foreground hover:text-primary active:text-primary touch-manipulation"
               >
                 <Upload className="h-6 w-6" />
                 <span className="text-xs">{t('uploadImage')}</span>

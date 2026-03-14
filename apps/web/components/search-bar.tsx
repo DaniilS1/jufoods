@@ -38,17 +38,19 @@ export function SearchBar() {
   const inputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
 
-  // Close results when clicking outside
+  // Close results when clicking or tapping outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleOutside(event: MouseEvent | TouchEvent) {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowResults(false)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', handleOutside)
+    document.addEventListener('touchstart', handleOutside, { passive: true })
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('mousedown', handleOutside)
+      document.removeEventListener('touchstart', handleOutside)
     }
   }, [])
 
@@ -192,13 +194,13 @@ export function SearchBar() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
-          className="pl-8 pr-8 w-50 h-8 rounded-md text-sm opacity-70 transition-all bg-primary/10 duration-100"
+          className="pl-8 pr-9 w-full sm:w-64 rounded-md opacity-70 transition-all bg-primary/10 duration-100"
         />
         {searchQuery && (
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 opacity-70 hover:opacity-100 transition-opacity"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 touch-manipulation"
             onClick={handleClear}
           >
             <X className="h-3.5 w-3.5" />
@@ -223,7 +225,7 @@ export function SearchBar() {
                   <button
                     key={product.id}
                     onClick={() => handleResultClick(product.slug)}
-                    className="w-full text-left p-3 rounded-lg hover:bg-accent transition-colors flex items-center gap-3"
+                    className="w-full text-left p-3 rounded-lg hover:bg-accent active:bg-accent transition-colors flex items-center gap-3 touch-manipulation"
                   >
                     {product.image_url && (
                       <div className="relative h-12 w-12 rounded-md overflow-hidden bg-muted shrink-0">

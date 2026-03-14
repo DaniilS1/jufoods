@@ -373,11 +373,10 @@ export function AdminDesignManagement() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-4">
             <div>
               <h2 className="text-xl font-semibold text-foreground">{tAdmin('title')}</h2>
-              <p className="text-sm text-muted-foreground">{tAdmin('description')}</p>
             </div>
             <Button onClick={openCreateModal}>
-              <Plus className="h-4 w-4 mr-2" />
-              {tAdmin('newDesign')}
+              <Plus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{tAdmin('newDesign')}</span>
             </Button>
           </div>
 
@@ -390,134 +389,198 @@ export function AdminDesignManagement() {
               <p>{tAdmin('noDesigns')}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto max-h-[calc(100vh-300px)] overflow-y-auto">
-            <table className="min-w-full divide-y divide-border text-sm bg-white">
-              <thead className="text-muted-foreground sticky top-0 bg-white z-10">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('subCategory')}</th>
-                  <th className="px-4 py-3 text-right font-semibold">{tAdmin('actions')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/70 bg-white">
-                  {designs.map((design) => {
-                    const subCategoryLabel = design.sub_category
-                      ? tTortenSubcategories(design.sub_category)
-                      : tAdmin('noSubCategory')
+            <>
+              {/* Mobile card list */}
+              <div className="md:hidden divide-y divide-border">
+                {designs.map((design) => {
+                  const subCategoryLabel = design.sub_category
+                    ? tTortenSubcategories(design.sub_category)
+                    : tAdmin('noSubCategory')
 
-                    return (
-                      <tr key={design.id} className="align-top">
-                        <td className="px-4 py-3">
-                          <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
-                            {design.image_url ? (
-                              <Image
-                                src={normalizeSupabaseImageUrl(design.image_url)}
-                                alt={design.name_de}
-                                width={64}
-                                height={64}
-                                className="h-full w-full object-cover"
-                              />
+                  return (
+                    <div key={design.id} className="flex gap-3 p-4">
+                      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
+                        {design.image_url ? (
+                          <Image
+                            src={normalizeSupabaseImageUrl(design.image_url)}
+                            alt={design.name_de}
+                            width={64}
+                            height={64}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                            {tAdmin('noImage')}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{design.name_de}</p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{design.name_uk}</p>
+                        <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary mt-1">
+                          {subCategoryLabel}
+                        </span>
+                        <div className="flex justify-end gap-1 pt-2 mt-2 border-t border-border/50">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => startEdit(design)}
+                            aria-label={tAdmin('edit')}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(design.id)}
+                            disabled={deletingId === design.id}
+                            aria-label={tAdmin('delete')}
+                          >
+                            {deletingId === design.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                                {tAdmin('noImage')}
-                              </div>
+                              <Trash2 className="h-4 w-4 text-destructive" />
                             )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-foreground">{design.name_de}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{design.name_uk}</td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
-                            {subCategoryLabel}
-                          </span>
-                        </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-2">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                variant="ghost"
-                                  size="icon"
-                                  onClick={() => startEdit(design)}
-                                  aria-label={tAdmin('edit')}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>{tAdmin('edit')}</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDelete(design.id)}
-                                  disabled={deletingId === design.id}
-                                  aria-label={tAdmin('delete')}
-                                >
-                                {deletingId === design.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                )}
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>{tAdmin('delete')}</TooltipContent>
-                            </Tooltip>
-                          </div>
-                        </td>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden md:block max-h-[calc(100vh-300px)] overflow-y-auto">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-border text-sm bg-white">
+                    <thead className="text-muted-foreground sticky top-0 bg-white z-10">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
+                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
+                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
+                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('subCategory')}</th>
+                        <th className="px-4 py-3 text-right font-semibold">{tAdmin('actions')}</th>
                       </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+                    </thead>
+                    <tbody className="divide-y divide-border/70 bg-white">
+                      {designs.map((design) => {
+                        const subCategoryLabel = design.sub_category
+                          ? tTortenSubcategories(design.sub_category)
+                          : tAdmin('noSubCategory')
+
+                        return (
+                          <tr key={design.id} className="align-top">
+                            <td className="px-4 py-3">
+                              <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
+                                {design.image_url ? (
+                                  <Image
+                                    src={normalizeSupabaseImageUrl(design.image_url)}
+                                    alt={design.name_de}
+                                    width={64}
+                                    height={64}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                                    {tAdmin('noImage')}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 font-medium text-foreground">{design.name_de}</td>
+                            <td className="px-4 py-3 text-muted-foreground">{design.name_uk}</td>
+                            <td className="px-4 py-3">
+                              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
+                                {subCategoryLabel}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex items-center justify-end gap-2">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => startEdit(design)}
+                                      aria-label={tAdmin('edit')}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{tAdmin('edit')}</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleDelete(design.id)}
+                                      disabled={deletingId === design.id}
+                                      aria-label={tAdmin('delete')}
+                                    >
+                                      {deletingId === design.id ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                      )}
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{tAdmin('delete')}</TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </TooltipProvider>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b">
-            <DialogTitle>
+        <DialogContent className="max-w-3xl max-h-[90dvh] flex flex-col p-0">
+          <DialogHeader className="px-4 pt-4 pb-3 border-b">
+            <DialogTitle className="text-base">
               {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs">
               {editingDesign ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name_de">{tAdmin('nameDe')}</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs" htmlFor="name_de">{tAdmin('nameDe')}</Label>
                 <Input id="name_de" {...register('name_de')} />
-                {errors.name_de && <p className="text-sm text-destructive">{errors.name_de.message}</p>}
+                {errors.name_de && <p className="text-xs text-destructive">{errors.name_de.message}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="name_uk">{tAdmin('nameUk')}</Label>
+              <div className="space-y-1">
+                <Label className="text-xs" htmlFor="name_uk">{tAdmin('nameUk')}</Label>
                 <Input id="name_uk" {...register('name_uk')} />
-                {errors.name_uk && <p className="text-sm text-destructive">{errors.name_uk.message}</p>}
+                {errors.name_uk && <p className="text-xs text-destructive">{errors.name_uk.message}</p>}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="description_de">{tAdmin('descriptionDe')}</Label>
-                <Textarea id="description_de" rows={4} {...register('description_de')} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs" htmlFor="description_de">{tAdmin('descriptionDe')}</Label>
+                <Textarea id="description_de" rows={2} {...register('description_de')} />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="description_uk">{tAdmin('descriptionUk')}</Label>
-                <Textarea id="description_uk" rows={4} {...register('description_uk')} />
+              <div className="space-y-1">
+                <Label className="text-xs" htmlFor="description_uk">{tAdmin('descriptionUk')}</Label>
+                <Textarea id="description_uk" rows={2} {...register('description_uk')} />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="sub_category">{tAdmin('subCategory')}</Label>
+            <div className="space-y-1">
+              <Label className="text-xs" htmlFor="sub_category">{tAdmin('subCategory')}</Label>
               <Select
                 value={selectValue}
                 onValueChange={(value) =>
@@ -538,13 +601,13 @@ export function AdminDesignManagement() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="image_url">{tAdmin('image')}</Label>
+            <div className="space-y-1">
+              <Label className="text-xs" htmlFor="image_url">{tAdmin('image')}</Label>
               <div className="flex gap-2">
                 <Input id="image_url" {...register('image_url')} placeholder="https://..." />
                 <Label
                   htmlFor="design-image-upload"
-                  className="inline-flex items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm cursor-pointer hover:bg-accent"
+                  className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm cursor-pointer hover:bg-accent active:bg-accent"
                 >
                   <Upload className="h-4 w-4" />
                   {tAdmin('upload')}
@@ -567,34 +630,34 @@ export function AdminDesignManagement() {
               {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
-                <Label>{tAdmin('flavourAssignmentsTitle')}</Label>
-                <p className="text-sm text-muted-foreground">{tAdmin('flavourAssignmentsDescription')}</p>
+                <Label className="text-xs">{tAdmin('flavourAssignmentsTitle')}</Label>
+                <p className="text-xs text-muted-foreground">{tAdmin('flavourAssignmentsDescription')}</p>
               </div>
               <div className="rounded-md border">
                 {flavoursLoading ? (
-                  <div className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                  <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
                     {tAdmin('flavourAssignmentsLoading')}
                   </div>
                 ) : flavours.length === 0 ? (
-                  <p className="p-4 text-sm text-muted-foreground">{tAdmin('flavourAssignmentsEmpty')}</p>
+                  <p className="p-3 text-xs text-muted-foreground">{tAdmin('flavourAssignmentsEmpty')}</p>
                 ) : (
-                  <div className="max-h-64 overflow-y-auto divide-y">
+                  <div className="max-h-48 overflow-y-auto divide-y">
                     {flavours.map((flavour) => {
                       const checked = selectedFlavourIds.includes(flavour.id)
                       return (
                         <label
                           key={flavour.id}
-                          className="flex items-start gap-3 p-3 hover:bg-muted/50 cursor-pointer"
+                          className="flex items-start gap-2 p-2 hover:bg-muted/50 cursor-pointer"
                         >
                           <Checkbox
                             checked={checked}
                             onCheckedChange={(value) => toggleFlavourSelection(flavour.id, value === true)}
                           />
                           <div>
-                            <p className="font-medium leading-tight">{flavour.name_de}</p>
+                            <p className="text-sm font-medium leading-tight">{flavour.name_de}</p>
                             <p className="text-xs text-muted-foreground">{flavour.name_uk}</p>
                           </div>
                         </label>
@@ -606,7 +669,7 @@ export function AdminDesignManagement() {
             </div>
             </div>
 
-            <DialogFooter className="px-6 py-4 border-t bg-background flex gap-2">
+            <DialogFooter className="px-4 py-3 border-t bg-background flex gap-2">
               <Button type="button" variant="outline" onClick={closeModal}>
                 <X className="h-4 w-4 mr-1" />
                 {tAdmin('cancel')}

@@ -236,7 +236,7 @@ export function CheckoutClient() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
       {/* Form Section */}
       <div className="lg:col-span-2 space-y-6">
         {/* Step Indicator */}
@@ -507,7 +507,7 @@ export function CheckoutClient() {
                               alt={design.notes ?? 'Custom design'}
                               fill
                               className="object-cover"
-                              sizes="200px"
+                              sizes="(max-width: 640px) 45vw, 200px"
                             />
                           </div>
                         </button>
@@ -627,7 +627,7 @@ export function CheckoutClient() {
                             alt={selectedCustomDesign.notes ?? 'Custom design'}
                             fill
                             className="object-cover"
-                            sizes="400px"
+                            sizes="(max-width: 1024px) 100vw, 400px"
                           />
                         </div>
                       </div>
@@ -666,7 +666,7 @@ export function CheckoutClient() {
 
       {/* Order Summary Section */}
       <div className="lg:col-span-1">
-        <Card className="sticky top-8">
+        <Card className="lg:sticky lg:top-8">
           <CardHeader>
             <CardTitle>{tCart('orderSummary')}</CardTitle>
           </CardHeader>

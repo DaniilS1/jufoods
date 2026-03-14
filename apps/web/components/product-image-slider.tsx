@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { Heart, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -34,6 +34,7 @@ export function ProductImageSlider({
 
     const allImages = [productImageUrl, ...additionalImages].filter(Boolean)
     const [currentIndex, setCurrentIndex] = useState(0)
+    const touchStartX = useRef<number | null>(null)
 
     const goToPrevious = () => {
         setCurrentIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1))
@@ -41,6 +42,19 @@ export function ProductImageSlider({
 
     const goToNext = () => {
         setCurrentIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1))
+    }
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX
+    }
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current === null) return
+        const delta = touchStartX.current - e.changedTouches[0].clientX
+        if (Math.abs(delta) > 40) {
+            delta > 0 ? goToNext() : goToPrevious()
+        }
+        touchStartX.current = null
     }
 
     return (
@@ -52,7 +66,7 @@ export function ProductImageSlider({
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute top-4 right-4 z-40 h-10 w-10 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-md"
+                        className="absolute top-4 right-4 z-40 h-11 w-11 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-md"
                         onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
@@ -66,13 +80,13 @@ export function ProductImageSlider({
                     </Button>
                 )}
 
-                {/* Navigation Arrows */}
+                {/* Navigation Arrows — always visible on mobile, hover-only on desktop */}
                 {allImages.length > 1 && (
                     <>
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 h-10 w-10 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 z-40 h-11 w-11 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-md transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                             onClick={goToPrevious}
                         >
                             <ChevronLeft className="h-5 w-5" />
@@ -81,7 +95,7 @@ export function ProductImageSlider({
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 h-10 w-10 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 z-40 h-11 w-11 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full shadow-md transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                             onClick={goToNext}
                         >
                             <ChevronRight className="h-5 w-5" />
@@ -90,8 +104,12 @@ export function ProductImageSlider({
                     </>
                 )}
 
-                {/* Image Container */}
-                <div className="relative w-full  mx-auto h-full">
+                {/* Image Container with swipe support */}
+                <div
+                    className="relative w-full mx-auto h-full"
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                >
                     {allImages.map((imageUrl, index) => {
                         const normalizedUrl = normalizeSupabaseImageUrl(imageUrl)
                         const isVisible = index === currentIndex
@@ -121,19 +139,21 @@ export function ProductImageSlider({
                     })}
                 </div>
 
-                {/* Image Indicators */}
+                {/* Image Indicators — enlarged tap target via padding */}
                 {allImages.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-40">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 z-40">
                         {allImages.map((_, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={cn(
-                                    'h-2 rounded-full transition-all',
-                                    index === currentIndex ? 'w-8 bg-primary' : 'w-2 bg-white/60 hover:bg-white/80'
-                                )}
+                                className="p-2 touch-manipulation"
                                 aria-label={`Go to image ${index + 1}`}
-                            />
+                            >
+                                <span className={cn(
+                                    'block h-2 rounded-full transition-all',
+                                    index === currentIndex ? 'w-8 bg-primary' : 'w-2 bg-white/60'
+                                )} />
+                            </button>
                         ))}
                     </div>
                 )}
@@ -151,10 +171,10 @@ export function ProductImageSlider({
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
                                 className={cn(
-                                    'relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all',
+                                    'relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all touch-manipulation',
                                     index === currentIndex
                                         ? 'border-primary shadow-md'
-                                        : 'border-transparent hover:border-primary/50'
+                                        : 'border-transparent hover:border-primary/50 active:border-primary/50'
                                 )}
                             >
                                 <Image

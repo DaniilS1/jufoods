@@ -40,7 +40,11 @@ export interface CustomDesignRecord {
 
 type Supabase = SupabaseClient<any, 'public', any>
 
-export async function ensureUserProfile(supabase: Supabase, userId: string): Promise<UserProfileRecord> {
+export async function ensureUserProfile(
+  supabase: Supabase,
+  userId: string,
+  fullName?: string | null
+): Promise<UserProfileRecord> {
   const { data, error } = await supabase.from('users').select('*').eq('id', userId).single()
 
   if (error && !isMissingRowError(error)) {
@@ -53,7 +57,7 @@ export async function ensureUserProfile(supabase: Supabase, userId: string): Pro
 
   const { data: inserted, error: insertError } = await supabase
     .from('users')
-    .insert({ id: userId, role: 'customer' })
+    .insert({ id: userId, role: 'customer', full_name: fullName ?? null })
     .select('*')
     .single()
 

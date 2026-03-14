@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { X, User, LogOut, Settings, Package, Heart, Mail, Info, Shield, ArrowRight } from 'lucide-react'
+import { Logo } from '@/components/logo'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -93,17 +94,15 @@ export function NavigationDrawer() {
   return (
     <Drawer open={isNavDrawerOpen} onOpenChange={handleDrawerOpenChange} direction="left">
       <DrawerContent
-        className="fixed inset-y-0 left-0 right-auto top-0 bottom-0 z-50 h-full w-80 max-w-[85vw] flex flex-col rounded-none border-r bg-background mt-0 [&>div:first-child]:hidden"
+        className="fixed inset-y-0 left-0 right-auto top-0 bottom-0 z-50 h-full w-80 max-w-[85vw] flex flex-col rounded-none border-r bg-background mt-0 [&>div:first-child]:hidden pl-[env(safe-area-inset-left)]"
       >
         <DrawerHeader className="border-b bg-gradient-to-r from-primary/5 to-primary/10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-xl font-bold text-primary">j</span>
-              </div>
-              <DrawerTitle className="text-xl font-bold text-primary">jufoods</DrawerTitle>
+            <div className="flex items-center gap-2">
+              <Logo size="md" />
+              <DrawerTitle className="sr-only">jufoods</DrawerTitle>
             </div>
-            <Button variant="ghost" size="icon" onClick={closeNavDrawer} className="rounded-full hover:bg-primary/10">
+            <Button variant="ghost" size="icon" onClick={closeNavDrawer} className="h-11 w-11 rounded-full hover:bg-primary/10">
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -118,7 +117,7 @@ export function NavigationDrawer() {
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('/') && !isActive('about') && !isActive('contact') && !isActive('admin')
                   ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
               )}
               onClick={handleLinkClick}
             >
@@ -131,7 +130,7 @@ export function NavigationDrawer() {
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('favorites')
                   ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
               )}
               onClick={handleLinkClick}
             >
@@ -144,7 +143,7 @@ export function NavigationDrawer() {
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('about')
                   ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
               )}
               onClick={handleLinkClick}
             >
@@ -157,7 +156,7 @@ export function NavigationDrawer() {
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('contact')
                   ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
               )}
               onClick={handleLinkClick}
             >
@@ -171,7 +170,7 @@ export function NavigationDrawer() {
                   'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                   isActive('admin')
                     ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
                 )}
                 onClick={handleLinkClick}
               >
@@ -207,7 +206,7 @@ export function NavigationDrawer() {
         </div>
 
         {/* Footer with Avatar */}
-        <div className="border-t border-primary/50 bg-background p-4">
+        <div className="border-t border-primary/50 bg-background p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           {loading ? (
             <div className="flex items-center justify-center py-2">
               <div className="text-sm text-muted-foreground">{t('loading')}</div>

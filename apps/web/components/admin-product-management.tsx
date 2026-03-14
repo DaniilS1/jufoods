@@ -385,7 +385,7 @@ export function AdminProductManagement() {
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto h-6 w-6"
+            className="ml-auto h-9 w-9 shrink-0"
             onClick={() => setError(null)}
           >
             <X className="h-4 w-4" />
@@ -399,7 +399,7 @@ export function AdminProductManagement() {
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto h-6 w-6"
+            className="ml-auto h-9 w-9 shrink-0"
             onClick={() => setSuccess(null)}
           >
             <X className="h-4 w-4" />
@@ -413,149 +413,216 @@ export function AdminProductManagement() {
           <div className="flex items-center justify-between p-4 border-b bg-transparent">
           <h2 className="text-lg font-semibold">{tAdmin('title')}</h2>
           <Button onClick={openCreateModal}>
-            <Plus className="h-4 w-4 mr-2" />
-            {tAdmin('newProduct')}
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">{tAdmin('newProduct')}</span>
           </Button>
         </div>
-          <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-transparent">
-                <th className="text-left p-4 font-medium">{tAdmin('image')}</th>
-                <th className="text-left p-4 font-medium">{tAdmin('nameDe')}</th>
-                <th className="text-left p-4 font-medium">{tAdmin('nameUk')}</th>
-                <th className="text-left p-4 font-medium">{tAdmin('category')}</th>
-                <th className="text-right p-4 font-medium">{tAdmin('actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product.id} className="border-b hover:bg-muted/50">
-                  <td className="p-4">
-                    {product.image_url ? (
-                      <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted">
-                        <Image
-                          src={normalizeSupabaseImageUrl(product.image_url)}
-                          alt={product.name_de}
-                          fill
-                          className="object-cover"
-                          sizes="64px"
-                        />
-                      </div>
-                    ) : (
-                      <div className="h-16 w-16 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
-                        {tAdmin('noImage')}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-4">{product.name_de}</td>
-                  <td className="p-4">{product.name_uk}</td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-primary/10 text-primary">
-                      {product.category}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleViewProduct(product)}
-                            aria-label={tAdmin('view')}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{tAdmin('view')}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => startEdit(product)}
-                            aria-label={tAdmin('edit')}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{tAdmin('edit')}</TooltipContent>
-                      </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(product.id)}
-                            disabled={deletingId === product.id}
-                            aria-label={tAdmin('delete')}
-                          >
-                            {deletingId === product.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{tAdmin('delete')}</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {products.length === 0 && (
+          {products.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               {tAdmin('noProducts')}
             </div>
+          ) : (
+            <>
+              {/* Mobile card list */}
+              <div className="md:hidden divide-y divide-border">
+                {products.map((product) => (
+                  <div key={product.id} className="flex gap-3 p-4">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-muted">
+                      {product.image_url ? (
+                        <div className="relative h-full w-full">
+                          <Image
+                            src={normalizeSupabaseImageUrl(product.image_url)}
+                            alt={product.name_de}
+                            fill
+                            className="object-cover"
+                            sizes="64px"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                          {tAdmin('noImage')}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{product.name_de}</p>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">{product.name_uk}</p>
+                      <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary mt-1">
+                        {product.category}
+                      </span>
+                      <div className="flex justify-end gap-1 pt-2 mt-2 border-t border-border/50">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleViewProduct(product)}
+                          aria-label={tAdmin('view')}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => startEdit(product)}
+                          aria-label={tAdmin('edit')}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(product.id)}
+                          disabled={deletingId === product.id}
+                          aria-label={tAdmin('delete')}
+                        >
+                          {deletingId === product.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-transparent">
+                      <th className="text-left p-4 font-medium">{tAdmin('image')}</th>
+                      <th className="text-left p-4 font-medium">{tAdmin('nameDe')}</th>
+                      <th className="text-left p-4 font-medium">{tAdmin('nameUk')}</th>
+                      <th className="text-left p-4 font-medium">{tAdmin('category')}</th>
+                      <th className="text-right p-4 font-medium">{tAdmin('actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-b hover:bg-muted/50">
+                        <td className="p-4">
+                          {product.image_url ? (
+                            <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted">
+                              <Image
+                                src={normalizeSupabaseImageUrl(product.image_url)}
+                                alt={product.name_de}
+                                fill
+                                className="object-cover"
+                                sizes="64px"
+                              />
+                            </div>
+                          ) : (
+                            <div className="h-16 w-16 rounded-md bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                              {tAdmin('noImage')}
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-4">{product.name_de}</td>
+                        <td className="p-4">{product.name_uk}</td>
+                        <td className="p-4">
+                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-primary/10 text-primary">
+                            {product.category}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleViewProduct(product)}
+                                  aria-label={tAdmin('view')}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{tAdmin('view')}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => startEdit(product)}
+                                  aria-label={tAdmin('edit')}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{tAdmin('edit')}</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDelete(product.id)}
+                                  disabled={deletingId === product.id}
+                                  aria-label={tAdmin('delete')}
+                                >
+                                  {deletingId === product.id ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>{tAdmin('delete')}</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
-          </div>
         </div>
       </TooltipProvider>
 
       {/* Product Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="max-w-4xl max-h-[90dvh] overflow-y-auto">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="text-base">
               {editingProduct ? tAdmin('editProduct') : tAdmin('createProduct')}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs">
               {editingProduct ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Tabs defaultValue="de" className="w-full">
               <TabsList>
                 <TabsTrigger value="de">Deutsch</TabsTrigger>
                 <TabsTrigger value="uk">Ukrainisch</TabsTrigger>
         </TabsList>
 
-              <TabsContent value="de" className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name_de">Name (Deutsch) *</Label>
+              <TabsContent value="de" className="space-y-3 mt-3">
+                <div className="space-y-1">
+                  <Label className="text-xs" htmlFor="name_de">Name (Deutsch) *</Label>
                   <Input id="name_de" {...register('name_de')} />
                   {errors.name_de && (
-                    <p className="text-sm text-destructive">{errors.name_de.message}</p>
+                    <p className="text-xs text-destructive">{errors.name_de.message}</p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description_de">Beschreibung (Deutsch)</Label>
-                  <Textarea id="description_de" {...register('description_de')} rows={3} />
+                <div className="space-y-1">
+                  <Label className="text-xs" htmlFor="description_de">Beschreibung (Deutsch)</Label>
+                  <Textarea id="description_de" {...register('description_de')} rows={2} />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <Label>Zutaten (Deutsch)</Label>
+                    <Label className="text-xs">Zutaten (Deutsch)</Label>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => appendIngredientDe('')}
                     >
-                      <Plus className="h-4 w-4 mr-1" /> Hinzufügen
+                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
                     </Button>
                   </div>
                   {ingredientsDeFields.map((field, index) => (
@@ -572,16 +639,16 @@ export function AdminProductManagement() {
                     </div>
                   ))}
                 </div>
-                <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                    <Label>Allergene (Deutsch)</Label>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">Allergene (Deutsch)</Label>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => appendAllergenDe('')}
                     >
-                      <Plus className="h-4 w-4 mr-1" /> Hinzufügen
+                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
                     </Button>
                   </div>
                   {allergensDeFields.map((field, index) => (
@@ -600,28 +667,28 @@ export function AdminProductManagement() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="uk" className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name_uk">Name (Ukrainisch) *</Label>
+              <TabsContent value="uk" className="space-y-3 mt-3">
+                <div className="space-y-1">
+                  <Label className="text-xs" htmlFor="name_uk">Name (Ukrainisch) *</Label>
                   <Input id="name_uk" {...register('name_uk')} />
                   {errors.name_uk && (
-                    <p className="text-sm text-destructive">{errors.name_uk.message}</p>
+                    <p className="text-xs text-destructive">{errors.name_uk.message}</p>
                 )}
               </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description_uk">Beschreibung (Ukrainisch)</Label>
-                  <Textarea id="description_uk" {...register('description_uk')} rows={3} />
+                <div className="space-y-1">
+                  <Label className="text-xs" htmlFor="description_uk">Beschreibung (Ukrainisch)</Label>
+                  <Textarea id="description_uk" {...register('description_uk')} rows={2} />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <Label>Zutaten (Ukrainisch)</Label>
+                    <Label className="text-xs">Zutaten (Ukrainisch)</Label>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => appendIngredientUk('')}
                     >
-                      <Plus className="h-4 w-4 mr-1" /> Hinzufügen
+                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
                     </Button>
                   </div>
                   {ingredientsUkFields.map((field, index) => (
@@ -638,16 +705,16 @@ export function AdminProductManagement() {
                     </div>
                   ))}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <Label>Allergene (Ukrainisch)</Label>
+                    <Label className="text-xs">Allergene (Ukrainisch)</Label>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => appendAllergenUk('')}
                     >
-                      <Plus className="h-4 w-4 mr-1" /> Hinzufügen
+                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
                     </Button>
                   </div>
                   {allergensUkFields.map((field, index) => (
@@ -668,9 +735,9 @@ export function AdminProductManagement() {
             </Tabs>
 
             {/* Common Fields */}
-            <div className="space-y-4 pt-4 border-t">
-                <div className="space-y-2">
-                  <Label>Kategorie *</Label>
+            <div className="space-y-3 pt-3 border-t">
+                <div className="space-y-1">
+                  <Label className="text-xs">Kategorie *</Label>
                   <Select
                     value={category}
                     onValueChange={(value) => {
@@ -691,13 +758,13 @@ export function AdminProductManagement() {
                     </SelectContent>
                   </Select>
                   {errors.category && (
-                  <p className="text-sm text-destructive">{errors.category.message}</p>
+                  <p className="text-xs text-destructive">{errors.category.message}</p>
                   )}
                 </div>
 
                 {hasSubcategories(category) && (
-                  <div className="space-y-2">
-                    <Label>Unterkategorie</Label>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Unterkategorie</Label>
                     <Select
                       value={watch('sub_category') || undefined}
                       onValueChange={(value) =>
@@ -722,9 +789,9 @@ export function AdminProductManagement() {
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <Label>Hauptbild (image_url)</Label>
-                  <div className="flex items-center gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs">Hauptbild (image_url)</Label>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                     <Input
                       type="file"
                       accept="image/*"
@@ -740,13 +807,13 @@ export function AdminProductManagement() {
                     />
                   </div>
                   {uploading && (
-                  <p className="text-sm text-muted-foreground">Bild wird hochgeladen...</p>
+                  <p className="text-xs text-muted-foreground">Bild wird hochgeladen...</p>
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <Label>Zusätzliche Bilder (images_urls)</Label>
+                    <Label className="text-xs">Zusätzliche Bilder (images_urls)</Label>
                     <Input
                       type="file"
                       accept="image/*"
@@ -759,7 +826,6 @@ export function AdminProductManagement() {
                     <Button
                       type="button"
                       variant="outline"
-                      size="sm"
                       onClick={() => document.getElementById('additional-images-input')?.click()}
                       disabled={uploading}
                     >

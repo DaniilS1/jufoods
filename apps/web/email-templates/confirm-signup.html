@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bestätigen Sie Ihre Registrierung — jufoods</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5ebe9; color: #5c4d4d; line-height: 1.5; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5ebe9;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 480px; background-color: #f8f3f1; border-radius: 12px; box-shadow: 0 4px 6px rgba(92, 77, 77, 0.08); overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 32px 24px; text-align: center; background: linear-gradient(135deg, #f8f3f1 0%, #f0e6e2 100%); border-bottom: 1px solid #e5d9d4;">
+              <div style="display: inline-block; width: 48px; height: 48px; background-color: #e8c4b8; border-radius: 50%; line-height: 48px; margin-bottom: 16px;">
+                <span style="font-size: 24px;">🍰</span>
+              </div>
+              <h1 style="margin: 0; font-size: 24px; font-weight: 700; color: #5c4d4d; letter-spacing: -0.02em;">
+                jufoods
+              </h1>
+              <p style="margin: 4px 0 0; font-size: 13px; color: #8a7a75;">
+                Handgemachte Torten und Desserts
+              </p>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td style="padding: 32px;">
+              <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #5c4d4d;">
+                Bestätigen Sie Ihre Registrierung
+              </h2>
+              <p style="margin: 0 0 24px; font-size: 15px; color: #5c4d4d;">
+                Willkommen bei jufoods! Bitte bestätigen Sie Ihre E-Mail-Adresse, indem Sie auf den untenstehenden Button klicken.
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                <tr>
+                  <td align="center" style="border-radius: 9999px; background-color: #e8c4b8;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-size: 15px; font-weight: 600; color: #5c4d4d; text-decoration: none;">
+                      E-Mail bestätigen
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 24px 0 0; font-size: 13px; color: #8a7a75;">
+                Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:
+              </p>
+              <p style="margin: 8px 0 0; font-size: 12px; word-break: break-all; color: #8a7a75;">
+                <a href="{{ .ConfirmationURL }}" style="color: #e8a888; text-decoration: underline;">{{ .ConfirmationURL }}</a>
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 32px; background-color: #f0e6e2; border-top: 1px solid #e5d9d4; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #8a7a75;">
+                © jufoods · Alle Rechte vorbehalten
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
