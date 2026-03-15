@@ -139,7 +139,7 @@ export function ShoppingCart() {
                                 onClick={() => toggleItem(itemKey)}
                                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mt-1"
                               >
-                                <span>{t('design')}</span>
+                                <span>{t('flavour')}</span>
                                 <ChevronDown
                                   className={`h-4 w-4 transition-transform duration-200 ${
                                     isExpanded ? 'rotate-180' : ''
@@ -163,7 +163,7 @@ export function ShoppingCart() {
                                     isExpanded ? 'rotate-180' : ''
                                   }`}
                                 />
-                                <span className="sr-only">Toggle design details</span>
+                                <span className="sr-only">Toggle flavour details</span>
                               </Button>
                             )}
                             <Button
@@ -214,7 +214,7 @@ export function ShoppingCart() {
                       >
                         <div className="pt-4 border-t border-border">
                           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                            {t('design')}
+                            {t('flavour')}
                           </p>
                           <div className="flex items-center gap-4">
                                 {item.designImageUrl && (

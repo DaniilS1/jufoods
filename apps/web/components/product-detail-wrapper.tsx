@@ -19,6 +19,7 @@ interface ProductDetailWrapperProps {
     subCategory?: string | null
     flavours: FlavorOption[]
     isTorten: boolean
+    isClassic?: boolean
   }
   locale: string
   categoryName: string
@@ -87,6 +88,7 @@ export function ProductDetailWrapper({ product, locale, categoryName, children }
           category: product.category,
           flavours: product.flavours,
           isTorten: product.isTorten,
+          isClassic: product.isClassic,
         }}
         locale={locale}
         categoryName={categoryName}

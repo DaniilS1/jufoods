@@ -39,6 +39,7 @@ interface TortenDesignRecord {
   category: string
   sub_category: string | null
   image_url: string | null
+  classic: boolean
 }
 
 const FALLBACK_INGREDIENTS_UK: string[] = [
@@ -124,7 +125,7 @@ export default async function ProductDetailPage({
 
   const { data: tortenDesign, error: designError } = await supabase
     .from('torten_designs')
-    .select('id, slug, name_de, name_uk, description_de, description_uk, category, sub_category, image_url')
+    .select('id, slug, name_de, name_uk, description_de, description_uk, category, sub_category, image_url, classic')
     .eq('slug', slug)
     .maybeSingle<TortenDesignRecord>()
 
@@ -154,32 +155,36 @@ export default async function ProductDetailPage({
     subCategory = tortenDesign.sub_category
     imageUrl = tortenDesign.image_url
 
-    const { data: flavourLinks, error: flavourError } = await supabase
-      .from('design_flavour')
-      .select(
-        `
-          flavour_id,
-          torten_flavours (
-            id,
-            slug,
-            name_de,
-            name_uk,
-            description_de,
-            description_uk,
-            ingredients_de,
-            ingredients_uk,
-            allergens_de,
-            allergens_uk,
-            nutrition,
-            image_url
-          )
-        `
-      )
-      .eq('design_id', tortenDesign.id)
-      .order('name_de', { foreignTable: 'torten_flavours', ascending: true })
+    let flavourLinks: DesignFlavourLink[] | null = null
+    if (!tortenDesign.classic) {
+      const { data: links, error: flavourError } = await supabase
+        .from('design_flavour')
+        .select(
+          `
+            flavour_id,
+            torten_flavours (
+              id,
+              slug,
+              name_de,
+              name_uk,
+              description_de,
+              description_uk,
+              ingredients_de,
+              ingredients_uk,
+              allergens_de,
+              allergens_uk,
+              nutrition,
+              image_url
+            )
+          `
+        )
+        .eq('design_id', tortenDesign.id)
+        .order('name_de', { foreignTable: 'torten_flavours', ascending: true })
 
-    if (flavourError) {
-      console.error('Error fetching torten flavours:', flavourError)
+      if (flavourError) {
+        console.error('Error fetching torten flavours:', flavourError)
+      }
+      flavourLinks = links as DesignFlavourLink[] | null
     }
 
     if (flavourLinks && flavourLinks.length > 0) {
@@ -324,6 +329,7 @@ export default async function ProductDetailPage({
             subCategory,
             flavours: designFlavours,
             isTorten: Boolean(isTortenDesign),
+            isClassic: isTortenDesign ? Boolean(tortenDesign.classic) : false,
           }}
           locale={locale}
           categoryName={categoryName}

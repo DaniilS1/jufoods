@@ -71,6 +71,7 @@
     "total": "Gesamt",
     "product": "Produkt",
     "design": "Design",
+    "flavour": "Geschmack",
     "quantity": "Menge"
   },
   "order": {
@@ -331,8 +332,11 @@
       "actions": "Aktionen",
       "formDescriptionCreate": "Lege ein neues Tortendesign mit Bild und Details an.",
       "formDescriptionEdit": "Passe die Angaben des Tortendesigns an. Änderungen werden direkt veröffentlicht.",
+      "classic": "Klassisch",
+      "classicDescription": "Klassische Designs haben keine Geschmackszuordnung.",
       "flavourAssignmentsTitle": "Geschmackszuordnung",
       "flavourAssignmentsDescription": "Wähle aus, welche Geschmacksrichtungen für dieses Design verfügbar sind.",
+      "flavourAssignmentsSelectAll": "Alle auswählen",
       "flavourAssignmentsEmpty": "Noch keine Geschmacksrichtungen vorhanden. Bitte lege zuerst welche an.",
       "flavourAssignmentsLoading": "Lade verfügbare Geschmacksrichtungen..."
     },

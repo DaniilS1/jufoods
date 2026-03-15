@@ -28,6 +28,7 @@ interface ProductDetailClientProps {
     category: string
     flavours: FlavorOption[]
     isTorten: boolean
+    isClassic?: boolean
   }
   locale: string
   categoryName: string
@@ -191,11 +192,13 @@ export function ProductDetailClient({
               </div>
             </div>
           )}
-          <FlavourSelector
-            flavours={product.flavours}
-            selectedFlavourId={selectedFlavourId}
-            onFlavourChange={setSelectedFlavourId}
-          />
+          {!product.isClassic && (
+            <FlavourSelector
+              flavours={product.flavours}
+              selectedFlavourId={selectedFlavourId}
+              onFlavourChange={setSelectedFlavourId}
+            />
+          )}
           {flavourDetails?.description && (
             <p className="text-base leading-relaxed text-muted-foreground">
               {flavourDetails.description}

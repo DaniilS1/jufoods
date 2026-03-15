@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Switch } from '@/components/ui/switch'
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ const designSchema = z.object({
   description_de: z.string().optional(),
   sub_category: z.string().optional().nullable(),
   image_url: z.string().optional(),
+  classic: z.boolean(),
 })
 
 type DesignFormData = z.infer<typeof designSchema>
@@ -51,6 +53,7 @@ interface DesignRecord {
   description_de: string | null
   sub_category: string | null
   image_url: string | null
+  classic: boolean
 }
 
 interface FlavourSummary {
@@ -101,11 +104,13 @@ export function AdminDesignManagement() {
       description_de: '',
       sub_category: '',
       image_url: '',
+      classic: false,
     },
   })
 
   const subCategoryValue = watch('sub_category') || ''
   const selectValue = subCategoryValue ? subCategoryValue : NO_SUBCATEGORY_VALUE
+  const classicValue = watch('classic') ?? false
 
   useEffect(() => {
     loadDesigns()
@@ -136,7 +141,8 @@ export function AdminDesignManagement() {
             description_uk,
             description_de,
             sub_category,
-            image_url
+            image_url,
+            classic
           `
         )
         .order('created_at', { ascending: false })
@@ -240,6 +246,7 @@ export function AdminDesignManagement() {
       description_de: '',
       sub_category: '',
       image_url: '',
+      classic: false,
     })
     setSelectedFlavourIds([])
     setIsModalOpen(true)
@@ -255,6 +262,7 @@ export function AdminDesignManagement() {
       description_de: design.description_de || '',
       sub_category: design.sub_category || '',
       image_url: design.image_url || '',
+      classic: design.classic ?? false,
     })
     loadDesignFlavours(design.id)
     setIsModalOpen(true)
@@ -282,6 +290,7 @@ export function AdminDesignManagement() {
         sub_category: data.sub_category ? data.sub_category : null,
         image_url: data.image_url || null,
         category: 'torten',
+        classic: data.classic ?? false,
       }
 
       let designId = editingDesign?.id ?? ''
@@ -310,7 +319,7 @@ export function AdminDesignManagement() {
         const { error: deleteError } = await supabase.from('design_flavour').delete().eq('design_id', finalDesignId)
         if (deleteError) throw deleteError
 
-        if (selectedFlavourIds.length > 0) {
+        if (!payload.classic && selectedFlavourIds.length > 0) {
           const insertPayload = selectedFlavourIds.map((flavourId) => ({
             design_id: finalDesignId,
             flavour_id: flavourId,
@@ -542,7 +551,7 @@ export function AdminDesignManagement() {
       </TooltipProvider>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90dvh] flex flex-col p-0">
+        <DialogContent className="max-w-3xl max-h-[90dvh] flex flex-col p-0 mx-4 sm:mx-6">
           <DialogHeader className="px-4 pt-4 pb-3 border-b">
             <DialogTitle className="text-base">
               {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
@@ -601,7 +610,7 @@ export function AdminDesignManagement() {
               </Select>
             </div>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Label className="text-xs" htmlFor="image_url">{tAdmin('image')}</Label>
               <div className="flex gap-2">
                 <Input id="image_url" {...register('image_url')} placeholder="https://..." />
@@ -630,43 +639,76 @@ export function AdminDesignManagement() {
               {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
             </div>
 
-            <div className="space-y-2">
-              <div>
-                <Label className="text-xs">{tAdmin('flavourAssignmentsTitle')}</Label>
-                <p className="text-xs text-muted-foreground">{tAdmin('flavourAssignmentsDescription')}</p>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="classic" className="text-xs font-medium cursor-pointer shrink-0">
+                  {tAdmin('classic')}:
+                </Label>
+                <Switch
+                  id="classic"
+                  checked={classicValue}
+                  onCheckedChange={(checked) => setValue('classic', checked)}
+                />
               </div>
-              <div className="rounded-md border">
-                {flavoursLoading ? (
-                  <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    {tAdmin('flavourAssignmentsLoading')}
-                  </div>
-                ) : flavours.length === 0 ? (
-                  <p className="p-3 text-xs text-muted-foreground">{tAdmin('flavourAssignmentsEmpty')}</p>
-                ) : (
-                  <div className="max-h-48 overflow-y-auto divide-y">
-                    {flavours.map((flavour) => {
-                      const checked = selectedFlavourIds.includes(flavour.id)
-                      return (
-                        <label
-                          key={flavour.id}
-                          className="flex items-start gap-2 p-2 hover:bg-muted/50 cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={checked}
-                            onCheckedChange={(value) => toggleFlavourSelection(flavour.id, value === true)}
-                          />
-                          <div>
-                            <p className="text-sm font-medium leading-tight">{flavour.name_de}</p>
-                            <p className="text-xs text-muted-foreground">{flavour.name_uk}</p>
-                          </div>
-                        </label>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
+              {classicValue && (
+                <p className="text-xs text-muted-foreground">{tAdmin('classicDescription')}</p>
+              )}
             </div>
+
+            {!classicValue && (
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-xs">{tAdmin('flavourAssignmentsTitle')}</Label>
+                  <p className="text-xs text-muted-foreground">{tAdmin('flavourAssignmentsDescription')}</p>
+                </div>
+                <div className="rounded-md border">
+                  {flavoursLoading ? (
+                    <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      {tAdmin('flavourAssignmentsLoading')}
+                    </div>
+                  ) : flavours.length === 0 ? (
+                    <p className="p-3 text-xs text-muted-foreground">{tAdmin('flavourAssignmentsEmpty')}</p>
+                  ) : (
+                    <>
+                      <label className="flex items-center gap-2 p-2 border-b cursor-pointer hover:bg-muted/50">
+                        <Checkbox
+                          checked={flavours.length > 0 && selectedFlavourIds.length === flavours.length}
+                          onCheckedChange={(value) => {
+                            if (value === true) {
+                              setSelectedFlavourIds(flavours.map((f) => f.id))
+                            } else {
+                              setSelectedFlavourIds([])
+                            }
+                          }}
+                        />
+                        <span className="text-sm font-medium">{tAdmin('flavourAssignmentsSelectAll')}</span>
+                      </label>
+                      <div className="max-h-48 overflow-y-auto divide-y">
+                        {flavours.map((flavour) => {
+                        const checked = selectedFlavourIds.includes(flavour.id)
+                        return (
+                          <label
+                            key={flavour.id}
+                            className="flex items-start gap-2 p-2 hover:bg-muted/50 cursor-pointer"
+                          >
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={(value) => toggleFlavourSelection(flavour.id, value === true)}
+                            />
+                            <div>
+                              <p className="text-sm font-medium leading-tight">{flavour.name_de}</p>
+                              <p className="text-xs text-muted-foreground">{flavour.name_uk}</p>
+                            </div>
+                          </label>
+                        )
+                      })}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
             </div>
 
             <DialogFooter className="px-4 py-3 border-t bg-background flex gap-2">

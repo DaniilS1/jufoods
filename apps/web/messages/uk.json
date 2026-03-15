@@ -71,6 +71,7 @@
     "total": "Всього",
     "product": "Товар",
     "design": "Дизайн",
+    "flavour": "Смак",
     "quantity": "Кількість"
   },
   "order": {
@@ -335,8 +336,11 @@
       "actions": "Дії",
       "formDescriptionCreate": "Створіть новий дизайн торта з зображенням та деталями.",
       "formDescriptionEdit": "Налаштуйте інформацію про дизайн торта. Зміни будуть опубліковані одразу.",
+      "classic": "Класичний",
+      "classicDescription": "У класичних дизайнів немає прив'язки смаків.",
       "flavourAssignmentsTitle": "Призначення смаків",
       "flavourAssignmentsDescription": "Виберіть, які смаки доступні для цього дизайну.",
+      "flavourAssignmentsSelectAll": "Вибрати всі",
       "flavourAssignmentsEmpty": "Поки що немає смаків. Будь ласка, спочатку створіть їх.",
       "flavourAssignmentsLoading": "Завантаження доступних смаків..."
     },

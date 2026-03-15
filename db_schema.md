@@ -77,6 +77,7 @@ CREATE TABLE public.torten_designs (
   category text NOT NULL DEFAULT 'torten'::text CHECK (category = 'torten'::text),
   sub_category text,
   image_url text,
+  classic boolean NOT NULL DEFAULT false,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT torten_designs_pkey PRIMARY KEY (id)
