@@ -37,15 +37,16 @@ const AnimatedTabsList = React.forwardRef<
   const childrenWithRefs = React.Children.map(children, (child) => {
     if (React.isValidElement(child) && child.type === TabsTrigger && child.props.value != null) {
       const triggerValue = String(child.props.value)
-      return React.cloneElement(child as React.ReactElement<{ ref?: React.Ref<HTMLButtonElement> }>, {
+      const existingClassName = (child.props as { className?: string }).className
+      return React.cloneElement(child, {
         ref: (el: HTMLButtonElement | null) => {
           triggerRefsMap.current.set(triggerValue, el)
         },
         className: cn(
-          (child.props as { className?: string }).className,
+          existingClassName,
           'bg-transparent dark:data-[state=active]:bg-transparent relative z-10 rounded-none border-0 data-[state=active]:shadow-none'
         ),
-      })
+      } as React.Attributes & { ref?: React.Ref<HTMLButtonElement>; className?: string })
     }
     return child
   })
