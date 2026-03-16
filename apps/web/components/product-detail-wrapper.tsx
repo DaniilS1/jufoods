@@ -20,6 +20,7 @@ interface ProductDetailWrapperProps {
     flavours: FlavorOption[]
     isTorten: boolean
     isClassic?: boolean
+    imagesUrls?: string[]
   }
   locale: string
   categoryName: string
@@ -74,6 +75,7 @@ export function ProductDetailWrapper({ product, locale, categoryName, children }
           productImageUrl={product.imageUrl}
           productName={product.name}
           productId={product.id}
+          additionalImages={product.imagesUrls}
         />
       </div>
 

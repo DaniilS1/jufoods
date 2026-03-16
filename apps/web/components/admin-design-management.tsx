@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Switch } from '@/components/ui/switch'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ const designSchema = z.object({
   description_de: z.string().optional(),
   sub_category: z.string().optional().nullable(),
   image_url: z.string().optional(),
+  images_urls: z.array(z.string()).default([]),
   classic: z.boolean(),
 })
 
@@ -53,6 +55,7 @@ interface DesignRecord {
   description_de: string | null
   sub_category: string | null
   image_url: string | null
+  images_urls: string[] | null
   classic: boolean
 }
 
@@ -62,7 +65,7 @@ interface FlavourSummary {
   name_uk: string
 }
 
-const TORTEN_SUBCATEGORIES = ['hochzeit', 'zum-tee', 'feier'] as const
+const TORTEN_SUBCATEGORIES = ['feier', 'hochzeit', 'bento', 'zum-tee'] as const
 const NO_SUBCATEGORY_VALUE = 'none'
 
 const slugify = (value: string) =>
@@ -94,6 +97,7 @@ export function AdminDesignManagement() {
     reset,
     setValue,
     watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<DesignFormData>({
     resolver: zodResolver(designSchema),
@@ -104,8 +108,17 @@ export function AdminDesignManagement() {
       description_de: '',
       sub_category: '',
       image_url: '',
+      images_urls: [],
       classic: false,
     },
+  })
+
+  const {
+    fields: imagesUrlsFields,
+    remove: removeImageUrl,
+  } = useFieldArray({
+    control: control as any,
+    name: 'images_urls' as any,
   })
 
   const subCategoryValue = watch('sub_category') || ''
@@ -142,6 +155,7 @@ export function AdminDesignManagement() {
             description_de,
             sub_category,
             image_url,
+            images_urls,
             classic
           `
         )
@@ -237,6 +251,25 @@ export function AdminDesignManagement() {
     }
   }
 
+  async function handleAdditionalImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files
+    if (!files || files.length === 0) return
+
+    setUploading(true)
+    try {
+      const urls = await Promise.all(Array.from(files).map((f) => uploadImage(f)))
+      const current = watch('images_urls') || []
+      setValue('images_urls', [...current, ...urls])
+      setSuccess(`${urls.length} weiteres Bild(er) erfolgreich hochgeladen!`)
+    } catch (err: any) {
+      console.error('Error uploading additional images:', err)
+      setError(`Fehler beim Hochladen der Bilder: ${err.message}`)
+    } finally {
+      setUploading(false)
+      event.target.value = ''
+    }
+  }
+
   function openCreateModal() {
     setEditingDesign(null)
     reset({
@@ -246,6 +279,7 @@ export function AdminDesignManagement() {
       description_de: '',
       sub_category: '',
       image_url: '',
+      images_urls: [],
       classic: false,
     })
     setSelectedFlavourIds([])
@@ -262,6 +296,7 @@ export function AdminDesignManagement() {
       description_de: design.description_de || '',
       sub_category: design.sub_category || '',
       image_url: design.image_url || '',
+      images_urls: design.images_urls || [],
       classic: design.classic ?? false,
     })
     loadDesignFlavours(design.id)
@@ -289,6 +324,7 @@ export function AdminDesignManagement() {
         description_de: data.description_de || null,
         sub_category: data.sub_category ? data.sub_category : null,
         image_url: data.image_url || null,
+        images_urls: data.images_urls.filter((u) => u.trim() !== ''),
         category: 'torten',
         classic: data.classic ?? false,
       }
@@ -578,13 +614,19 @@ export function AdminDesignManagement() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="description_de">{tAdmin('descriptionDe')}</Label>
-                <Textarea id="description_de" rows={2} {...register('description_de')} />
+                <RichTextEditor
+                  value={watch('description_de') || ''}
+                  onChange={(html) => setValue('description_de', html)}
+                />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="description_uk">{tAdmin('descriptionUk')}</Label>
-                <Textarea id="description_uk" rows={2} {...register('description_uk')} />
+                <RichTextEditor
+                  value={watch('description_uk') || ''}
+                  onChange={(html) => setValue('description_uk', html)}
+                />
               </div>
             </div>
 
@@ -637,6 +679,58 @@ export function AdminDesignManagement() {
                 </p>
               )}
               {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">{tAdmin('additionalImages')}</Label>
+                <label
+                  htmlFor="design-additional-images-upload"
+                  className="inline-flex min-h-[36px] items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-1.5 text-xs cursor-pointer hover:bg-accent active:bg-accent"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  {tAdmin('addMoreImages')}
+                </label>
+                <input
+                  id="design-additional-images-upload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleAdditionalImageUpload}
+                  disabled={uploading}
+                />
+              </div>
+              {imagesUrlsFields.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {imagesUrlsFields.map((field, index) => {
+                    const url = watch(`images_urls.${index}`)
+                    return (
+                      <div key={field.id} className="relative group">
+                        <div className="relative h-20 w-20 overflow-hidden rounded-md border border-border bg-muted">
+                          {url && (
+                            <Image
+                              src={normalizeSupabaseImageUrl(url)}
+                              alt={`Additional image ${index + 1}`}
+                              fill
+                              className="object-cover"
+                              sizes="80px"
+                            />
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeImageUrl(index)}
+                          className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label="Remove image"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-1">

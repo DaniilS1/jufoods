@@ -35,6 +35,11 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.39.0",
     "@tanstack/react-query": "^5.59.16",
+    "@tiptap/extension-bullet-list": "^3.20.2",
+    "@tiptap/extension-list-item": "^3.20.2",
+    "@tiptap/extension-ordered-list": "^3.20.2",
+    "@tiptap/react": "^3.20.2",
+    "@tiptap/starter-kit": "^3.20.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -56,6 +61,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20.11.5",
     "@types/nodemailer": "^6.4.14",
     "@types/react": "^18.2.48",

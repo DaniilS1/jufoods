@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { CakeSlice, Candy, Cookie, Croissant, Donut, IceCream, PartyPopper, Coffee, Lollipop } from 'lucide-react'
+import { CakeSlice, Candy, Cookie, Croissant, Donut, IceCream, PartyPopper, Coffee, Lollipop, Box } from 'lucide-react'
 
 interface SubcategoryConfigEntry {
   id: string
@@ -13,9 +13,10 @@ interface SubcategoryRegistry {
 
 const SUBCATEGORY_REGISTRY: SubcategoryRegistry = {
   torten: [
-    { id: 'hochzeit', translationKey: 'hochzeit', icon: PartyPopper },
-    { id: 'zum-tee', translationKey: 'zum-tee', icon: Coffee },
     { id: 'feier', translationKey: 'feier', icon: CakeSlice },
+    { id: 'hochzeit', translationKey: 'hochzeit', icon: PartyPopper },
+    { id: 'bento', translationKey: 'bento', icon: Box },
+    { id: 'zum-tee', translationKey: 'zum-tee', icon: Coffee },
   ],
   desserts: [
     { id: 'tarts', translationKey: 'tarts', icon: Donut },

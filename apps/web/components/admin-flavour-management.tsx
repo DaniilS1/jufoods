@@ -22,6 +22,7 @@ import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { useTranslations } from 'next-intl'
 import { AlertCircle, Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
 
 const flavourSchema = z.object({
   name_uk: z.string().min(1, 'Українська назва обов’язкова'),
@@ -83,6 +84,7 @@ export function AdminFlavourManagement() {
     reset,
     control,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FlavourFormData>({
     resolver: zodResolver(flavourSchema),
@@ -565,13 +567,19 @@ export function AdminFlavourManagement() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="description_de">{tAdmin('descriptionDe')}</Label>
-                <Textarea id="description_de" rows={2} {...register('description_de')} />
+                <RichTextEditor
+                  value={watch('description_de') || ''}
+                  onChange={(html) => setValue('description_de', html)}
+                />
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="description_uk">{tAdmin('descriptionUk')}</Label>
-                <Textarea id="description_uk" rows={2} {...register('description_uk')} />
+                <RichTextEditor
+                  value={watch('description_uk') || ''}
+                  onChange={(html) => setValue('description_uk', html)}
+                />
               </div>
             </div>
 

@@ -196,9 +196,10 @@
     "all": "Alle",
     "subcategories": {
       "torten": {
+        "feier": "Feier",
         "hochzeit": "Hochzeit",
-        "zum-tee": "Zum Tee",
-        "feier": "Feier"
+        "bento": "Bento-Torten",
+        "zum-tee": "Zum Tee"
       },
       "desserts": {
         "tarts": "Torten",
@@ -334,6 +335,8 @@
       "formDescriptionEdit": "Passe die Angaben des Tortendesigns an. Änderungen werden direkt veröffentlicht.",
       "classic": "Klassisch",
       "classicDescription": "Klassische Designs haben keine Geschmackszuordnung.",
+      "additionalImages": "Weitere Bilder",
+      "addMoreImages": "Bilder hochladen",
       "flavourAssignmentsTitle": "Geschmackszuordnung",
       "flavourAssignmentsDescription": "Wähle aus, welche Geschmacksrichtungen für dieses Design verfügbar sind.",
       "flavourAssignmentsSelectAll": "Alle auswählen",

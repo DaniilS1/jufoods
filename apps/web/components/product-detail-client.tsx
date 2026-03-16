@@ -158,9 +158,10 @@ export function ProductDetailClient({
             {product.name}
           </h1>
           {product.description && (
-            <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
-              {product.description}
-            </p>
+            <div
+              className="prose prose-sm max-w-none text-muted-foreground md:text-lg [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
           )}
         </section>
       )}
@@ -200,9 +201,10 @@ export function ProductDetailClient({
             />
           )}
           {flavourDetails?.description && (
-            <p className="text-base leading-relaxed text-muted-foreground">
-              {flavourDetails.description}
-            </p>
+            <div
+              className="prose prose-sm max-w-none text-muted-foreground [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+              dangerouslySetInnerHTML={{ __html: flavourDetails.description }}
+            />
           )}
         </section>
       )}

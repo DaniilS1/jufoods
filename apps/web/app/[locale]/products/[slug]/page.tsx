@@ -39,6 +39,7 @@ interface TortenDesignRecord {
   category: string
   sub_category: string | null
   image_url: string | null
+  images_urls: string[] | null
   classic: boolean
 }
 
@@ -125,7 +126,7 @@ export default async function ProductDetailPage({
 
   const { data: tortenDesign, error: designError } = await supabase
     .from('torten_designs')
-    .select('id, slug, name_de, name_uk, description_de, description_uk, category, sub_category, image_url, classic')
+    .select('id, slug, name_de, name_uk, description_de, description_uk, category, sub_category, image_url, images_urls, classic')
     .eq('slug', slug)
     .maybeSingle<TortenDesignRecord>()
 
@@ -330,6 +331,7 @@ export default async function ProductDetailPage({
             flavours: designFlavours,
             isTorten: Boolean(isTortenDesign),
             isClassic: isTortenDesign ? Boolean(tortenDesign.classic) : false,
+            imagesUrls: isTortenDesign ? (tortenDesign.images_urls || []) : [],
           }}
           locale={locale}
           categoryName={categoryName}

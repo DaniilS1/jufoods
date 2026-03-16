@@ -196,9 +196,10 @@
     "all": "Всі",
     "subcategories": {
       "torten": {
+        "feier": "Тематичні",
         "hochzeit": "Весільні",
-        "zum-tee": "До чаю",
-        "feier": "Святкові"
+        "bento": "Бенто торти",
+        "zum-tee": "До чаю"
       },
       "desserts": {
         "tarts": "Тарти",
@@ -338,6 +339,8 @@
       "formDescriptionEdit": "Налаштуйте інформацію про дизайн торта. Зміни будуть опубліковані одразу.",
       "classic": "Класичний",
       "classicDescription": "У класичних дизайнів немає прив'язки смаків.",
+      "additionalImages": "Додаткові зображення",
+      "addMoreImages": "Завантажити зображення",
       "flavourAssignmentsTitle": "Призначення смаків",
       "flavourAssignmentsDescription": "Виберіть, які смаки доступні для цього дизайну.",
       "flavourAssignmentsSelectAll": "Вибрати всі",
