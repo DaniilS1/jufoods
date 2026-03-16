@@ -340,19 +340,30 @@ export function ProductDetailClient({
               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 {locale === 'uk' ? 'Харчова цінність (на 100 г)' : t('nutritionPer100g')}
               </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {flavourDetails.nutritionFacts.map((fact) => (
-                  <div
-                    key={`${fact.label}-${fact.value}`}
-                    className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3"
-                  >
-                    <span className="text-xs font-medium text-muted-foreground">{fact.label}</span>
-                    <span className="text-sm font-semibold tabular-nums text-foreground">
-                      {fact.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              {flavourDetails.nutritionText ? (
+                <div
+                  className={flavourDetails.nutritionText.trim().startsWith('<')
+                    ? 'prose prose-sm max-w-none text-sm text-foreground/90'
+                    : 'whitespace-pre-line text-sm text-foreground/90'}
+                  {...(flavourDetails.nutritionText.trim().startsWith('<')
+                    ? { dangerouslySetInnerHTML: { __html: flavourDetails.nutritionText } }
+                    : { children: flavourDetails.nutritionText })}
+                />
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {flavourDetails.nutritionFacts.map((fact) => (
+                    <div
+                      key={`${fact.label}-${fact.value}`}
+                      className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3"
+                    >
+                      <span className="text-xs font-medium text-muted-foreground">{fact.label}</span>
+                      <span className="text-sm font-semibold tabular-nums text-foreground">
+                        {fact.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </>

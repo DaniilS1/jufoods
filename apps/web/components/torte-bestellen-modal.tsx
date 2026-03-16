@@ -371,12 +371,23 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
     const allergens = locale === 'uk'
       ? (f.allergens_uk ?? FALLBACK_ALLERGENS_UK)
       : (f.allergens_de ?? FALLBACK_ALLERGENS_DE)
-    const nutritionRaw = f.nutrition
+    const nutritionRaw = f.nutrition as Record<string, unknown> | null
+    const localeKey = locale === 'uk' ? 'text_uk' : 'text_de'
+    const legacyText = nutritionRaw && typeof nutritionRaw.text === 'string' ? (nutritionRaw.text as string).trim() : ''
+    const localeText =
+      nutritionRaw && typeof nutritionRaw[localeKey] === 'string'
+        ? (nutritionRaw[localeKey] as string).trim()
+        : legacyText
+    const nutritionText = localeText !== '' ? localeText : undefined
     const nutritionFacts: NutritionFact[] =
-      nutritionRaw && Object.keys(nutritionRaw).length > 0
-        ? Object.entries(nutritionRaw).map(([label, value]) => ({ label, value: String(value) }))
-        : FALLBACK_NUTRITION[locale as 'de' | 'uk']
-    return { ingredients, allergens, nutritionFacts }
+      nutritionText !== undefined
+        ? []
+        : nutritionRaw && Object.keys(nutritionRaw).length > 0
+          ? Object.entries(nutritionRaw)
+              .filter(([key]) => key !== 'text' && key !== 'text_de' && key !== 'text_uk')
+              .map(([label, value]) => ({ label, value: String(value) }))
+          : FALLBACK_NUTRITION[locale as 'de' | 'uk']
+    return { ingredients, allergens, nutritionFacts, nutritionText }
   }
 
   const stepLabels = [t('steps.design'), t('steps.flavour'), t('steps.details'), t('steps.summary')]
@@ -600,7 +611,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {flavours.map((flavour) => {
                       const isSelected = selectedFlavour?.id === flavour.id
-                      const { ingredients, allergens, nutritionFacts } = getFlavourDetails(flavour)
+                      const { ingredients, allergens, nutritionFacts, nutritionText } = getFlavourDetails(flavour)
                       return (
                         <div
                           key={flavour.id}
@@ -673,19 +684,32 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                                           </ul>
                                         </div>
                                       )}
-                                      {nutritionFacts.length > 0 && (
+                                      {(nutritionText || nutritionFacts.length > 0) && (
                                         <div>
                                           <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                                             {locale === 'uk' ? 'Харчова цінність (на 100 г)' : tProduct('nutritionPer100g')}
                                           </h5>
-                                          <div className="grid grid-cols-2 gap-2">
-                                            {nutritionFacts.map((fact) => (
-                                              <div key={fact.label} className="rounded-lg bg-muted/50 p-2">
-                                                <span className="text-xs text-muted-foreground block">{fact.label}</span>
-                                                <span className="text-sm font-medium">{fact.value}</span>
-                                              </div>
-                                            ))}
-                                          </div>
+                                          {nutritionText ? (
+                                            <div
+                                              className={
+                                                nutritionText.trim().startsWith('<')
+                                                  ? 'prose prose-sm max-w-none text-sm text-foreground'
+                                                  : 'whitespace-pre-line text-sm text-foreground'
+                                              }
+                                              {...(nutritionText.trim().startsWith('<')
+                                                ? { dangerouslySetInnerHTML: { __html: nutritionText } }
+                                                : { children: nutritionText })}
+                                            />
+                                          ) : (
+                                            <div className="grid grid-cols-2 gap-2">
+                                              {nutritionFacts.map((fact) => (
+                                                <div key={fact.label} className="rounded-lg bg-muted/50 p-2">
+                                                  <span className="text-xs text-muted-foreground block">{fact.label}</span>
+                                                  <span className="text-sm font-medium">{fact.value}</span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
                                         </div>
                                       )}
                                     </div>

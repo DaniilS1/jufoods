@@ -12,6 +12,8 @@ export interface FlavorOption {
   ingredients: string[]
   allergens: string[]
   nutritionFacts: NutritionFact[]
+  /** When set, show this preformatted block instead of nutritionFacts grid */
+  nutritionText?: string
   priceDelta: number | null
   isDefault: boolean
 }

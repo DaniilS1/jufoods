@@ -205,14 +205,25 @@ export default async function ProductDetailPage({
           locale === 'uk'
             ? flavour.allergens_uk || FALLBACK_ALLERGENS_UK
             : flavour.allergens_de || FALLBACK_ALLERGENS_DE
-        const nutritionRaw = flavour.nutrition as Record<string, string> | null
+        const nutritionRaw = flavour.nutrition as Record<string, unknown> | null
+        const localeKey = locale === 'uk' ? 'text_uk' : 'text_de'
+        const legacyText = nutritionRaw && typeof nutritionRaw.text === 'string' ? (nutritionRaw.text as string).trim() : ''
+        const localeText =
+          nutritionRaw && typeof nutritionRaw[localeKey] === 'string'
+            ? (nutritionRaw[localeKey] as string).trim()
+            : legacyText
+        const nutritionText = localeText !== '' ? localeText : undefined
         const nutritionFacts =
-          nutritionRaw && Object.keys(nutritionRaw).length > 0
-            ? Object.entries(nutritionRaw).map(([label, value]) => ({
-                label,
-                value: String(value),
-              }))
-            : FALLBACK_NUTRITION_FACTS[locale as 'uk' | 'de']
+          nutritionText !== undefined
+            ? []
+            : nutritionRaw && Object.keys(nutritionRaw).length > 0
+              ? Object.entries(nutritionRaw)
+                  .filter(([key]) => key !== 'text' && key !== 'text_de' && key !== 'text_uk')
+                  .map(([label, value]) => ({
+                      label,
+                      value: String(value),
+                    }))
+              : FALLBACK_NUTRITION_FACTS[locale as 'uk' | 'de']
 
         return {
           id: flavour.id,
@@ -223,6 +234,7 @@ export default async function ProductDetailPage({
           ingredients,
           allergens,
           nutritionFacts,
+          nutritionText,
           priceDelta: null,
           isDefault: index === 0,
         }

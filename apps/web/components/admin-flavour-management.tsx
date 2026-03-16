@@ -7,7 +7,6 @@ import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
@@ -23,6 +22,16 @@ import { useTranslations } from 'next-intl'
 import { AlertCircle, Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedTabsList } from '@/components/ui/tabs-animated'
+
+const LABELS_DE = {
+  flavourNumber: 'Nummer',
+  image: 'Bild',
+}
+const LABELS_UK = {
+  flavourNumber: 'Номер',
+  image: 'Зображення',
+}
 
 const flavourSchema = z.object({
   name_uk: z.string().min(1, 'Українська назва обов’язкова'),
@@ -33,11 +42,10 @@ const flavourSchema = z.object({
   ingredients_de: z.array(z.string()).default([]),
   allergens_uk: z.array(z.string()).default([]),
   allergens_de: z.array(z.string()).default([]),
-  energy: z.string().optional(),
-  protein: z.string().optional(),
-  fat: z.string().optional(),
-  carbs: z.string().optional(),
+  nutrition_text_de: z.string().optional(),
+  nutrition_text_uk: z.string().optional(),
   image_url: z.string().optional(),
+  flavour_number: z.coerce.number().int().min(1, 'Nummer ist erforderlich (ganze Zahl ≥ 1)'),
 })
 
 type FlavourFormData = z.infer<typeof flavourSchema>
@@ -45,6 +53,7 @@ type FlavourFormData = z.infer<typeof flavourSchema>
 interface FlavourRecord {
   id: string
   slug: string
+  flavour_number: number
   name_uk: string
   name_de: string
   description_uk: string | null
@@ -77,6 +86,7 @@ export function AdminFlavourManagement() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'de' | 'uk'>('de')
 
   const {
     register,
@@ -89,6 +99,7 @@ export function AdminFlavourManagement() {
   } = useForm<FlavourFormData>({
     resolver: zodResolver(flavourSchema),
     defaultValues: {
+      flavour_number: undefined as number | undefined,
       name_uk: '',
       name_de: '',
       description_uk: '',
@@ -97,10 +108,8 @@ export function AdminFlavourManagement() {
       ingredients_de: [],
       allergens_uk: [],
       allergens_de: [],
-      energy: '',
-      protein: '',
-      fat: '',
-      carbs: '',
+      nutrition_text_de: '',
+      nutrition_text_uk: '',
       image_url: '',
     },
   })
@@ -151,7 +160,7 @@ export function AdminFlavourManagement() {
       const { data, error } = await supabase
         .from('torten_flavours')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('flavour_number', { ascending: true })
       if (error) throw error
       setFlavours((data as FlavourRecord[]) || [])
     } catch (err: any) {
@@ -216,6 +225,7 @@ export function AdminFlavourManagement() {
   function openCreateModal() {
     setEditingFlavour(null)
     reset({
+      flavour_number: undefined as number | undefined,
       name_uk: '',
       name_de: '',
       description_uk: '',
@@ -224,18 +234,30 @@ export function AdminFlavourManagement() {
       ingredients_de: [],
       allergens_uk: [],
       allergens_de: [],
-      energy: '',
-      protein: '',
-      fat: '',
-      carbs: '',
+      nutrition_text_de: '',
+      nutrition_text_uk: '',
       image_url: '',
     })
     setIsModalOpen(true)
   }
 
+  function nutritionFromRecord(nutrition: Record<string, unknown> | null): { text_de: string; text_uk: string } {
+    if (!nutrition) return { text_de: '', text_uk: '' }
+    const text_de =
+      typeof nutrition.text_de === 'string'
+        ? nutrition.text_de
+        : typeof nutrition.text === 'string'
+          ? nutrition.text
+          : ''
+    const text_uk = typeof nutrition.text_uk === 'string' ? nutrition.text_uk : ''
+    return { text_de, text_uk }
+  }
+
   function startEdit(flavour: FlavourRecord) {
     setEditingFlavour(flavour)
+    const { text_de: nutritionTextDe, text_uk: nutritionTextUk } = nutritionFromRecord(flavour.nutrition)
     reset({
+      flavour_number: flavour.flavour_number,
       name_uk: flavour.name_uk,
       name_de: flavour.name_de,
       description_uk: flavour.description_uk || '',
@@ -244,10 +266,8 @@ export function AdminFlavourManagement() {
       ingredients_de: flavour.ingredients_de || [],
       allergens_uk: flavour.allergens_uk || [],
       allergens_de: flavour.allergens_de || [],
-      energy: flavour.nutrition?.energy ? String(flavour.nutrition.energy) : '',
-      protein: flavour.nutrition?.protein ? String(flavour.nutrition.protein) : '',
-      fat: flavour.nutrition?.fat ? String(flavour.nutrition.fat) : '',
-      carbs: flavour.nutrition?.carbs ? String(flavour.nutrition.carbs) : '',
+      nutrition_text_de: nutritionTextDe,
+      nutrition_text_uk: nutritionTextUk,
       image_url: flavour.image_url || '',
     })
     setIsModalOpen(true)
@@ -265,20 +285,13 @@ export function AdminFlavourManagement() {
 
     try {
       const slug = editingFlavour ? editingFlavour.slug : slugify(data.name_de)
-      const nutritionEntries = [
-        ['energy', data.energy],
-        ['protein', data.protein],
-        ['fat', data.fat],
-        ['carbs', data.carbs],
-      ].filter(([, value]) => value && value.trim() !== '')
-
-      const nutrition =
-        nutritionEntries.length > 0
-          ? Object.fromEntries(nutritionEntries.map(([key, value]) => [key, value]))
-          : null
+      const text_de = data.nutrition_text_de?.trim() || null
+      const text_uk = data.nutrition_text_uk?.trim() || null
+      const nutrition = text_de !== null || text_uk !== null ? { text_de, text_uk } : null
 
       const payload = {
         slug,
+        flavour_number: data.flavour_number,
         name_uk: data.name_uk,
         name_de: data.name_de,
         description_uk: data.description_uk || null,
@@ -299,11 +312,28 @@ export function AdminFlavourManagement() {
 
         if (updateError) throw updateError
       } else {
-        const { error: insertError } = await supabase
+        const { data: newFlavour, error: insertError } = await supabase
           .from('torten_flavours')
-          .insert({ ...payload, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .insert({
+            ...payload,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select('id')
+          .single()
 
         if (insertError) throw insertError
+        if (newFlavour?.id) {
+          const { data: designs } = await supabase
+            .from('torten_designs')
+            .select('id')
+            .eq('classic', false)
+          if (designs?.length) {
+            await supabase.from('design_flavour').insert(
+              designs.map((d) => ({ design_id: d.id, flavour_id: newFlavour.id }))
+            )
+          }
+        }
       }
 
       setSuccess(editingFlavour ? tAdmin('updateSuccess') : tAdmin('createSuccess'))
@@ -311,7 +341,11 @@ export function AdminFlavourManagement() {
       await loadFlavours()
     } catch (err: any) {
       console.error('Error saving flavour:', err)
-      setError(`Fehler beim Speichern: ${err.message || 'Unbekannter Fehler'}`)
+      const msg =
+        err?.code === '23505'
+          ? 'Diese Nummer wird bereits verwendet. Bitte eine andere Nummer wählen.'
+          : `Fehler beim Speichern: ${err.message || 'Unbekannter Fehler'}`
+      setError(msg)
     }
   }
 
@@ -398,6 +432,7 @@ export function AdminFlavourManagement() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
+                      <p className="text-xs text-muted-foreground font-medium">Nr. {flavour.flavour_number}</p>
                       <p className="font-medium text-sm truncate">{flavour.name_de}</p>
                       <p className="text-xs text-muted-foreground truncate mt-0.5">{flavour.name_uk}</p>
                       {ingredientsPreview && (
@@ -446,6 +481,7 @@ export function AdminFlavourManagement() {
               <table className="min-w-full divide-y divide-border text-sm bg-white">
                 <thead className="text-muted-foreground">
                   <tr>
+                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('flavourNumber')}</th>
                     <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
                     <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
                     <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
@@ -461,6 +497,7 @@ export function AdminFlavourManagement() {
 
                     return (
                       <tr key={flavour.id} className="align-top">
+                        <td className="px-4 py-3 font-medium text-foreground">{flavour.flavour_number}</td>
                         <td className="px-4 py-3">
                           <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
                             {flavour.image_url ? (
@@ -553,153 +590,172 @@ export function AdminFlavourManagement() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs" htmlFor="name_de">{tAdmin('nameDe')}</Label>
-                <Input id="name_de" {...register('name_de')} />
-                {errors.name_de && <p className="text-xs text-destructive">{errors.name_de.message}</p>}
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs" htmlFor="name_uk">{tAdmin('nameUk')}</Label>
-                <Input id="name_uk" {...register('name_uk')} />
-                {errors.name_uk && <p className="text-xs text-destructive">{errors.name_uk.message}</p>}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs" htmlFor="description_de">{tAdmin('descriptionDe')}</Label>
-                <RichTextEditor
-                  value={watch('description_de') || ''}
-                  onChange={(html) => setValue('description_de', html)}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs" htmlFor="description_uk">{tAdmin('descriptionUk')}</Label>
-                <RichTextEditor
-                  value={watch('description_uk') || ''}
-                  onChange={(html) => setValue('description_uk', html)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">{tAdmin('ingredientsDe')}</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => appendIngredientDe('')}>
-                    <Plus className="h-3 w-3 mr-1" /> {tAdmin('add')}
-                  </Button>
-                </div>
-                {ingredientsDeFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
-                    <Input {...register(`ingredients_de.${index}`)} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeIngredientDe(index)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">{tAdmin('ingredientsUk')}</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => appendIngredientUk('')}>
-                    <Plus className="h-3 w-3 mr-1" /> {tAdmin('add')}
-                  </Button>
-                </div>
-                {ingredientsUkFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
-                    <Input {...register(`ingredients_uk.${index}`)} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeIngredientUk(index)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">{tAdmin('allergensDe')}</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => appendAllergenDe('')}>
-                    <Plus className="h-3 w-3 mr-1" /> {tAdmin('add')}
-                  </Button>
-                </div>
-                {allergensDeFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
-                    <Input {...register(`allergens_de.${index}`)} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeAllergenDe(index)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">{tAdmin('allergensUk')}</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => appendAllergenUk('')}>
-                    <Plus className="h-3 w-3 mr-1" /> {tAdmin('add')}
-                  </Button>
-                </div>
-                {allergensUkFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
-                    <Input {...register(`allergens_uk.${index}`)} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeAllergenUk(index)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs" htmlFor="energy">{tAdmin('energy')}</Label>
-                <Input id="energy" {...register('energy')} placeholder="371 kcal" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs" htmlFor="protein">{tAdmin('protein')}</Label>
-                <Input id="protein" {...register('protein')} placeholder="3.6 g" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs" htmlFor="fat">{tAdmin('fat')}</Label>
-                <Input id="fat" {...register('fat')} placeholder="26.8 g" />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs" htmlFor="carbs">{tAdmin('carbs')}</Label>
-                <Input id="carbs" {...register('carbs')} placeholder="28.9 g" />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Label className="text-xs" htmlFor="image_url">{tAdmin('image')}</Label>
-              <div className="flex gap-2">
-                <Input id="image_url" {...register('image_url')} placeholder="https://..." />
-                <Label
-                  htmlFor="flavour-image-upload"
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm cursor-pointer hover:bg-accent active:bg-accent"
-                >
-                  <Upload className="h-4 w-4" />
-                  {tAdmin('upload')}
+                <Label className="text-xs" htmlFor="flavour_number">
+                  {activeTab === 'de' ? LABELS_DE.flavourNumber : LABELS_UK.flavourNumber}
                 </Label>
-                <input
-                  id="flavour-image-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
+                <Input
+                  id="flavour_number"
+                  type="number"
+                  min={1}
+                  {...register('flavour_number')}
                 />
+                {errors.flavour_number && (
+                  <p className="text-xs text-destructive">{errors.flavour_number.message}</p>
+                )}
               </div>
-              {uploading && (
-                <p className="text-xs text-muted-foreground flex items-center gap-2">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  {tAdmin('uploading')}
-                </p>
-              )}
-              {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
-            </div>
+
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'de' | 'uk')} className="w-full">
+                <AnimatedTabsList value={activeTab} className="grid w-full grid-cols-2">
+                  <TabsTrigger value="de" className="gap-1.5">
+                    <span aria-hidden>🇩🇪</span>
+                    Deutsch
+                  </TabsTrigger>
+                  <TabsTrigger value="uk" className="gap-1.5">
+                    <span aria-hidden>🇺🇦</span>
+                    Українська
+                  </TabsTrigger>
+                </AnimatedTabsList>
+                <TabsContent value="de" className="space-y-4 mt-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs" htmlFor="name_de">Name</Label>
+                    <Input id="name_de" {...register('name_de')} />
+                    {errors.name_de && <p className="text-xs text-destructive">{errors.name_de.message}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="description_de">Beschreibung</Label>
+                    <RichTextEditor
+                      value={watch('description_de') || ''}
+                      onChange={(html) => setValue('description_de', html)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Zutaten</Label>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendIngredientDe('')}>
+                        <Plus className="h-3 w-3 mr-1" /> Hinzufügen
+                      </Button>
+                    </div>
+                    {ingredientsDeFields.map((field, index) => (
+                      <div key={field.id} className="flex gap-2">
+                        <Input {...register(`ingredients_de.${index}`)} />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeIngredientDe(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Allergene</Label>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendAllergenDe('')}>
+                        <Plus className="h-3 w-3 mr-1" /> Hinzufügen
+                      </Button>
+                    </div>
+                    {allergensDeFields.map((field, index) => (
+                      <div key={field.id} className="flex gap-2">
+                        <Input {...register(`allergens_de.${index}`)} />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeAllergenDe(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs" htmlFor="nutrition_text_de">Nährwertdeklaration</Label>
+                    <RichTextEditor
+                      value={watch('nutrition_text_de') || ''}
+                      onChange={(html) => setValue('nutrition_text_de', html)}
+                      placeholder="Nährwertdeklaration pro 100 g – z. B. Listen mit Aufzählungen anlegen"
+                    />
+                  </div>
+                </TabsContent>
+                <TabsContent value="uk" className="space-y-4 mt-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs" htmlFor="name_uk">Назва</Label>
+                    <Input id="name_uk" {...register('name_uk')} />
+                    {errors.name_uk && <p className="text-xs text-destructive">{errors.name_uk.message}</p>}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="description_uk">Опис</Label>
+                    <RichTextEditor
+                      value={watch('description_uk') || ''}
+                      onChange={(html) => setValue('description_uk', html)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Інгредієнти</Label>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendIngredientUk('')}>
+                        <Plus className="h-3 w-3 mr-1" /> Додати
+                      </Button>
+                    </div>
+                    {ingredientsUkFields.map((field, index) => (
+                      <div key={field.id} className="flex gap-2">
+                        <Input {...register(`ingredients_uk.${index}`)} />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeIngredientUk(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs">Алергени</Label>
+                      <Button type="button" variant="outline" size="sm" onClick={() => appendAllergenUk('')}>
+                        <Plus className="h-3 w-3 mr-1" /> Додати
+                      </Button>
+                    </div>
+                    {allergensUkFields.map((field, index) => (
+                      <div key={field.id} className="flex gap-2">
+                        <Input {...register(`allergens_uk.${index}`)} />
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeAllergenUk(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs" htmlFor="nutrition_text_uk">Харчова цінність</Label>
+                    <RichTextEditor
+                      value={watch('nutrition_text_uk') || ''}
+                      onChange={(html) => setValue('nutrition_text_uk', html)}
+                      placeholder="Харчова цінність на 100 г – можна додати списки"
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <div className="space-y-1 pt-2 border-t">
+                <Label className="text-xs" htmlFor="image_url">
+                  {activeTab === 'de' ? LABELS_DE.image : LABELS_UK.image}
+                </Label>
+                <div className="flex gap-2">
+                  <Input id="image_url" {...register('image_url')} placeholder="https://..." />
+                  <Label
+                    htmlFor="flavour-image-upload"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm cursor-pointer hover:bg-accent active:bg-accent"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {tAdmin('upload')}
+                  </Label>
+                  <input
+                    id="flavour-image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                </div>
+                {uploading && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    {tAdmin('uploading')}
+                  </p>
+                )}
+                {errors.image_url && <p className="text-sm text-destructive">{errors.image_url.message}</p>}
+              </div>
             </div>
 
             <DialogFooter className="px-4 py-3 border-t bg-background flex gap-2">
