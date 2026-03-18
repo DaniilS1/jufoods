@@ -15,6 +15,7 @@ const searchParamsSchema = z.object({
     .trim()
     .min(1)
     .optional(),
+  view: z.enum(['designs', 'flavours']).optional(),
 })
 
 interface CatalogPageProps {
@@ -34,6 +35,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const parsedSearchParams = searchParamsSchema.safeParse({
     category: resolveSearchParam(searchParams?.category),
     subcategory: resolveSearchParam(searchParams?.subcategory),
+    view: resolveSearchParam(searchParams?.view),
   })
 
   const resolvedCategory =
@@ -43,6 +45,10 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
     parsedSearchParams.success && parsedSearchParams.data.subcategory
       ? parsedSearchParams.data.subcategory
       : undefined
+  const tortenView: 'designs' | 'flavours' =
+    activeCategory === 'torten' && parsedSearchParams.success && parsedSearchParams.data.view === 'flavours'
+      ? 'flavours'
+      : 'designs'
 
   const t = await getTranslations('nav')
   const tCatalog = await getTranslations('catalog')
@@ -64,27 +70,47 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
 
   try {
     if (activeCategory === 'torten') {
-      const { data: designs, error } = await supabase
-        .from('torten_designs')
-        .select('id, slug, name_de, name_uk, description_de, description_uk, sub_category, image_url')
-        .order('created_at', { ascending: false })
+      if (tortenView === 'flavours') {
+        const { data: flavours, error } = await supabase
+          .from('torten_flavours')
+          .select('id, slug, name_de, name_uk, description_de, description_uk, image_url')
+          .order('name_de', { ascending: true })
 
-      if (error) {
-        console.warn('Error fetching torten designs:', error.message)
-      } else if (designs) {
-        products =
-          designs.map((design) => ({
-            id: design.id,
-            slug: design.slug,
-            name: locale === 'uk' ? design.name_uk : design.name_de,
-            description: (locale === 'uk' ? design.description_uk : design.description_de) || '',
-            imageUrl: design.image_url || '/placeholder-cake.svg',
+        if (error) {
+          console.warn('Error fetching torten flavours:', error.message)
+        } else if (flavours) {
+          products = flavours.map((flavour) => ({
+            id: flavour.id,
+            slug: flavour.slug,
+            name: locale === 'uk' ? flavour.name_uk : flavour.name_de,
+            description: (locale === 'uk' ? flavour.description_uk : flavour.description_de) || '',
+            imageUrl: flavour.image_url || '/placeholder-cake.svg',
             category: 'torten',
-            subCategory: design.sub_category,
-          })) || []
+          }))
+        }
+      } else {
+        const { data: designs, error } = await supabase
+          .from('torten_designs')
+          .select('id, slug, name_de, name_uk, description_de, description_uk, sub_category, image_url')
+          .order('created_at', { ascending: false })
 
-        if (subcategory) {
-          products = products.filter((product) => product.subCategory === subcategory)
+        if (error) {
+          console.warn('Error fetching torten designs:', error.message)
+        } else if (designs) {
+          products =
+            designs.map((design) => ({
+              id: design.id,
+              slug: design.slug,
+              name: locale === 'uk' ? design.name_uk : design.name_de,
+              description: (locale === 'uk' ? design.description_uk : design.description_de) || '',
+              imageUrl: design.image_url || '/placeholder-cake.svg',
+              category: 'torten',
+              subCategory: design.sub_category,
+            })) || []
+
+          if (subcategory) {
+            products = products.filter((product) => product.subCategory === subcategory)
+          }
         }
       }
     } else {
@@ -136,6 +162,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
           category={activeCategory}
           currentSubcategory={subcategory || null}
           locale={locale}
+          currentView={tortenView}
         />
       )}
       <div className="container py-8">

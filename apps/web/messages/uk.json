@@ -58,7 +58,9 @@
     "deliveryDate": "Дата доставки",
     "personCount": "Кількість осіб",
     "personCountPlaceholder": "напр. 10…",
-    "selectDeliveryDate": "Обрати дату"
+    "selectDeliveryDate": "Обрати дату",
+    "design": "Дизайн",
+    "noDesignSelected": "Будь ласка, виберіть дизайн"
   },
   "cart": {
     "title": "Кошик",
@@ -150,7 +152,7 @@
     "registerDescription": "Створіть новий акаунт",
     "invalidEmail": "Невірна адреса електронної пошти",
     "passwordMinLength": "Пароль повинен містити мінімум 6 символів",
-    "passwordsDoNotMatch": "Паролі не співпадають",
+    "passwordsDoNotMatch": "Паролі не збігаються",
     "verifyEmailTitle": "Підтвердити електронну пошту",
     "verifyEmailDescription": "Ми надіслали вам посилання для підтвердження. Відкрийте свою поштову скриньку та натисніть на посилання, щоб активувати акаунт.",
     "verifyEmailCta": "Зрозуміло",
@@ -194,16 +196,18 @@
     "noProducts": "Поки що немає доступних {category}",
     "title": "Каталог",
     "all": "Всі",
+    "viewDesigns": "Дизайни",
+    "viewFlavours": "Смаки",
     "subcategories": {
       "torten": {
         "feier": "Тематичні",
         "hochzeit": "Весільні",
-        "bento": "Бенто торти",
+        "bento": "Бенто-торти",
         "zum-tee": "До чаю"
       },
       "desserts": {
         "tarts": "Тарти",
-        "cinabons": "Синабони",
+        "cinabons": "Сіннабони",
         "kulichi": "Кулічі",
         "kapkeiky": "Капкейки",
         "cake-pops": "Кейк-попи",
@@ -216,7 +220,7 @@
       },
       "cookies": {
         "chocolate": "Шоколадні",
-        "blondie-cookies": "Блонді печиво"
+        "blondie-cookies": "Печиво \"Блонді\""
       }
     }
   },
@@ -224,8 +228,8 @@
     "title": "Моє обране",
     "description": "Ваші збережені улюблені товари",
     "emptyTitle": "Немає обраного",
-    "emptyDescription": "Ви ще не додали товари до обраного. Перегляньте наш каталог та додайте свої улюблені товари!",
-    "clearAll": "Видалити все обране",
+    "emptyDescription": "Ви ще не додали товари в обране. Перегляньте наш каталог і додайте свої улюблені товари!",
+    "clearAll": "Очистити обране",
     "count": "{count, plural, =1 {# обраний товар} few {# обрані товари} many {# обраних товарів} other {# обраних товарів}}"
   },
   "account": {
@@ -317,8 +321,8 @@
       "delete": "Видалити",
       "nameDe": "Назва (DE)",
       "nameUk": "Назва (UK)",
-      "descriptionDe": "Опис (Німецька)",
-      "descriptionUk": "Опис (Українська)",
+      "descriptionDe": "Опис (німецькою)",
+      "descriptionUk": "Опис (українською)",
       "subCategory": "Підкатегорія",
       "selectSubCategory": "Виберіть підкатегорію",
       "noSubCategory": "Немає підкатегорії",
@@ -357,14 +361,14 @@
       "editFlavour": "Редагувати смак",
       "createFlavour": "Створити новий смак",
       "flavourNumber": "Номер",
-      "nameDe": "Назва (Німецька)",
-      "nameUk": "Назва (Українська)",
-      "descriptionDe": "Опис (Німецька)",
-      "descriptionUk": "Опис (Українська)",
-      "ingredientsUk": "Інгредієнти (Українська)",
-      "ingredientsDe": "Інгредієнти (Німецька)",
-      "allergensUk": "Алергени (Українська)",
-      "allergensDe": "Алергени (Німецька)",
+      "nameDe": "Назва (німецькою)",
+      "nameUk": "Назва (українською)",
+      "descriptionDe": "Опис (німецькою)",
+      "descriptionUk": "Опис (українською)",
+      "ingredientsUk": "Інгредієнти (українською)",
+      "ingredientsDe": "Інгредієнти (німецькою)",
+      "allergensUk": "Алергени (українською)",
+      "allergensDe": "Алергени (німецькою)",
       "energy": "Енергія",
       "protein": "Білок",
       "fat": "Жир",

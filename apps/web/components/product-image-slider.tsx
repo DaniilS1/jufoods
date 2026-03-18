@@ -60,7 +60,7 @@ export function ProductImageSlider({
     return (
         <div className="space-y-4">
             {/* Main Image Container */}
-            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-muted/80 group shadow-lg">
+            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-muted/80 group shadow-none">
                 {/* Favorite Button */}
                 {mounted && productId && (
                     <Button

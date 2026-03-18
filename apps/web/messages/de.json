@@ -58,7 +58,9 @@
     "deliveryDate": "Lieferdatum",
     "personCount": "Anzahl Personen",
     "personCountPlaceholder": "z. B. 10…",
-    "selectDeliveryDate": "Datum wählen"
+    "selectDeliveryDate": "Datum wählen",
+    "design": "Design",
+    "noDesignSelected": "Bitte wähle ein Design aus"
   },
   "cart": {
     "title": "Warenkorb",
@@ -194,6 +196,8 @@
     "noProducts": "Noch keine {category} verfügbar",
     "title": "Katalog",
     "all": "Alle",
+    "viewDesigns": "Designs",
+    "viewFlavours": "Geschmacksrichtungen",
     "subcategories": {
       "torten": {
         "feier": "Feier",

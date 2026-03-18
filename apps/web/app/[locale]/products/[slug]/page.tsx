@@ -3,11 +3,12 @@ import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { ProductDetailWrapper } from '@/components/product-detail-wrapper'
+import { FlavourDetailWrapper } from '@/components/flavour-detail-wrapper'
 import { ProductCard } from '@/components/product-card'
 import { SubcategoryTabs } from '@/components/subcategory-tabs'
 import { createClient } from '@/lib/supabase/server'
 import { hasSubcategories } from '@/lib/subcategory-config'
-import type { FlavorOption, NutritionFact } from '@/types/product'
+import type { FlavorOption, NutritionFact, DesignOption } from '@/types/product'
 
 interface TortenFlavourRecord {
   id: string
@@ -41,6 +42,17 @@ interface TortenDesignRecord {
   image_url: string | null
   images_urls: string[] | null
   classic: boolean
+}
+
+interface FlavourDesignLink {
+  design_id: string
+  torten_designs: {
+    id: string
+    slug: string
+    name_de: string
+    name_uk: string
+    image_url: string | null
+  } | null
 }
 
 const FALLBACK_INGREDIENTS_UK: string[] = [
@@ -121,6 +133,7 @@ export default async function ProductDetailPage({
   const { locale, slug } = await params
   const t = await getTranslations('product')
   const tNav = await getTranslations('nav')
+  const tCatalog = await getTranslations('catalog')
 
   const supabase = await createClient()
 
@@ -275,6 +288,110 @@ export default async function ProductDetailPage({
       }))
       .slice(0, 4)
   } else {
+    // Check if slug belongs to a torten_flavour (flavour-first view)
+    const { data: tortenFlavour, error: flavourLookupError } = await supabase
+      .from('torten_flavours')
+      .select(
+        'id, slug, name_de, name_uk, description_de, description_uk, ingredients_de, ingredients_uk, allergens_de, allergens_uk, nutrition, image_url'
+      )
+      .eq('slug', slug)
+      .maybeSingle<TortenFlavourRecord>()
+
+    if (!flavourLookupError && tortenFlavour) {
+      // Fetch linked designs for this flavour
+      const { data: designLinks } = await supabase
+        .from('design_flavour')
+        .select(
+          `
+          design_id,
+          torten_designs (
+            id,
+            slug,
+            name_de,
+            name_uk,
+            image_url
+          )
+        `
+        )
+        .eq('flavour_id', tortenFlavour.id)
+        .order('name_de', { foreignTable: 'torten_designs', ascending: true })
+
+      const linkedDesigns: DesignOption[] = (designLinks ?? []).flatMap((link) => {
+        const dl = link as unknown as FlavourDesignLink
+        const d = dl.torten_designs
+        if (!d) return []
+        const arr = Array.isArray(d) ? (d as typeof d[]) : [d]
+        return arr.map((design) => ({
+          id: design.id,
+          slug: design.slug,
+          name: locale === 'uk' ? design.name_uk : design.name_de,
+          imageUrl: design.image_url || '/placeholder-cake.svg',
+        }))
+      })
+
+      const flavourIngredients =
+        locale === 'uk'
+          ? tortenFlavour.ingredients_uk || FALLBACK_INGREDIENTS_UK
+          : tortenFlavour.ingredients_de || FALLBACK_INGREDIENTS_DE
+      const flavourAllergens =
+        locale === 'uk'
+          ? tortenFlavour.allergens_uk || FALLBACK_ALLERGENS_UK
+          : tortenFlavour.allergens_de || FALLBACK_ALLERGENS_DE
+
+      const nutritionRaw = tortenFlavour.nutrition as Record<string, unknown> | null
+      const localeKey = locale === 'uk' ? 'text_uk' : 'text_de'
+      const legacyText =
+        nutritionRaw && typeof nutritionRaw.text === 'string' ? (nutritionRaw.text as string).trim() : ''
+      const localeText =
+        nutritionRaw && typeof nutritionRaw[localeKey] === 'string'
+          ? (nutritionRaw[localeKey] as string).trim()
+          : legacyText
+      const nutritionText = localeText !== '' ? localeText : undefined
+      const nutritionFacts: NutritionFact[] =
+        nutritionText !== undefined
+          ? []
+          : nutritionRaw && Object.keys(nutritionRaw).length > 0
+            ? Object.entries(nutritionRaw)
+                .filter(([key]) => key !== 'text' && key !== 'text_de' && key !== 'text_uk')
+                .map(([label, value]) => ({ label, value: String(value) }))
+            : FALLBACK_NUTRITION_FACTS[locale as 'uk' | 'de']
+
+      const flavourName = locale === 'uk' ? tortenFlavour.name_uk : tortenFlavour.name_de
+      const flavourDescription =
+        (locale === 'uk' ? tortenFlavour.description_uk : tortenFlavour.description_de) || ''
+      const flavourCategoryName = tCatalog('viewFlavours')
+
+      return (
+        <>
+          <SubcategoryTabs
+            category="torten"
+            currentSubcategory={null}
+            locale={locale}
+            currentView="flavours"
+          />
+          <div className="container py-6">
+            <FlavourDetailWrapper
+              flavour={{
+                id: tortenFlavour.id,
+                slug: tortenFlavour.slug,
+                name: flavourName,
+                description: flavourDescription,
+                imageUrl: tortenFlavour.image_url || '/placeholder-cake.svg',
+                ingredients: flavourIngredients,
+                allergens: flavourAllergens,
+                nutritionFacts,
+                nutritionText,
+              }}
+              designs={linkedDesigns}
+              locale={locale}
+              categoryName={flavourCategoryName}
+            />
+          </div>
+        </>
+      )
+    }
+
+    // Fall back to regular products table
     const { data: product, error } = await supabase
       .from('products')
       .select('*')

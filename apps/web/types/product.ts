@@ -3,6 +3,13 @@ export interface NutritionFact {
   value: string
 }
 
+export interface DesignOption {
+  id: string
+  slug: string
+  name: string
+  imageUrl: string
+}
+
 export interface FlavorOption {
   id: string
   slug: string

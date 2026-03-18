@@ -87,9 +87,16 @@ export function ProductCard({
           </h3>
         </Link>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1">
-          {description}
-        </p>
+        <div
+          className={cn(
+            // Keep card layout stable even if description contains multiple HTML blocks.
+            'text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1',
+            // Remove default spacing inside HTML content.
+            '[&_p]:m-0 [&_p]:leading-relaxed [&_ul]:m-0 [&_ul]:pl-4 [&_li]:leading-relaxed'
+          )}
+          // Description comes from Supabase as HTML (e.g. <p>, <ul>).
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
 
         {/* Optional Action / Bottom aligned content */}
         {defaultFlavourName && (

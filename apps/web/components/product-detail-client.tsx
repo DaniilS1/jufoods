@@ -329,7 +329,6 @@ export function ProductDetailClient({
               <ul className="space-y-1.5 text-sm text-foreground/90">
                 {flavourDetails.allergens.map((allergen) => (
                   <li key={allergen} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" aria-hidden />
                     {allergen}
                   </li>
                 ))}

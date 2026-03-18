@@ -10,12 +10,12 @@ import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
-import type { FlavorOption } from '@/types/product'
+import type { DesignOption } from '@/types/product'
 
-interface FlavourSelectorProps {
-  flavours: FlavorOption[]
-  selectedFlavourId?: string
-  onFlavourChange: (flavourId: string) => void
+interface DesignSelectorProps {
+  designs: DesignOption[]
+  selectedDesignId?: string
+  onDesignChange: (designId: string) => void
 }
 
 function useSelectorColumns() {
@@ -75,11 +75,11 @@ function usePrefersReducedMotion() {
   return reducedMotion
 }
 
-export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }: FlavourSelectorProps) {
+export function DesignSelector({ designs, selectedDesignId, onDesignChange }: DesignSelectorProps) {
   const tCatalog = useTranslations('catalog')
   const columns = useSelectorColumns()
   const prefersReducedMotion = usePrefersReducedMotion()
-  const shouldUseSlider = flavours.length > columns
+  const shouldUseSlider = designs.length > columns
 
   const [showAllOpen, setShowAllOpen] = useState(false)
   const sliderRef = useRef<HTMLDivElement>(null)
@@ -89,7 +89,6 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
       // In Slider-Mode sollen die Karten kleiner sein als die Grid-Variante,
       // damit bei vielen Items mehrere Karten pro Viewport passen.
       flex: '0 0 auto',
-      // Keep card/label sizing consistent across viewports.
       width: 'clamp(92px, 16vw, 122px)',
     }),
     []
@@ -102,36 +101,34 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
     el.scrollBy({ left: direction * amount, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
   }
 
-  const renderFlavourCard = (
-    flavour: FlavorOption,
+  const renderDesignCard = (
+    design: DesignOption,
     idPrefix: string,
     wrapperClassName: string = '',
     wrapperStyle?: CSSProperties
   ) => {
-    const isSelected = selectedFlavourId === flavour.id
-    const radioId = `${idPrefix}${flavour.id}`
+    const isSelected = selectedDesignId === design.id
+    const radioId = `${idPrefix}${design.id}`
 
     return (
-      <div key={flavour.id} className={cn('relative min-w-0', wrapperClassName)} style={wrapperStyle}>
-        <RadioGroupItem value={flavour.id} id={radioId} className="peer sr-only" />
+      <div key={design.id} className={cn('relative min-w-0', wrapperClassName)} style={wrapperStyle}>
+        <RadioGroupItem value={design.id} id={radioId} className="peer sr-only" />
         <Label
           htmlFor={radioId}
           className={cn(
-            'group relative w-full min-w-0 flex flex-col items-center gap-3 cursor-pointer py-4 px-3 md:py-5 md:px-2.5 rounded-xl transition-all duration-300',
+            'group relative w-full min-w-0 flex flex-col items-center gap-3 cursor-pointer py-4 px-3 md:py-5 md:px-4 rounded-xl transition-all duration-300',
             'hover:scale-[1.02] active:scale-[0.98]',
             isSelected
-              ? 'bg-primary shadow-lg shadow-primary/20 '
+              ? 'bg-primary shadow-lg shadow-primary/20'
               : 'bg-primary/30 hover:bg-primary/50 hover:shadow-md active:bg-primary/50 active:shadow-md'
           )}
         >
-          {/* Checkmark Badge for Selected */}
           {isSelected && (
             <div className="absolute -top-2 -right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md animate-in fade-in zoom-in-75 duration-200">
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4" aria-hidden />
             </div>
           )}
 
-          {/* Flavour Image */}
           <div
             className={cn(
               'relative w-full aspect-square overflow-hidden rounded-lg bg-muted transition-all duration-300',
@@ -141,17 +138,17 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
             )}
           >
             <Image
-              src={normalizeSupabaseImageUrl(flavour.imageUrl)}
-              alt={flavour.displayName}
+              src={normalizeSupabaseImageUrl(design.imageUrl)}
+              alt={design.name}
               fill
-              className="object-cover transition-transform duration-300"
+              className={cn(
+                'object-cover transition-transform duration-300'
+              )}
               sizes="(max-width: 640px) 120px, 140px"
             />
-            {/* Overlay for selected state */}
             {isSelected && <div className="absolute inset-0 bg-primary/10" />}
           </div>
 
-          {/* Flavour Name and Price */}
           <div className="flex flex-col items-center gap-1 text-center w-full">
             <span
               className={cn(
@@ -160,22 +157,21 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
                 isSelected ? 'text-primary-foreground' : 'text-foreground'
               )}
             >
-              {flavour.displayName}
+              {design.name}
             </span>
-
           </div>
         </Label>
       </div>
     )
   }
 
-  if (flavours.length === 0) {
+  if (designs.length === 0) {
     return null
   }
 
   return (
     <div className="space-y-4">
-      <RadioGroup value={selectedFlavourId} onValueChange={onFlavourChange} className="w-full">
+      <RadioGroup value={selectedDesignId} onValueChange={onDesignChange} className="w-full">
         {shouldUseSlider ? (
           <div className="relative group w-full max-w-full overflow-hidden">
             {/* Left/Right arrows */}
@@ -203,12 +199,12 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
             <div
               ref={sliderRef}
               className={cn(
-                'flex w-full gap-2.5 md:gap-4 overflow-x-auto scrollbar-hide overscroll-contain touch-manipulation py-3',
+                'flex w-full gap-2.5 md:gap-4 overflow-x-auto scrollbar-hide overscroll-contain touch-manipulation',
                 'snap-x snap-mandatory'
               )}
             >
-              {flavours.map((flavour) =>
-                renderFlavourCard(flavour, 'flavour-slider-', 'snap-start flex-none', sliderItemStyle)
+              {designs.map((design) =>
+                renderDesignCard(design, 'design-slider-', 'snap-start flex-none', sliderItemStyle)
               )}
 
               <div className="snap-start flex-none" style={sliderItemStyle}>
@@ -226,7 +222,7 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {flavours.map((flavour) => renderFlavourCard(flavour, 'flavour-grid-'))}
+            {designs.map((design) => renderDesignCard(design, 'design-grid-'))}
           </div>
         )}
       </RadioGroup>
@@ -234,11 +230,11 @@ export function FlavourSelector({ flavours, selectedFlavourId, onFlavourChange }
       {shouldUseSlider && (
         <Dialog open={showAllOpen} onOpenChange={setShowAllOpen}>
           <DialogContent className="max-w-6xl">
-            <DialogTitle>{tCatalog('viewFlavours')}</DialogTitle>
+            <DialogTitle>{tCatalog('viewDesigns')}</DialogTitle>
 
-            <RadioGroup value={selectedFlavourId} onValueChange={onFlavourChange} className="w-full">
+            <RadioGroup value={selectedDesignId} onValueChange={onDesignChange} className="w-full">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-4">
-                {flavours.map((flavour) => renderFlavourCard(flavour, 'flavour-all-'))}
+                {designs.map((design) => renderDesignCard(design, 'design-all-'))}
               </div>
             </RadioGroup>
           </DialogContent>
