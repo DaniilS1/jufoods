@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -12,10 +12,13 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { DesignOption } from '@/types/product'
 
+export type DesignShowAllApi = { open: () => void; active: boolean }
+
 interface DesignSelectorProps {
   designs: DesignOption[]
   selectedDesignId?: string
   onDesignChange: (designId: string) => void
+  onShowAllApi?: (api: DesignShowAllApi | null) => void
 }
 
 function useSelectorColumns() {
@@ -75,7 +78,12 @@ function usePrefersReducedMotion() {
   return reducedMotion
 }
 
-export function DesignSelector({ designs, selectedDesignId, onDesignChange }: DesignSelectorProps) {
+export function DesignSelector({
+  designs,
+  selectedDesignId,
+  onDesignChange,
+  onShowAllApi,
+}: DesignSelectorProps) {
   const tCatalog = useTranslations('catalog')
   const columns = useSelectorColumns()
   const prefersReducedMotion = usePrefersReducedMotion()
@@ -84,12 +92,20 @@ export function DesignSelector({ designs, selectedDesignId, onDesignChange }: De
   const [showAllOpen, setShowAllOpen] = useState(false)
   const sliderRef = useRef<HTMLDivElement>(null)
 
+  const openShowAll = useCallback(() => setShowAllOpen(true), [])
+
+  useEffect(() => {
+    if (!onShowAllApi) return
+    onShowAllApi({ open: openShowAll, active: shouldUseSlider })
+    return () => onShowAllApi(null)
+  }, [onShowAllApi, openShowAll, shouldUseSlider])
+
   const sliderItemStyle = useMemo(
     () => ({
       // In Slider-Mode sollen die Karten kleiner sein als die Grid-Variante,
       // damit bei vielen Items mehrere Karten pro Viewport passen.
       flex: '0 0 auto',
-      width: 'clamp(92px, 16vw, 122px)',
+      width: 'clamp(112px, 28vw, 138px)',
     }),
     []
   )
@@ -144,7 +160,7 @@ export function DesignSelector({ designs, selectedDesignId, onDesignChange }: De
               className={cn(
                 'object-cover transition-transform duration-300'
               )}
-              sizes="(max-width: 640px) 120px, 140px"
+              sizes="(max-width: 640px) 148px, 160px"
             />
             {isSelected && <div className="absolute inset-0 bg-primary/10" />}
           </div>
@@ -199,25 +215,13 @@ export function DesignSelector({ designs, selectedDesignId, onDesignChange }: De
             <div
               ref={sliderRef}
               className={cn(
-                'flex w-full gap-2.5 md:gap-4 overflow-x-auto scrollbar-hide overscroll-contain touch-manipulation',
+                'flex w-full gap-2.5 md:gap-4 overflow-x-auto scrollbar-hide overscroll-contain touch-manipulation py-4 md:py-5',
                 'snap-x snap-mandatory'
               )}
             >
               {designs.map((design) =>
                 renderDesignCard(design, 'design-slider-', 'snap-start flex-none', sliderItemStyle)
               )}
-
-              <div className="snap-start flex-none" style={sliderItemStyle}>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowAllOpen(true)}
-                  className="h-full w-full rounded-xl p-2 flex flex-col items-center justify-center gap-1 hover:bg-accent touch-manipulation"
-                >
-                  <span className="text-xs font-medium leading-tight">{tCatalog('all')}</span>
-                  <ChevronRight className="h-3 w-3" aria-hidden="true" />
-                </Button>
-              </div>
             </div>
           </div>
         ) : (
@@ -229,14 +233,21 @@ export function DesignSelector({ designs, selectedDesignId, onDesignChange }: De
 
       {shouldUseSlider && (
         <Dialog open={showAllOpen} onOpenChange={setShowAllOpen}>
-          <DialogContent className="max-w-6xl">
-            <DialogTitle>{tCatalog('viewDesigns')}</DialogTitle>
-
-            <RadioGroup value={selectedDesignId} onValueChange={onDesignChange} className="w-full">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 mt-4">
-                {designs.map((design) => renderDesignCard(design, 'design-all-'))}
-              </div>
-            </RadioGroup>
+          <DialogContent
+            className={cn(
+              'flex max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-1.5rem))] w-[calc(100vw-1.5rem)] max-w-6xl flex-col gap-0 overflow-hidden p-0 sm:w-full'
+            )}
+          >
+            <div className="shrink-0 border-b border-border/60 px-6 pb-3 pt-6 pr-14">
+              <DialogTitle className="leading-snug">{tCatalog('viewDesigns')}</DialogTitle>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-4">
+              <RadioGroup value={selectedDesignId} onValueChange={onDesignChange} className="w-full">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 md:gap-4">
+                  {designs.map((design) => renderDesignCard(design, 'design-all-'))}
+                </div>
+              </RadioGroup>
+            </div>
           </DialogContent>
         </Dialog>
       )}

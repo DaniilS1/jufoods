@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { ShoppingCart, Calendar as CalendarIcon, Users, UtensilsCrossed } from 'lucide-react'
+import { ShoppingCart, Calendar as CalendarIcon, ChevronRight, Users, UtensilsCrossed } from 'lucide-react'
 import { format } from 'date-fns'
 import { de, uk } from 'date-fns/locale'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { useCartStore } from '@/stores/cart-store'
 import { useUIStore } from '@/stores/ui-store'
-import { FlavourSelector } from '@/components/flavour-selector'
+import { FlavourSelector, type FlavourShowAllApi } from '@/components/flavour-selector'
 import { cn } from '@/lib/utils'
 import type { FlavorOption } from '@/types/product'
 
@@ -64,6 +64,7 @@ export function ProductDetailClient({
   showProductHeader = true,
 }: ProductDetailClientProps) {
   const t = useTranslations('product')
+  const tCatalog = useTranslations('catalog')
   const { addItem } = useCartStore()
   const { openCart } = useUIStore()
   const [internalSelectedFlavourId, setInternalSelectedFlavourId] = useState<string>(
@@ -71,6 +72,7 @@ export function ProductDetailClient({
   )
   const [deliveryDate, setDeliveryDate] = useState<string>('')
   const [personCount, setPersonCount] = useState<string>('')
+  const [flavourShowAllApi, setFlavourShowAllApi] = useState<FlavourShowAllApi | null>(null)
 
   useEffect(() => {
     if (product.isTorten) {
@@ -170,25 +172,43 @@ export function ProductDetailClient({
       {shouldShowFlavourSelector && (
         <section className="space-y-4" aria-labelledby="flavour-heading">
 
-          {showFlavourDetails && flavourDetails && (
+          {((showFlavourDetails && flavourDetails) || flavourShowAllApi?.active) && (
             <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
-                  <UtensilsCrossed className="size-3.5 shrink-0" aria-hidden />
-                  {flavourDetails.displayName}
-                </Badge>
-              
-                {isValidCount && (
-                  <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
-                    <Users className="size-3.5 shrink-0" aria-hidden />
-                    {personCount}
-                  </Badge>
-                )}
-                {deliveryDate && (
-                  <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
-                    <CalendarIcon className="size-3.5 shrink-0" aria-hidden />
-                    {format(parseLocalDate(deliveryDate), 'PPP', { locale: dateFnsLocale })}
-                  </Badge>
+              <div className="flex w-full flex-wrap items-center gap-x-2 gap-y-2">
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                  {showFlavourDetails && flavourDetails && (
+                    <>
+                      <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
+                        <UtensilsCrossed className="size-3.5 shrink-0" aria-hidden />
+                        {flavourDetails.displayName}
+                      </Badge>
+
+                      {isValidCount && (
+                        <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
+                          <Users className="size-3.5 shrink-0" aria-hidden />
+                          {personCount}
+                        </Badge>
+                      )}
+                      {deliveryDate && (
+                        <Badge variant="default" className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5">
+                          <CalendarIcon className="size-3.5 shrink-0" aria-hidden />
+                          {format(parseLocalDate(deliveryDate), 'PPP', { locale: dateFnsLocale })}
+                        </Badge>
+                      )}
+                    </>
+                  )}
+                </div>
+                {flavourShowAllApi?.active && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto h-auto rounded-full text-sm font-normal px-2.5 py-0.5 gap-1 shrink-0 touch-manipulation"
+                    onClick={() => flavourShowAllApi.open()}
+                  >
+                    {tCatalog('all')}
+                    <ChevronRight className="size-3.5 shrink-0" aria-hidden />
+                  </Button>
                 )}
               </div>
             </div>
@@ -198,6 +218,7 @@ export function ProductDetailClient({
               flavours={product.flavours}
               selectedFlavourId={selectedFlavourId}
               onFlavourChange={setSelectedFlavourId}
+              onShowAllApi={setFlavourShowAllApi}
             />
           )}
           {flavourDetails?.description && (

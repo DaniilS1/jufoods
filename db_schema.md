@@ -86,6 +86,7 @@ CREATE TABLE public.torten_designs (
 CREATE TABLE public.torten_flavours (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   slug text NOT NULL UNIQUE,
+  flavour_number integer NOT NULL UNIQUE,
   name_de text NOT NULL,
   name_uk text NOT NULL,
   description_de text,

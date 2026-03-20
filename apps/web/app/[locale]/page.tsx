@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { ProductCard } from '@/components/product-card'
 import { createClient } from '@/lib/supabase/server'
 import { SubcategoryTabs } from '@/components/subcategory-tabs'
+import { TortenViewToggle } from '@/components/torten-view-toggle'
 import { hasSubcategories } from '@/lib/subcategory-config'
 import type { Locale } from '@/i18n'
 
@@ -74,7 +75,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
         const { data: flavours, error } = await supabase
           .from('torten_flavours')
           .select('id, slug, name_de, name_uk, description_de, description_uk, image_url')
-          .order('name_de', { ascending: true })
+          .order('flavour_number', { ascending: true })
 
         if (error) {
           console.warn('Error fetching torten flavours:', error.message)
@@ -165,7 +166,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
           currentView={tortenView}
         />
       )}
-      <div className="container py-8">
+      <div className="container py-4">
+        {activeCategory === 'torten' && (
+          <div className="mb-6 flex justify-end items-start text-left">
+            <TortenViewToggle currentView={tortenView} />
+          </div>
+        )}
         {products.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {products.map((product) => (

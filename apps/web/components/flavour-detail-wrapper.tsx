@@ -7,7 +7,7 @@ import { ChevronRight, ShoppingCart, Calendar as CalendarIcon, Users, Layers } f
 import { format } from 'date-fns'
 import { de, uk } from 'date-fns/locale'
 import { ProductImageSlider } from '@/components/product-image-slider'
-import { DesignSelector } from '@/components/design-selector'
+import { DesignSelector, type DesignShowAllApi } from '@/components/design-selector'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -54,6 +54,7 @@ function toLocalDateString(date: Date): string {
 
 export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }: FlavourDetailWrapperProps) {
   const t = useTranslations('product')
+  const tCatalog = useTranslations('catalog')
   const tNav = useTranslations('nav')
   const { addItem } = useCartStore()
   const { openCart } = useUIStore()
@@ -62,6 +63,7 @@ export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }:
   const [selectedDesignId, setSelectedDesignId] = useState<string>(initialDesignId)
   const [deliveryDate, setDeliveryDate] = useState<string>('')
   const [personCount, setPersonCount] = useState<string>('')
+  const [designShowAllApi, setDesignShowAllApi] = useState<DesignShowAllApi | null>(null)
 
   const dateFnsLocale = locale === 'uk' ? uk : de
   const minDate = new Date(new Date().setHours(0, 0, 0, 0))
@@ -143,33 +145,47 @@ export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }:
           {designs.length > 0 && (
             <section className="space-y-4" aria-labelledby="design-heading">
               <div className="flex flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  {selectedDesign && (
-                    <Badge
-                      variant="default"
-                      className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5"
+                <div className="flex w-full flex-wrap items-center gap-x-2 gap-y-2">
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                    {selectedDesign && (
+                      <Badge
+                        variant="default"
+                        className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5"
+                      >
+                        <Layers className="size-3.5 shrink-0" aria-hidden />
+                        {selectedDesign.name}
+                      </Badge>
+                    )}
+                    {isValidCount && (
+                      <Badge
+                        variant="default"
+                        className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5"
+                      >
+                        <Users className="size-3.5 shrink-0" aria-hidden />
+                        {personCount}
+                      </Badge>
+                    )}
+                    {deliveryDate && (
+                      <Badge
+                        variant="default"
+                        className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5"
+                      >
+                        <CalendarIcon className="size-3.5 shrink-0" aria-hidden />
+                        {format(parseLocalDate(deliveryDate), 'PPP', { locale: dateFnsLocale })}
+                      </Badge>
+                    )}
+                  </div>
+                  {designShowAllApi?.active && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="ml-auto h-auto rounded-full text-sm font-normal px-2.5 py-0.5 gap-1 shrink-0 touch-manipulation"
+                      onClick={() => designShowAllApi.open()}
                     >
-                      <Layers className="size-3.5 shrink-0" aria-hidden />
-                      {selectedDesign.name}
-                    </Badge>
-                  )}
-                  {isValidCount && (
-                    <Badge
-                      variant="default"
-                      className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5"
-                    >
-                      <Users className="size-3.5 shrink-0" aria-hidden />
-                      {personCount}
-                    </Badge>
-                  )}
-                  {deliveryDate && (
-                    <Badge
-                      variant="default"
-                      className="text-sm bg-primary rounded-full font-normal px-2 py-0.5 flex items-center gap-1.5"
-                    >
-                      <CalendarIcon className="size-3.5 shrink-0" aria-hidden />
-                      {format(parseLocalDate(deliveryDate), 'PPP', { locale: dateFnsLocale })}
-                    </Badge>
+                      {tCatalog('all')}
+                      <ChevronRight className="size-3.5 shrink-0" aria-hidden />
+                    </Button>
                   )}
                 </div>
               </div>
@@ -177,6 +193,7 @@ export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }:
                 designs={designs}
                 selectedDesignId={selectedDesignId}
                 onDesignChange={setSelectedDesignId}
+                onShowAllApi={setDesignShowAllApi}
               />
             </section>
           )}
