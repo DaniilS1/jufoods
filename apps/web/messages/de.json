@@ -26,7 +26,8 @@
     "addToCart": "In den Warenkorb",
     "back": "Zurück",
     "next": "Weiter",
-    "memberSince": "Mitglied seit"
+    "memberSince": "Mitglied seit",
+    "devBanner": "Diese Website befindet sich noch in der Entwicklung und ist nicht produktiv einsatzbereit."
   },
   "nav": {
     "catalog": "Katalog",
