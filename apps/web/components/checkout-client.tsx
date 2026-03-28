@@ -155,6 +155,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           : null
 
       const orderData = {
+        locale,
         items: items.map((item) => ({
           productId: item.productId,
           designId: item.designId,

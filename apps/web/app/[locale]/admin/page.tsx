@@ -41,6 +41,36 @@ const AdminFlavourManagement = dynamic(
   }
 )
 
+const AdminCustomersManagement = dynamic(
+  () =>
+    import('@/components/admin-customers-management').then((mod) => ({
+      default: mod.AdminCustomersManagement,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    ),
+  }
+)
+
+const AdminOrdersManagement = dynamic(
+  () =>
+    import('@/components/admin-orders-management').then((mod) => ({
+      default: mod.AdminOrdersManagement,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    ),
+  }
+)
+
 export default function AdminPage() {
   const searchParams = useSearchParams()
   const activeTab = searchParams?.get('tab') || 'products'
@@ -56,16 +86,8 @@ export default function AdminPage() {
         {activeTab === 'products' && <AdminProductManagement />}
         {activeTab === 'designs' && <AdminDesignManagement />}
         {activeTab === 'flavours' && <AdminFlavourManagement />}
-        {activeTab === 'customers' && (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>{t('customers.comingSoon')}</p>
-          </div>
-        )}
-        {activeTab === 'orders' && (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>{t('orders.comingSoon')}</p>
-          </div>
-        )}
+        {activeTab === 'customers' && <AdminCustomersManagement />}
+        {activeTab === 'orders' && <AdminOrdersManagement />}
       </div>
     </div>
   )

@@ -87,9 +87,9 @@ export function Header() {
               variant="ghost"
               size="icon"
               onClick={openNavDrawer}
-              className="hover:bg-primary/10 rounded-full"
+              className="h-10 w-10 hover:bg-primary/10 rounded-full"
             >
-              <Menu className="h-5 w-5" aria-hidden="true" />
+              <Menu className="h-6 w-6" aria-hidden="true" />
               <span className="sr-only">Menu</span>
             </Button>
             <Logo href={`/${locale}`} size="sm" priority />
@@ -108,9 +108,9 @@ export function Header() {
             variant="ghost"
             size="icon"
             onClick={openNavDrawer}
-            className="hover:bg-primary/10 rounded-full"
+            className="h-10 w-10 hover:bg-primary/10 rounded-full"
           >
-            <Menu className="h-5 w-5" aria-hidden="true" />
+            <Menu className="h-6 w-6" aria-hidden="true" />
             <span className="sr-only">Menu</span>
           </Button>
           <Logo href="/" size="sm" priority />
@@ -122,9 +122,9 @@ export function Header() {
             <SearchBar />
           </div>
 
-          <Button variant="ghost" size="icon" asChild className="relative hover:bg-primary/10 rounded-full">
+          <Button variant="ghost" size="icon" asChild className="relative h-10 w-10 hover:bg-primary/10 rounded-full">
             <Link href="/favorites">
-              <Heart className="h-5 w-5" aria-hidden="true" />
+              <Heart className="h-6 w-6" aria-hidden="true" />
               {mounted && favoriteCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
                   {favoriteCount}
@@ -133,8 +133,8 @@ export function Header() {
               <span className="sr-only">{t('favorites')}</span>
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" onClick={openCart} className="relative hover:bg-primary/10 rounded-full">
-            <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+          <Button variant="ghost" size="icon" onClick={openCart} className="relative h-10 w-10 hover:bg-primary/10 rounded-full">
+            <ShoppingCart className="h-6 w-6" aria-hidden="true" />
             {mounted && totalItems > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
                 {totalItems}
@@ -148,18 +148,18 @@ export function Header() {
             variant="ghost"
             size="icon"
             asChild
-            className="hover:bg-primary/10 rounded-full"
+            className="h-10 w-10 hover:bg-primary/10 rounded-full"
             aria-label={t('account')}
           >
             <Link href={userEmail ? `/${pathname?.split('/')[1] || 'de'}/account` : `/${pathname?.split('/')[1] || 'de'}/login`}>
               {mounted && userEmail ? (
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-9 w-9">
                   <AvatarFallback className="bg-primary/15 text-primary text-xs font-semibold">
                     {userEmail.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <User className="h-5 w-5" aria-hidden="true" />
+                <User className="h-6 w-6" aria-hidden="true" />
               )}
             </Link>
           </Button>

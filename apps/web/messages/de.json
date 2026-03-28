@@ -389,12 +389,76 @@
       "formDescriptionEdit": "Bearbeite die bestehende Geschmacksrichtung. Aktualisierte Informationen gelten sofort."
     },
     "customers": {
-      "title": "Kundenverwaltung",
-      "comingSoon": "Kundenverwaltung kommt bald..."
+      "title": "Kunden",
+      "description": "Kunden mit mindestens einer Bestellung.",
+      "loading": "Kunden werden geladen…",
+      "empty": "Noch keine Kunden erfasst.",
+      "noResults": "Keine Treffer für die Suche.",
+      "filterPlaceholder": "Suche nach Name oder E-Mail…",
+      "columns": {
+        "email": "E-Mail",
+        "name": "Name",
+        "orders": "Bestellungen",
+        "lastOrder": "Letzte Bestellung",
+        "account": "Konto",
+        "contact": "Kontakt",
+        "city": "Wohnort"
+      }
     },
     "orders": {
-      "title": "Bestellungsverwaltung",
-      "comingSoon": "Bestellungsverwaltung kommt bald..."
+      "title": "Bestellungen",
+      "description": "Alle eingegangenen Bestellungen.",
+      "loading": "Bestellungen werden geladen…",
+      "empty": "Noch keine Bestellungen.",
+      "noResults": "Keine Treffer für die Suche.",
+      "filterHeading": "Filter",
+      "filterLabel": "Suche",
+      "filterPlaceholder": "Suche nach Kunde, E-Mail, Status…",
+      "filterAll": "Alle",
+      "filterStatus": "Status",
+      "filterDelivery": "Lieferart",
+      "filterPickup": "Abholung",
+      "filterShip": "Lieferung",
+      "filterNotes": "Anmerkungen",
+      "filterNotesWith": "Mit Kundennotiz",
+      "filterNotesWithout": "Ohne Kundennotiz",
+      "paginationPrevious": "Zurück",
+      "paginationNext": "Weiter",
+      "showingRange": "{from}–{to} von {total}",
+      "markDone": "Als erledigt markieren",
+      "doneLabel": "Erledigt",
+      "openDetails": "Bestelldetails: {name}",
+      "detailTitle": "Bestelldetails",
+      "detailClose": "Schließen",
+      "columns": {
+        "id": "Nr.",
+        "date": "Datum",
+        "customer": "Kunde",
+        "email": "E-Mail",
+        "status": "Status",
+        "items": "Positionen / Stk.",
+        "done": "Erledigt"
+      },
+      "detail": {
+        "orderId": "Bestell-ID",
+        "customer": "Kunde",
+        "email": "E-Mail",
+        "residence": "Wohnort",
+        "referral": "Referenz",
+        "schedule": "Termine",
+        "eventDate": "Eventdatum",
+        "celebration": "Feierdatum",
+        "delivery": "Lieferung / Abholung",
+        "notes": "Anmerkungen",
+        "items": "Positionen",
+        "modePickup": "Abholung",
+        "modeDelivery": "Lieferung",
+        "designLabel": "Design",
+        "quantity": "Menge",
+        "loadingItems": "Positionen werden geladen…",
+        "productFallback": "Produktbild",
+        "designFallback": "Designbild"
+      }
     }
   },
   "torteModal": {

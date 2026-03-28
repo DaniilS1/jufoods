@@ -587,33 +587,33 @@ export function AdminDesignManagement() {
       </TooltipProvider>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90dvh] flex flex-col p-0 mx-4 sm:mx-6">
-          <DialogHeader className="px-4 pt-4 pb-3 border-b">
-            <DialogTitle className="text-base">
+        <DialogContent className="flex max-h-[90dvh] w-[min(48rem,calc(100vw-2rem))] max-w-3xl flex-col gap-0 rounded-lg p-0">
+          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-[#735959] sm:text-left">
+            <DialogTitle className="text-base text-[#735959]">
               {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-[#735959]/90">
               {editingDesign ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
-            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959]">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="name_de">{tAdmin('nameDe')}</Label>
                 <Input id="name_de" {...register('name_de')} />
                 {errors.name_de && <p className="text-xs text-destructive">{errors.name_de.message}</p>}
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="name_uk">{tAdmin('nameUk')}</Label>
                 <Input id="name_uk" {...register('name_uk')} />
                 {errors.name_uk && <p className="text-xs text-destructive">{errors.name_uk.message}</p>}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="description_de">{tAdmin('descriptionDe')}</Label>
                 <RichTextEditor
@@ -630,7 +630,7 @@ export function AdminDesignManagement() {
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Label className="text-xs" htmlFor="sub_category">{tAdmin('subCategory')}</Label>
               <Select
                 value={selectValue}
@@ -654,11 +654,16 @@ export function AdminDesignManagement() {
 
             <div className="flex flex-col gap-1">
               <Label className="text-xs" htmlFor="image_url">{tAdmin('image')}</Label>
-              <div className="flex gap-2">
-                <Input id="image_url" {...register('image_url')} placeholder="https://..." />
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                <Input
+                  id="image_url"
+                  className="min-h-11 w-full sm:min-h-10 sm:flex-1"
+                  {...register('image_url')}
+                  placeholder="https://..."
+                />
                 <Label
                   htmlFor="design-image-upload"
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm cursor-pointer hover:bg-accent active:bg-accent"
+                  className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm touch-manipulation hover:bg-accent active:bg-accent sm:min-h-10 sm:shrink-0"
                 >
                   <Upload className="h-4 w-4" />
                   {tAdmin('upload')}
@@ -673,7 +678,7 @@ export function AdminDesignManagement() {
                 />
               </div>
               {uploading && (
-                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                <p className="flex items-center gap-2 text-xs text-[#735959]/80">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   {tAdmin('uploading')}
                 </p>
@@ -682,11 +687,11 @@ export function AdminDesignManagement() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <Label className="text-xs">{tAdmin('additionalImages')}</Label>
                 <label
                   htmlFor="design-additional-images-upload"
-                  className="inline-flex min-h-[36px] items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-1.5 text-xs cursor-pointer hover:bg-accent active:bg-accent"
+                  className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-1.5 text-xs cursor-pointer hover:bg-accent active:bg-accent sm:min-h-10 sm:w-auto"
                 >
                   <Upload className="h-3.5 w-3.5" />
                   {tAdmin('addMoreImages')}
@@ -745,24 +750,24 @@ export function AdminDesignManagement() {
                 />
               </div>
               {classicValue && (
-                <p className="text-xs text-muted-foreground">{tAdmin('classicDescription')}</p>
+                <p className="text-xs text-[#735959]/80">{tAdmin('classicDescription')}</p>
               )}
             </div>
 
             {!classicValue && (
-              <div className="space-y-2">
-                <div>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
                   <Label className="text-xs">{tAdmin('flavourAssignmentsTitle')}</Label>
-                  <p className="text-xs text-muted-foreground">{tAdmin('flavourAssignmentsDescription')}</p>
+                  <p className="text-xs text-[#735959]/80">{tAdmin('flavourAssignmentsDescription')}</p>
                 </div>
                 <div className="rounded-md border">
                   {flavoursLoading ? (
-                    <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 p-3 text-xs text-[#735959]/80">
                       <Loader2 className="h-3 w-3 animate-spin" />
                       {tAdmin('flavourAssignmentsLoading')}
                     </div>
                   ) : flavours.length === 0 ? (
-                    <p className="p-3 text-xs text-muted-foreground">{tAdmin('flavourAssignmentsEmpty')}</p>
+                    <p className="p-3 text-xs text-[#735959]/80">{tAdmin('flavourAssignmentsEmpty')}</p>
                   ) : (
                     <>
                       <label className="flex items-center gap-2 p-2 border-b cursor-pointer hover:bg-muted/50">
@@ -776,7 +781,7 @@ export function AdminDesignManagement() {
                             }
                           }}
                         />
-                        <span className="text-sm font-medium">{tAdmin('flavourAssignmentsSelectAll')}</span>
+                        <span className="text-sm font-medium text-[#735959]">{tAdmin('flavourAssignmentsSelectAll')}</span>
                       </label>
                       <div className="max-h-48 overflow-y-auto divide-y">
                         {flavours.map((flavour) => {
@@ -791,8 +796,8 @@ export function AdminDesignManagement() {
                               onCheckedChange={(value) => toggleFlavourSelection(flavour.id, value === true)}
                             />
                             <div>
-                              <p className="text-sm font-medium leading-tight">{flavour.name_de}</p>
-                              <p className="text-xs text-muted-foreground">{flavour.name_uk}</p>
+                              <p className="text-sm font-medium leading-tight text-[#735959]">{flavour.name_de}</p>
+                              <p className="text-xs text-[#735959]/75">{flavour.name_uk}</p>
                             </div>
                           </label>
                         )
@@ -805,13 +810,13 @@ export function AdminDesignManagement() {
             )}
             </div>
 
-            <DialogFooter className="px-4 py-3 border-t bg-background flex gap-2">
-              <Button type="button" variant="outline" onClick={closeModal}>
-                <X className="h-4 w-4 mr-1" />
+            <DialogFooter className="flex flex-col gap-2 border-t bg-background px-4 py-3 sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" className="w-full touch-manipulation sm:w-auto" onClick={closeModal}>
+                <X className="mr-1 h-4 w-4" />
                 {tAdmin('cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 mr-1" />}
+              <Button type="submit" disabled={isSubmitting} className="w-full touch-manipulation sm:w-auto">
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />}
                 {editingDesign ? tAdmin('update') : tAdmin('create')}
               </Button>
             </DialogFooter>

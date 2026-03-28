@@ -578,19 +578,19 @@ export function AdminFlavourManagement() {
       </TooltipProvider>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90dvh] flex flex-col p-0">
-          <DialogHeader className="px-4 pt-4 pb-3 border-b">
-            <DialogTitle className="text-base">
+        <DialogContent className="flex max-h-[90dvh] w-[min(48rem,calc(100vw-2rem))] max-w-3xl flex-col gap-0 rounded-lg p-0">
+          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-[#735959] sm:text-left">
+            <DialogTitle className="text-base text-[#735959]">
               {editingFlavour ? tAdmin('editFlavour') : tAdmin('createFlavour')}
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-[#735959]/90">
               {editingFlavour ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
-            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-              <div className="space-y-1">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959]">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="flavour_number">
                   {activeTab === 'de' ? LABELS_DE.flavourNumber : LABELS_UK.flavourNumber}
                 </Label>
@@ -606,31 +606,33 @@ export function AdminFlavourManagement() {
               </div>
 
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'de' | 'uk')} className="w-full">
-                <AnimatedTabsList value={activeTab} className="grid w-full grid-cols-2">
-                  <TabsTrigger value="de" className="gap-1.5">
+                <AnimatedTabsList value={activeTab} className="grid w-full grid-cols-2 touch-manipulation">
+                  <TabsTrigger value="de" className="min-h-11 gap-1.5">
                     <span aria-hidden>🇩🇪</span>
                     Deutsch
                   </TabsTrigger>
-                  <TabsTrigger value="uk" className="gap-1.5">
+                  <TabsTrigger value="uk" className="min-h-11 gap-1.5">
                     <span aria-hidden>🇺🇦</span>
                     Українська
                   </TabsTrigger>
                 </AnimatedTabsList>
-                <TabsContent value="de" className="space-y-4 mt-3">
-                  <div className="space-y-1">
+                <TabsContent value="de" className="mt-3 flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
                     <Label className="text-xs" htmlFor="name_de">Name</Label>
                     <Input id="name_de" {...register('name_de')} />
                     {errors.name_de && <p className="text-xs text-destructive">{errors.name_de.message}</p>}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <Label className="text-xs" htmlFor="description_de">Beschreibung</Label>
+                    <Label className="text-xs" htmlFor="description_de">
+                      Beschreibung
+                    </Label>
                     <RichTextEditor
                       value={watch('description_de') || ''}
                       onChange={(html) => setValue('description_de', html)}
                     />
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <Label className="text-xs">Zutaten</Label>
                       <Button type="button" variant="outline" size="sm" onClick={() => appendIngredientDe('')}>
                         <Plus className="h-3 w-3 mr-1" /> Hinzufügen
@@ -645,8 +647,8 @@ export function AdminFlavourManagement() {
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <Label className="text-xs">Allergene</Label>
                       <Button type="button" variant="outline" size="sm" onClick={() => appendAllergenDe('')}>
                         <Plus className="h-3 w-3 mr-1" /> Hinzufügen
@@ -661,7 +663,7 @@ export function AdminFlavourManagement() {
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-1">
+                  <div className="flex flex-col gap-1">
                     <Label className="text-xs" htmlFor="nutrition_text_de">Nährwertdeklaration</Label>
                     <RichTextEditor
                       value={watch('nutrition_text_de') || ''}
@@ -670,8 +672,8 @@ export function AdminFlavourManagement() {
                     />
                   </div>
                 </TabsContent>
-                <TabsContent value="uk" className="space-y-4 mt-3">
-                  <div className="space-y-1">
+                <TabsContent value="uk" className="mt-3 flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
                     <Label className="text-xs" htmlFor="name_uk">Назва</Label>
                     <Input id="name_uk" {...register('name_uk')} />
                     {errors.name_uk && <p className="text-xs text-destructive">{errors.name_uk.message}</p>}
@@ -683,8 +685,8 @@ export function AdminFlavourManagement() {
                       onChange={(html) => setValue('description_uk', html)}
                     />
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <Label className="text-xs">Інгредієнти</Label>
                       <Button type="button" variant="outline" size="sm" onClick={() => appendIngredientUk('')}>
                         <Plus className="h-3 w-3 mr-1" /> Додати
@@ -699,8 +701,8 @@ export function AdminFlavourManagement() {
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <Label className="text-xs">Алергени</Label>
                       <Button type="button" variant="outline" size="sm" onClick={() => appendAllergenUk('')}>
                         <Plus className="h-3 w-3 mr-1" /> Додати
@@ -715,7 +717,7 @@ export function AdminFlavourManagement() {
                       </div>
                     ))}
                   </div>
-                  <div className="space-y-1">
+                  <div className="flex flex-col gap-1">
                     <Label className="text-xs" htmlFor="nutrition_text_uk">Харчова цінність</Label>
                     <RichTextEditor
                       value={watch('nutrition_text_uk') || ''}
@@ -726,15 +728,20 @@ export function AdminFlavourManagement() {
                 </TabsContent>
               </Tabs>
 
-              <div className="space-y-1 pt-2 border-t">
+              <div className="flex flex-col gap-1 border-t pt-2">
                 <Label className="text-xs" htmlFor="image_url">
                   {activeTab === 'de' ? LABELS_DE.image : LABELS_UK.image}
                 </Label>
-                <div className="flex gap-2">
-                  <Input id="image_url" {...register('image_url')} placeholder="https://..." />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                  <Input
+                    id="image_url"
+                    className="min-h-11 w-full sm:min-h-10 sm:flex-1"
+                    {...register('image_url')}
+                    placeholder="https://..."
+                  />
                   <Label
                     htmlFor="flavour-image-upload"
-                    className="inline-flex min-h-[44px] items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm cursor-pointer hover:bg-accent active:bg-accent"
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm touch-manipulation hover:bg-accent active:bg-accent sm:min-h-10 sm:shrink-0"
                   >
                     <Upload className="h-4 w-4" />
                     {tAdmin('upload')}
@@ -749,7 +756,7 @@ export function AdminFlavourManagement() {
                   />
                 </div>
                 {uploading && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-2">
+                  <p className="flex items-center gap-2 text-xs text-[#735959]/80">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     {tAdmin('uploading')}
                   </p>
@@ -758,13 +765,13 @@ export function AdminFlavourManagement() {
               </div>
             </div>
 
-            <DialogFooter className="px-4 py-3 border-t bg-background flex gap-2">
-              <Button type="button" variant="outline" onClick={closeModal}>
-                <X className="h-4 w-4 mr-1" />
+            <DialogFooter className="flex flex-col gap-2 border-t bg-background px-4 py-3 sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" className="w-full touch-manipulation sm:w-auto" onClick={closeModal}>
+                <X className="mr-1 h-4 w-4" />
                 {tAdmin('cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 mr-1" />}
+              <Button type="submit" disabled={isSubmitting} className="w-full touch-manipulation sm:w-auto">
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />}
                 {editingFlavour ? tAdmin('update') : tAdmin('create')}
               </Button>
             </DialogFooter>

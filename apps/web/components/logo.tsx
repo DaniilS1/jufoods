@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 const SIZES = {
-  sm: 40,
+  sm: 36,
   md: 44,
   lg: 56,
 } as const
@@ -16,7 +16,7 @@ interface LogoProps {
   className?: string
 }
 
-export function Logo({ href, size = 'md', priority = false, className }: LogoProps) {
+export function Logo({ href, size = 'sm', priority = false, className }: LogoProps) {
   const px = SIZES[size]
 
   const img = (

@@ -60,3 +60,6 @@
 - **Geduld:** Große Komponenten verursachen lange Cold Builds.
 - **Keine parallelen Next-Prozesse:** Nur einen `pnpm run dev` gleichzeitig starten.
 - **Terminal-Logs teilen:** Bei Supportanfragen immer die vollständige Fehlermeldung anhängen.
+
+
+old text color: #735959

@@ -393,12 +393,76 @@
       "formDescriptionEdit": "Редагуйте існуючий смак. Оновлена інформація набуде чинності одразу."
     },
     "customers": {
-      "title": "Керування клієнтами",
-      "comingSoon": "Керування клієнтами незабаром..."
+      "title": "Клієнти",
+      "description": "Клієнти з принаймні одним замовленням.",
+      "loading": "Завантаження клієнтів…",
+      "empty": "Клієнтів ще немає.",
+      "noResults": "Нічого не знайдено.",
+      "filterPlaceholder": "Пошук за ім’ям або e-mail…",
+      "columns": {
+        "email": "E-mail",
+        "name": "Ім’я",
+        "orders": "Замовлення",
+        "lastOrder": "Останнє замовлення",
+        "account": "Обліковий запис",
+        "contact": "Контакт",
+        "city": "Місто"
+      }
     },
     "orders": {
-      "title": "Керування замовленнями",
-      "comingSoon": "Керування замовленнями незабаром..."
+      "title": "Замовлення",
+      "description": "Усі отримані замовлення.",
+      "loading": "Завантаження замовлень…",
+      "empty": "Замовлень ще немає.",
+      "noResults": "Нічого не знайдено.",
+      "filterHeading": "Фільтр",
+      "filterLabel": "Пошук",
+      "filterPlaceholder": "Пошук за клієнтом, e-mail, статусом…",
+      "filterAll": "Усі",
+      "filterStatus": "Статус",
+      "filterDelivery": "Тип отримання",
+      "filterPickup": "Самовивіз",
+      "filterShip": "Доставка",
+      "filterNotes": "Примітки",
+      "filterNotesWith": "Є примітка клієнта",
+      "filterNotesWithout": "Без примітки",
+      "paginationPrevious": "Назад",
+      "paginationNext": "Далі",
+      "showingRange": "{from}–{to} з {total}",
+      "markDone": "Позначити виконаним",
+      "doneLabel": "Виконано",
+      "openDetails": "Деталі замовлення: {name}",
+      "detailTitle": "Деталі замовлення",
+      "detailClose": "Закрити",
+      "columns": {
+        "id": "№",
+        "date": "Дата",
+        "customer": "Клієнт",
+        "email": "E-mail",
+        "status": "Статус",
+        "items": "Позиції / шт.",
+        "done": "Готово"
+      },
+      "detail": {
+        "orderId": "ID замовлення",
+        "customer": "Клієнт",
+        "email": "E-mail",
+        "residence": "Місто проживання",
+        "referral": "Звідки дізналися",
+        "schedule": "Дати",
+        "eventDate": "Дата події",
+        "celebration": "Святкування",
+        "delivery": "Доставка / самовивіз",
+        "notes": "Примітки",
+        "items": "Позиції",
+        "modePickup": "Самовивіз",
+        "modeDelivery": "Доставка",
+        "designLabel": "Дизайн",
+        "quantity": "Кількість",
+        "loadingItems": "Завантаження позицій…",
+        "productFallback": "Зображення товару",
+        "designFallback": "Зображення дизайну"
+      }
     }
   },
   "torteModal": {

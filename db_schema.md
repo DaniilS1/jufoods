@@ -1,6 +1,27 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+-- RLS notes (checkout / admin):
+-- - public.customers: SELECT allowed for role=admin only. Inserts/updates go through Route Handlers with SUPABASE_SERVICE_ROLE_KEY (bypasses RLS).
+-- - public.orders: existing policies for own rows + anon INSERT; admins may SELECT/UPDATE all orders (see migration 20260328000000_customers_and_order_enhancements.sql).
+
+CREATE TABLE public.customers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  email_normalized text NOT NULL,
+  display_email text NOT NULL,
+  full_name text NOT NULL,
+  phone_or_social text,
+  residence_city text,
+  user_id uuid,
+  first_order_at timestamp with time zone NOT NULL DEFAULT now(),
+  last_order_at timestamp with time zone NOT NULL DEFAULT now(),
+  order_count integer NOT NULL DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT customers_pkey PRIMARY KEY (id),
+  CONSTRAINT customers_email_normalized_key UNIQUE (email_normalized),
+  CONSTRAINT customers_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
 CREATE TABLE public.custom_designs (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
@@ -22,11 +43,13 @@ CREATE TABLE public.design_flavour (
 CREATE TABLE public.orders (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid,
+  customer_id uuid,
   customer_name text NOT NULL,
   customer_email text NOT NULL,
   customer_phone text,
   customer_address text,
   notes text,
+  checkout_details jsonb,
   items jsonb NOT NULL,
   status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'confirmed'::text, 'completed'::text, 'cancelled'::text])),
   created_at timestamp with time zone DEFAULT now(),
@@ -34,6 +57,7 @@ CREATE TABLE public.orders (
   custom_design_id uuid,
   CONSTRAINT orders_pkey PRIMARY KEY (id),
   CONSTRAINT orders_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+  CONSTRAINT orders_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id),
   CONSTRAINT orders_custom_design_id_fkey FOREIGN KEY (custom_design_id) REFERENCES public.custom_designs(id)
 );
 CREATE TABLE public.products (
