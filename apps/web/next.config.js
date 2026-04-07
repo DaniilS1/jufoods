@@ -29,15 +29,7 @@ const nextConfig = {
   // Optimize webpack for better tree-shaking and smaller bundles
   webpack: (config, { isServer, webpack }) => {
     // Externalize server-only packages to avoid bundling them in client
-    if (isServer) {
-      // Externalize nodemailer on server-side to avoid bundling issues
-      config.externals = config.externals || []
-      if (Array.isArray(config.externals)) {
-        config.externals.push('nodemailer')
-      } else {
-        config.externals = [config.externals, 'nodemailer']
-      }
-    } else {
+    if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,

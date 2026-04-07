@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/admin'
-import {
-  sendOrderNotificationEmails,
-  type CheckoutPayload,
-  type EnrichedLineItem,
-  type OrderLocale,
-} from '@/lib/email/order-emails'
+import type { CheckoutPayload, EnrichedLineItem, OrderLocale } from '@/lib/orders/order-types'
+import { sendOrderCreatedWebhook } from '@/lib/orders/order-webhook'
 
 type RawItem = {
   productId?: string
+  product_id?: string
   designId?: string | null
+  design_id?: string | null
   quantity?: number
+}
+
+function lineProductId(item: RawItem): string | undefined {
+  const v = item.productId ?? item.product_id
+  return typeof v === 'string' && v.trim() ? v.trim() : undefined
+}
+
+function lineDesignId(item: RawItem): string | null | undefined {
+  const v = item.designId ?? item.design_id
+  if (v === null || v === undefined) return v
+  return typeof v === 'string' && v.trim() ? v.trim() : null
 }
 
 function normalizeEmail(email: string): string {
@@ -37,17 +46,24 @@ async function enrichLineItems(
   items: RawItem[],
   locale: OrderLocale
 ): Promise<EnrichedLineItem[]> {
-  const productIds = [...new Set(items.map((i) => i.productId).filter(Boolean) as string[])]
-  const designIds = [...new Set(items.map((i) => i.designId).filter(Boolean) as string[])]
+  const productIds = [...new Set(items.map(lineProductId).filter(Boolean) as string[])]
+  const designIds = [...new Set(items.map((i) => lineDesignId(i)).filter(Boolean) as string[])]
 
   const [productsRes, designsRes] = await Promise.all([
     productIds.length
       ? admin.from('products').select('id, name_de, name_uk').in('id', productIds)
-      : Promise.resolve({ data: [] as { id: string; name_de: string; name_uk: string }[] }),
+      : Promise.resolve({ data: [] as { id: string; name_de: string; name_uk: string }[], error: null }),
     designIds.length
       ? admin.from('torten_designs').select('id, name_de, name_uk').in('id', designIds)
-      : Promise.resolve({ data: [] as { id: string; name_de: string; name_uk: string }[] }),
+      : Promise.resolve({ data: [] as { id: string; name_de: string; name_uk: string }[], error: null }),
   ])
+
+  if (productsRes.error) {
+    console.error('[orders] enrichLineItems products query:', productsRes.error.message)
+  }
+  if (designsRes.error) {
+    console.error('[orders] enrichLineItems designs query:', designsRes.error.message)
+  }
 
   const productMap = new Map<string, string>()
   for (const p of productsRes.data ?? []) {
@@ -61,8 +77,8 @@ async function enrichLineItems(
   }
 
   return items.map((item) => {
-    const pid = item.productId
-    const did = item.designId
+    const pid = lineProductId(item)
+    const did = lineDesignId(item)
     return {
       quantity: Math.max(1, item.quantity ?? 1),
       productName: pid ? productMap.get(pid) ?? pid.slice(0, 8) : '—',
@@ -82,8 +98,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Items are required' }, { status: 400 })
     }
 
-    if (!customer?.fullName || !customer?.email) {
-      return NextResponse.json({ error: 'Full name and email are required' }, { status: 400 })
+    const emailRaw = typeof customer?.email === 'string' ? customer.email.trim() : ''
+    const firstName = typeof customer?.firstName === 'string' ? customer.firstName.trim() : ''
+    const lastName = typeof customer?.lastName === 'string' ? customer.lastName.trim() : ''
+    let fullName =
+      typeof customer?.fullName === 'string' ? customer.fullName.trim() : `${firstName} ${lastName}`.trim()
+    if (!fullName && (firstName || lastName)) {
+      fullName = `${firstName} ${lastName}`.trim()
+    }
+    if (!emailRaw || !fullName) {
+      return NextResponse.json({ error: 'Name and email are required' }, { status: 400 })
     }
 
     const admin = createServiceRoleClient()
@@ -97,12 +121,41 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabaseUser.auth.getUser()
 
-    const emailNormalized = normalizeEmail(customer.email)
-    const displayEmail = customer.email.trim()
+    const emailNormalized = normalizeEmail(emailRaw)
+    const displayEmail = emailRaw
     const residenceCity = customer.residenceCity?.trim() || null
-    const phoneOrSocial = customer.phoneOrSocial?.trim() || null
+    const phone =
+      (typeof customer?.phone === 'string' ? customer.phone.trim() : '') ||
+      (typeof customer?.phoneOrSocial === 'string' ? customer.phoneOrSocial.trim() : '') ||
+      null
+
+    const salutation: 'mr' | 'mrs' = customer?.salutation === 'mrs' ? 'mrs' : 'mr'
+    const consentWhatsapp = Boolean(customer?.consentWhatsapp)
+    const consentTelegram = Boolean(customer?.consentTelegram)
+    const hasMessengerConsent = consentWhatsapp || consentTelegram
+    const messengerPhoneRaw =
+      typeof customer?.messengerPhone === 'string' ? customer.messengerPhone.trim() : ''
+    const messengerPhone = hasMessengerConsent && messengerPhoneRaw ? messengerPhoneRaw : null
+    const messengerSameAsPhone = !hasMessengerConsent || !messengerPhoneRaw
+
+    const nameParts = fullName.split(/\s+/).filter(Boolean)
+    const resolvedFirst = firstName || nameParts[0] || fullName
+    const resolvedLast =
+      lastName || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '')
+
+    const contactPayload = {
+      salutation,
+      firstName: resolvedFirst,
+      lastName: resolvedLast,
+      phone: phone ?? '',
+      consentWhatsapp,
+      consentTelegram,
+      messengerSameAsPhone,
+      messengerPhone,
+    }
 
     const checkoutDetails: CheckoutPayload = {
+      contact: contactPayload,
       orderDetails: orderDetails || {},
       delivery: delivery || {},
       referralSource: customer.referralSource || undefined,
@@ -135,8 +188,8 @@ export async function POST(request: NextRequest) {
         .insert({
           email_normalized: emailNormalized,
           display_email: displayEmail,
-          full_name: customer.fullName.trim(),
-          phone_or_social: phoneOrSocial,
+          full_name: fullName,
+          phone_or_social: phone,
           residence_city: residenceCity,
           user_id: linkedUserId,
           first_order_at: now,
@@ -157,8 +210,8 @@ export async function POST(request: NextRequest) {
         .from('customers')
         .update({
           display_email: displayEmail,
-          full_name: customer.fullName.trim(),
-          phone_or_social: phoneOrSocial,
+          full_name: fullName,
+          phone_or_social: phone,
           residence_city: residenceCity,
           user_id: nextUserId,
           last_order_at: now,
@@ -180,9 +233,9 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: user?.id || null,
         customer_id: customerId,
-        customer_name: customer.fullName.trim(),
+        customer_name: fullName,
         customer_email: displayEmail,
-        customer_phone: phoneOrSocial,
+        customer_phone: phone,
         customer_address: customerAddress,
         notes: remarksText,
         checkout_details: checkoutDetails,
@@ -200,29 +253,19 @@ export async function POST(request: NextRequest) {
 
     const enrichedLines = await enrichLineItems(admin, items as RawItem[], locale)
 
-    try {
-      const managerTo = process.env.ORDER_EMAIL || process.env.SMTP_FROM
-      const from = process.env.SMTP_FROM
-      if (managerTo && from) {
-        await sendOrderNotificationEmails({
-          orderId: order.id,
-          managerTo,
-          customerTo: displayEmail,
-          from,
-          customerName: customer.fullName.trim(),
-          customerEmail: displayEmail,
-          phoneOrSocial: phoneOrSocial || '',
-          checkout: checkoutDetails,
-          lines: enrichedLines,
-          notesPlain: remarksText,
-          locale,
-        })
-      } else {
-        console.warn('[orders] ORDER_EMAIL or SMTP_FROM missing; skipping emails')
-      }
-    } catch (emailError) {
-      console.error('Email error (non-critical):', emailError)
+    if (!process.env.ORDER_WEBHOOK_URL?.trim()) {
+      console.warn(
+        '[orders] ORDER_WEBHOOK_URL is not set; order was saved but no notification webhook was sent (configure n8n URL).'
+      )
     }
+    void sendOrderCreatedWebhook({
+      event: 'order.created',
+      version: 1,
+      order: order as Record<string, unknown>,
+      customerId,
+      enrichedLines,
+      locale,
+    })
 
     return NextResponse.json({ success: true, orderId: order.id }, { status: 201 })
   } catch (error) {

@@ -12,7 +12,8 @@ function isIgnorableAuthError(error: unknown): boolean {
     return (
       message.includes('refresh_token_hmac_key') ||
       message.includes('missing destination name') ||
-      message.includes('unexpected_failure')
+      message.includes('unexpected_failure') ||
+      message.includes('Auth session missing')
     )
   }
   return false

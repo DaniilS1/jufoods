@@ -78,6 +78,7 @@ const statusVariant = (s: string): 'default' | 'secondary' | 'outline' | 'destru
 }
 
 type CheckoutShape = {
+  contact?: Record<string, unknown>
   orderDetails?: Record<string, unknown>
   delivery?: Record<string, unknown>
   referralSource?: string
@@ -226,6 +227,7 @@ function OrderDetailBody({
   const { checkoutForDisplay, customerRemarks } = parseLegacyNotes(order.notes, baseCheckout)
   const od = checkoutForDisplay.orderDetails ?? {}
   const del = checkoutForDisplay.delivery ?? {}
+  const ct = checkoutForDisplay.contact
 
   const modeLabel =
     del.pickupOrDelivery === 'delivery'
@@ -250,6 +252,50 @@ function OrderDetailBody({
           <span className="break-all">{order.customer_email}</span>
         </div>
       </div>
+      {ct && typeof ct === 'object' ? (
+        <div className="flex flex-col gap-2 border-t pt-3">
+          <span className="font-medium">{t('contactBlock')}</span>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {typeof ct.salutation === 'string' ? (
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">{t('salutationLabel')}: </span>
+                {ct.salutation === 'mrs' ? t('salutationMrs') : t('salutationMr')}
+              </p>
+            ) : null}
+            {typeof ct.firstName === 'string' && ct.firstName ? (
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">{t('firstNameLabel')}: </span>
+                {ct.firstName}
+              </p>
+            ) : null}
+            {typeof ct.lastName === 'string' && ct.lastName ? (
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">{t('lastNameLabel')}: </span>
+                {ct.lastName}
+              </p>
+            ) : null}
+            {typeof ct.phone === 'string' && ct.phone ? (
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">{t('phoneLabel')}: </span>
+                {ct.phone}
+              </p>
+            ) : null}
+          </div>
+          <p className="text-muted-foreground">
+            <span className="font-medium text-foreground">{t('consentWhatsapp')}: </span>
+            {ct.consentWhatsapp === true ? t('booleanYes') : t('booleanNo')}
+            {' · '}
+            <span className="font-medium text-foreground">{t('consentTelegram')}: </span>
+            {ct.consentTelegram === true ? t('booleanYes') : t('booleanNo')}
+          </p>
+          {typeof ct.messengerPhone === 'string' && ct.messengerPhone ? (
+            <p className="text-muted-foreground">
+              <span className="font-medium text-foreground">{t('messengerPhoneLabel')}: </span>
+              {ct.messengerPhone}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       {checkoutForDisplay.residenceCity ? (
         <div className="flex flex-col gap-1">
           <span className="text-muted-foreground">{t('residence')}</span>
@@ -266,6 +312,12 @@ function OrderDetailBody({
         <span className="font-medium">{t('schedule')}</span>
         <p className="text-muted-foreground">
           {t('eventDate')}: {formatDetailDate(od.eventDate as string | undefined, locale)}
+          {od.eventTime ? (
+            <>
+              {' '}
+              · {t('eventTime')}: {String(od.eventTime)}
+            </>
+          ) : null}
         </p>
         <p className="text-muted-foreground">
           {t('celebration')}: {formatDetailDate(od.celebrationDate as string | undefined, locale)}

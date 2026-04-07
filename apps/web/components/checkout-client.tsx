@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
 import { useForm, Controller } from 'react-hook-form'
@@ -8,7 +8,20 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import Image from 'next/image'
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight, Check, CalendarIcon, MailIcon, MapPinIcon, UserIcon, PhoneIcon, CalendarDaysIcon, ClockIcon, FileTextIcon, TruckIcon } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  CalendarIcon,
+  MailIcon,
+  UserIcon,
+  PhoneIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  FileTextIcon,
+  TruckIcon,
+  Info,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -18,42 +31,98 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Checkbox } from '@/components/ui/checkbox'
 import { useCartStore } from '@/stores/cart-store'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { cn } from '@/lib/utils'
 import { DateTimePicker } from '@/components/date-time-picker'
+import { PhoneInput } from '@/components/phone-input'
+import {
+  CHECKOUT_PHONE_DIAL_ORDER,
+  defaultDialCodeForLocale,
+  formatInternationalPhone,
+} from '@/lib/phone-input-utils'
 
-const orderSchema = z.object({
-  // Step 1: Customer Information
-  fullName: z.string().min(1, 'Full name is required'),
-  email: z.string().email('Invalid email address'),
+const PHONE_DIAL_LABEL_KEY: Record<string, string> = {
+  '+49': 'dialDE',
+  '+380': 'dialUA',
+  '+43': 'dialAT',
+  '+41': 'dialCH',
+  '+48': 'dialPL',
+  '+31': 'dialNL',
+  '+33': 'dialFR',
+  '+1': 'dialUS',
+  '+44': 'dialGB',
+}
 
-  // Step 2: Order Details
-  eventDate: z.date({ required_error: 'Event date is required' }),
-  celebrationDate: z.date({ required_error: 'Celebration date is required' }),
-  timeNeeded: z.string().min(1, 'Time needed is required'),
-  remarks: z.string().optional(),
+function buildOrderSchema(tr: (key: string) => string) {
+  const req = tr('validation.required')
+  return z
+    .object({
+      salutation: z.enum(['mr', 'mrs']),
+      firstName: z.string().min(1, { message: req }),
+      lastName: z.string().min(1, { message: req }),
+      email: z.string().email({ message: tr('validation.invalidEmail') }),
+      eventDate: z.date({ required_error: req }),
+      eventTime: z.string().min(1, { message: req }),
+      celebrationDate: z.date({ required_error: req }),
+      timeNeeded: z.string().min(1, { message: req }),
+      remarks: z.string().optional(),
+      pickupOrDelivery: z.enum(['pickup', 'delivery'], { required_error: req }),
+      residenceCity: z.string().min(1, { message: req }),
+      deliveryStreet: z.string().optional(),
+      deliveryPostalCode: z.string().optional(),
+      deliveryCity: z.string().optional(),
+      phoneDialCode: z.string().min(1, { message: req }),
+      phoneLocal: z.string().min(1, { message: req }),
+      messengerPhoneDialCode: z.string().optional(),
+      messengerPhoneLocal: z.string().optional(),
+      consentWhatsapp: z.boolean(),
+      consentTelegram: z.boolean(),
+      referralSource: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.pickupOrDelivery === 'delivery') {
+        if (!data.deliveryStreet?.trim()) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: req, path: ['deliveryStreet'] })
+        }
+        if (!data.deliveryPostalCode?.trim()) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: req, path: ['deliveryPostalCode'] })
+        }
+        if (!data.deliveryCity?.trim()) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: req, path: ['deliveryCity'] })
+        }
+      }
+      const digits = data.phoneLocal.replace(/\D/g, '')
+      if (digits.length > 0 && digits.length < 6) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: tr('validation.phoneTooShort'),
+          path: ['phoneLocal'],
+        })
+      }
+      if (
+        (data.consentWhatsapp || data.consentTelegram) &&
+        data.messengerPhoneLocal?.trim()
+      ) {
+        const md = data.messengerPhoneLocal.replace(/\D/g, '')
+        if (md.length > 0 && md.length < 6) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: tr('validation.phoneTooShort'),
+            path: ['messengerPhoneLocal'],
+          })
+        }
+      }
+    })
+}
 
-  // Step 3: Delivery Information
-  pickupOrDelivery: z.enum(['pickup', 'delivery'], {
-    required_error: 'Please select pickup or delivery',
-  }),
-  residenceCity: z.string().min(1, 'City of residence is required'),
-  deliveryStreet: z.string().optional(),
-  deliveryPostalCode: z.string().optional(),
-  deliveryCity: z.string().optional(),
-
-  // Step 4: Additional Information
-  phoneOrSocial: z.string().min(1, 'Phone or social media is required'),
-  referralSource: z.string().optional(),
-})
-
-type OrderFormData = z.infer<typeof orderSchema>
+export type OrderFormData = z.infer<ReturnType<typeof buildOrderSchema>>
 
 interface UserProfile {
-  fullName: string
+  firstName: string
+  lastName: string
   email: string
 }
 
@@ -86,34 +155,87 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const orderSchema = useMemo(() => buildOrderSchema((key) => t(key as never)), [t])
+
+  const defaultFormValues = useMemo(
+    (): Partial<OrderFormData> => ({
+      salutation: 'mr',
+      consentWhatsapp: false,
+      consentTelegram: false,
+      eventTime: '',
+      timeNeeded: '',
+      phoneDialCode: defaultDialCodeForLocale(locale),
+      phoneLocal: '',
+      messengerPhoneDialCode: '',
+      messengerPhoneLocal: '',
+    }),
+    [locale]
+  )
+
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
     watch,
+    getValues,
     setValue,
     trigger,
     reset,
   } = useForm<OrderFormData>({
     resolver: zodResolver(orderSchema),
     mode: 'onChange',
+    defaultValues: defaultFormValues as OrderFormData,
   })
 
   const watchedValues = watch()
   const pickupOrDelivery = watch('pickupOrDelivery')
+  const consentWhatsapp = watch('consentWhatsapp')
+  const consentTelegram = watch('consentTelegram')
+  const phoneDialCodeW = watch('phoneDialCode')
+  const showMessengerAlternateField = consentWhatsapp || consentTelegram
+
+  const phoneDialOptions = useMemo(
+    () =>
+      CHECKOUT_PHONE_DIAL_ORDER.map((code) => ({
+        value: code,
+        label: t(`fields.${PHONE_DIAL_LABEL_KEY[code]}` as never),
+      })),
+    [t]
+  )
 
   // Auto-fill user profile when logged in
   useEffect(() => {
     if (userProfile) {
       reset((prev) => ({
         ...prev,
-        fullName: userProfile.fullName || '',
+        ...defaultFormValues,
+        firstName: userProfile.firstName || '',
+        lastName: userProfile.lastName || '',
         email: userProfile.email || '',
       }))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProfile])
+
+  useEffect(() => {
+    if (!consentWhatsapp && !consentTelegram) {
+      setValue('messengerPhoneDialCode', '')
+      setValue('messengerPhoneLocal', '')
+    }
+  }, [consentWhatsapp, consentTelegram, setValue])
+
+  useEffect(() => {
+    if (!showMessengerAlternateField) return
+    const current = getValues('messengerPhoneDialCode')
+    if (!current?.trim()) {
+      setValue(
+        'messengerPhoneDialCode',
+        phoneDialCodeW || defaultDialCodeForLocale(locale),
+        { shouldDirty: false }
+      )
+    }
+  }, [showMessengerAlternateField, phoneDialCodeW, getValues, setValue, locale])
 
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep)
@@ -132,13 +254,27 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
   const getFieldsForStep = (step: number): (keyof OrderFormData)[] => {
     switch (step) {
       case 1:
-        return ['fullName', 'email']
+        return ['salutation', 'firstName', 'lastName', 'email']
       case 2:
-        return ['eventDate', 'celebrationDate', 'timeNeeded']
+        return ['eventDate', 'eventTime', 'celebrationDate', 'timeNeeded']
       case 3:
-        return ['pickupOrDelivery', 'residenceCity']
+        return [
+          'pickupOrDelivery',
+          'residenceCity',
+          'deliveryStreet',
+          'deliveryPostalCode',
+          'deliveryCity',
+        ]
       case 4:
-        return ['phoneOrSocial', 'referralSource']
+        return [
+          'phoneDialCode',
+          'phoneLocal',
+          'consentWhatsapp',
+          'consentTelegram',
+          'messengerPhoneDialCode',
+          'messengerPhoneLocal',
+          'referralSource',
+        ]
       default:
         return []
     }
@@ -154,6 +290,15 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
               .join(', ')
           : null
 
+      const mainPhone = formatInternationalPhone(data.phoneDialCode, data.phoneLocal)
+      const messengerLocalTrimmed = data.messengerPhoneLocal?.trim() ?? ''
+      const messengerDial =
+        data.messengerPhoneDialCode?.trim() || data.phoneDialCode.trim() || defaultDialCodeForLocale(locale)
+      const messengerFormatted =
+        (data.consentWhatsapp || data.consentTelegram) && messengerLocalTrimmed
+          ? formatInternationalPhone(messengerDial, messengerLocalTrimmed)
+          : null
+
       const orderData = {
         locale,
         items: items.map((item) => ({
@@ -162,14 +307,25 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           quantity: item.quantity,
         })),
         customer: {
-          fullName: data.fullName,
+          salutation: data.salutation,
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
+          fullName: `${data.firstName.trim()} ${data.lastName.trim()}`.trim(),
           email: data.email,
-          phoneOrSocial: data.phoneOrSocial,
+          phone: mainPhone,
+          consentWhatsapp: data.consentWhatsapp,
+          consentTelegram: data.consentTelegram,
+          messengerSameAsPhone:
+            !data.consentWhatsapp && !data.consentTelegram
+              ? true
+              : !messengerLocalTrimmed,
+          messengerPhone: messengerFormatted,
           residenceCity: data.residenceCity,
           referralSource: data.referralSource,
         },
         orderDetails: {
           eventDate: data.eventDate.toISOString(),
+          eventTime: data.eventTime,
           celebrationDate: data.celebrationDate.toISOString(),
           timeNeeded: data.timeNeeded,
           remarks: data.remarks,
@@ -263,22 +419,70 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
               <CardHeader>
                 <CardTitle>{t('steps.customerInfo')}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">
-                    {t('fields.fullName')} <span className="text-destructive">*</span>
+              <CardContent className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label>
+                    {t('fields.salutation')} <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="fullName"
-                    {...register('fullName')}
-                    placeholder={t('fields.fullNamePlaceholder')}
+                  <Controller
+                    name="salutation"
+                    control={control}
+                    render={({ field }) => (
+                      <RadioGroup
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        className="flex flex-wrap items-center gap-x-6 gap-y-2"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <RadioGroupItem value="mr" id="salutation-mr" className="shrink-0" />
+                          <Label htmlFor="salutation-mr" className="cursor-pointer font-normal leading-none">
+                            {t('fields.salutationMr')}
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          <RadioGroupItem value="mrs" id="salutation-mrs" className="shrink-0" />
+                          <Label htmlFor="salutation-mrs" className="cursor-pointer font-normal leading-none">
+                            {t('fields.salutationMrs')}
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    )}
                   />
-                  {errors.fullName && (
-                    <p className="text-sm text-destructive">{errors.fullName.message}</p>
+                  {errors.salutation && (
+                    <p className="text-sm text-destructive">{errors.salutation.message}</p>
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="firstName">
+                      {t('fields.firstName')} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="firstName"
+                      {...register('firstName')}
+                      placeholder={t('fields.firstNamePlaceholder')}
+                    />
+                    {errors.firstName && (
+                      <p className="text-sm text-destructive">{errors.firstName.message}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="lastName">
+                      {t('fields.lastName')} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="lastName"
+                      {...register('lastName')}
+                      placeholder={t('fields.lastNamePlaceholder')}
+                    />
+                    {errors.lastName && (
+                      <p className="text-sm text-destructive">{errors.lastName.message}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="email">
                     {t('fields.email')} <span className="text-destructive">*</span>
                   </Label>
@@ -302,54 +506,61 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
               <CardHeader>
                 <CardTitle>{t('steps.orderDetails')}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Event date — simple calendar popover */}
-                <div className="space-y-2">
+              <CardContent className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
                   <Label>
-                    {t('fields.eventDate')} <span className="text-destructive">*</span>
+                    {t('fields.eventDateTime')} <span className="text-destructive">*</span>
                   </Label>
                   <Controller
                     name="eventDate"
                     control={control}
-                    render={({ field }) => (
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className={cn(
-                              'w-full justify-start text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value
-                              ? format(field.value, 'dd.MM.yyyy')
-                              : t('fields.selectDate')}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < today}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    render={({ field: dateField }) => (
+                      <Controller
+                        name="eventTime"
+                        control={control}
+                        render={({ field: timeField }) => (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className={cn(
+                                  'w-full justify-start text-left font-normal',
+                                  (!dateField.value || !timeField.value) && 'text-muted-foreground'
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                                {dateField.value && timeField.value
+                                  ? `${format(dateField.value, 'dd.MM.yyyy')} · ${timeField.value}`
+                                  : t('fields.selectDate')}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto max-w-[calc(100vw-2rem)] p-0" align="start">
+                              <DateTimePicker
+                                date={dateField.value}
+                                time={timeField.value ?? ''}
+                                onDateChange={dateField.onChange}
+                                onTimeChange={timeField.onChange}
+                                locale={locale === 'uk' ? 'uk-UA' : 'de-DE'}
+                                placeholder={t('fields.selectDate')}
+                                className="border-0 shadow-none rounded-none bg-popover"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                      />
                     )}
                   />
-                  {errors.eventDate && (
-                    <p className="text-sm text-destructive">{errors.eventDate.message}</p>
+                  {(errors.eventDate || errors.eventTime) && (
+                    <p className="text-sm text-destructive">
+                      {errors.eventDate?.message ?? errors.eventTime?.message}
+                    </p>
                   )}
                 </div>
 
-                {/* Celebration date + delivery time — combined DateTimePicker */}
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>
-                    {t('fields.celebrationDate')} &amp; {t('fields.timeNeeded')}{' '}
-                    <span className="text-destructive">*</span>
+                    {t('fields.celebrationDateTime')} <span className="text-destructive">*</span>
                   </Label>
                   <Controller
                     name="celebrationDate"
@@ -359,16 +570,34 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                         name="timeNeeded"
                         control={control}
                         render={({ field: timeField }) => (
-                          <DateTimePicker
-                            date={dateField.value}
-                            time={timeField.value ?? ''}
-                            onDateChange={dateField.onChange}
-                            onTimeChange={(t) =>
-                              timeField.onChange(t)
-                            }
-                            locale={locale === 'uk' ? 'uk-UA' : 'de-DE'}
-                            placeholder={t('fields.selectDate')}
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className={cn(
+                                  'w-full justify-start text-left font-normal',
+                                  (!dateField.value || !timeField.value) && 'text-muted-foreground'
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                                {dateField.value && timeField.value
+                                  ? `${format(dateField.value, 'dd.MM.yyyy')} · ${timeField.value}`
+                                  : t('fields.selectDate')}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto max-w-[calc(100vw-2rem)] p-0" align="start">
+                              <DateTimePicker
+                                date={dateField.value}
+                                time={timeField.value ?? ''}
+                                onDateChange={dateField.onChange}
+                                onTimeChange={timeField.onChange}
+                                locale={locale === 'uk' ? 'uk-UA' : 'de-DE'}
+                                placeholder={t('fields.selectDate')}
+                                className="border-0 shadow-none rounded-none bg-popover"
+                              />
+                            </PopoverContent>
+                          </Popover>
                         )}
                       />
                     )}
@@ -380,8 +609,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                   )}
                 </div>
 
-                {/* Remarks */}
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="remarks">{t('fields.remarks')}</Label>
                   <Textarea
                     id="remarks"
@@ -412,15 +640,15 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                       setValue('pickupOrDelivery', value as 'pickup' | 'delivery')
                     }
                   >
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <RadioGroupItem value="pickup" id="pickup" />
-                      <Label htmlFor="pickup" className="font-normal cursor-pointer">
+                      <Label htmlFor="pickup" className="cursor-pointer font-normal">
                         {t('fields.pickup')}
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <RadioGroupItem value="delivery" id="delivery" />
-                      <Label htmlFor="delivery" className="font-normal cursor-pointer">
+                      <Label htmlFor="delivery" className="cursor-pointer font-normal">
                         {t('fields.delivery')}
                       </Label>
                     </div>
@@ -504,28 +732,124 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
               <CardHeader>
                 <CardTitle>{t('steps.additionalInfo')}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phoneOrSocial">
-                    {t('fields.phoneOrSocial')} <span className="text-destructive">*</span>
+              <CardContent className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="checkout-main-national">
+                    {t('fields.phone')} <span className="text-destructive">*</span>
                   </Label>
-                  <Input
-                    id="phoneOrSocial"
-                    {...register('phoneOrSocial')}
-                    placeholder={t('fields.phoneOrSocialPlaceholder')}
+                  <PhoneInput
+                    control={control}
+                    dialName="phoneDialCode"
+                    nationalName="phoneLocal"
+                    options={phoneDialOptions}
+                    nationalPlaceholder={t('fields.phoneNationalPlaceholder')}
+                    idPrefix="checkout-main"
+                    dialSelectAriaLabel={t('fields.phoneDialAria')}
+                    nationalInvalid={Boolean(errors.phoneLocal)}
                   />
-                  {errors.phoneOrSocial && (
-                    <p className="text-sm text-destructive">{errors.phoneOrSocial.message}</p>
+                  {(errors.phoneDialCode || errors.phoneLocal) && (
+                    <p className="text-sm text-destructive">
+                      {errors.phoneLocal?.message ?? errors.phoneDialCode?.message}
+                    </p>
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-wrap items-start gap-3">
+                  <div className="flex flex-col gap-3 rounded-lg border border-border/80 bg-muted/20 p-4 flex-1 min-w-[min(100%,16rem)]">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{t('contactConsent.infoTitle')}</span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 shrink-0 text-muted-foreground"
+                            aria-label={t('contactConsent.infoTitle')}
+                          >
+                            <Info className="size-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="max-w-sm text-sm" align="start">
+                          <p className="text-muted-foreground leading-relaxed">
+                            {t('contactConsent.infoBody')}
+                          </p>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start gap-2">
+                        <Controller
+                          name="consentWhatsapp"
+                          control={control}
+                          render={({ field }) => (
+                            <Checkbox
+                              id="consent-wa"
+                              checked={field.value}
+                              onCheckedChange={(v) => field.onChange(v === true)}
+                              className="mt-0.5"
+                            />
+                          )}
+                        />
+                        <Label htmlFor="consent-wa" className="cursor-pointer font-normal leading-snug">
+                          {t('contactConsent.whatsapp')}
+                        </Label>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Controller
+                          name="consentTelegram"
+                          control={control}
+                          render={({ field }) => (
+                            <Checkbox
+                              id="consent-tg"
+                              checked={field.value}
+                              onCheckedChange={(v) => field.onChange(v === true)}
+                              className="mt-0.5"
+                            />
+                          )}
+                        />
+                        <Label htmlFor="consent-tg" className="cursor-pointer font-normal leading-snug">
+                          {t('contactConsent.telegram')}
+                        </Label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {showMessengerAlternateField ? (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="checkout-messenger-national">
+                      {t('contactConsent.messengerAlternateLabel')}
+                    </Label>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {t('contactConsent.messengerAlternateHint')}
+                    </p>
+                    <PhoneInput
+                      control={control}
+                      dialName="messengerPhoneDialCode"
+                      nationalName="messengerPhoneLocal"
+                      options={phoneDialOptions}
+                      nationalPlaceholder={t('fields.messengerNationalPlaceholder')}
+                      idPrefix="checkout-messenger"
+                      dialSelectAriaLabel={t('fields.phoneDialAria')}
+                      nationalInvalid={Boolean(errors.messengerPhoneLocal)}
+                    />
+                    {(errors.messengerPhoneDialCode || errors.messengerPhoneLocal) && (
+                      <p className="text-sm text-destructive">
+                        {errors.messengerPhoneLocal?.message ??
+                          errors.messengerPhoneDialCode?.message}
+                      </p>
+                    )}
+                  </div>
+                ) : null}
+
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="referralSource">{t('fields.referralSource')}</Label>
                   <Select
-                    value={watchedValues.referralSource}
+                    value={watchedValues.referralSource ?? undefined}
                     onValueChange={(value) => setValue('referralSource', value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger id="referralSource">
                       <SelectValue placeholder={t('fields.referralSourcePlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -566,11 +890,13 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                     <div className="flex items-center gap-2.5">
                       <UserIcon className="size-5 shrink-0 text-muted-foreground" />
                       <Label className="text-sm font-medium text-muted-foreground">
-                        {t('fields.fullName')}
+                        {t('fields.displayName')}
                       </Label>
                     </div>
                     <p className="pl-8 text-foreground font-medium">
-                      {watchedValues.fullName || '—'}
+                      {watchedValues.firstName || watchedValues.lastName
+                        ? `${watchedValues.salutation === 'mrs' ? t('fields.salutationMrs') : t('fields.salutationMr')} ${watchedValues.firstName ?? ''} ${watchedValues.lastName ?? ''}`.trim()
+                        : '—'}
                     </p>
                   </div>
 
@@ -590,13 +916,40 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                     <div className="flex items-center gap-2.5">
                       <PhoneIcon className="size-5 shrink-0 text-muted-foreground" />
                       <Label className="text-sm font-medium text-muted-foreground">
-                        {t('fields.phoneOrSocial')}
+                        {t('fields.phone')}
                       </Label>
                     </div>
                     <p className="pl-8 text-foreground font-medium">
-                      {watchedValues.phoneOrSocial || '—'}
+                      {formatInternationalPhone(
+                        watchedValues.phoneDialCode ?? '',
+                        watchedValues.phoneLocal ?? ''
+                      ) || '—'}
                     </p>
                   </div>
+
+                  {(watchedValues.consentWhatsapp ||
+                    watchedValues.consentTelegram ||
+                    watchedValues.messengerPhoneLocal?.trim()) && (
+                    <div className="flex flex-col gap-1 pl-8 text-sm text-muted-foreground">
+                      {watchedValues.consentWhatsapp ? (
+                        <span>{t('contactConsent.whatsapp')}</span>
+                      ) : null}
+                      {watchedValues.consentTelegram ? (
+                        <span>{t('contactConsent.telegram')}</span>
+                      ) : null}
+                      {watchedValues.messengerPhoneLocal?.trim() ? (
+                        <span>
+                          {t('contactConsent.messengerAlternateLabel')}:{' '}
+                          {formatInternationalPhone(
+                            watchedValues.messengerPhoneDialCode?.trim() ||
+                              watchedValues.phoneDialCode ||
+                              '',
+                            watchedValues.messengerPhoneLocal
+                          )}
+                        </span>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
 
                 {/* Column 2 — Order & Delivery Details */}
@@ -613,8 +966,8 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                       </Label>
                     </div>
                     <p className="pl-8 text-foreground font-medium">
-                      {watchedValues.eventDate
-                        ? format(watchedValues.eventDate, 'dd.MM.yyyy')
+                      {watchedValues.eventDate && watchedValues.eventTime
+                        ? `${format(watchedValues.eventDate, 'dd.MM.yyyy')} · ${watchedValues.eventTime}`
                         : '—'}
                     </p>
                   </div>
@@ -623,14 +976,13 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                     <div className="flex items-center gap-2.5">
                       <ClockIcon className="size-5 shrink-0 text-muted-foreground" />
                       <Label className="text-sm font-medium text-muted-foreground">
-                        {t('fields.celebrationDate')}
+                        {t('fields.celebrationDateTime')}
                       </Label>
                     </div>
                     <p className="pl-8 text-foreground font-medium">
-                      {watchedValues.celebrationDate
-                        ? format(watchedValues.celebrationDate, 'dd.MM.yyyy')
+                      {watchedValues.celebrationDate && watchedValues.timeNeeded
+                        ? `${format(watchedValues.celebrationDate, 'dd.MM.yyyy')} · ${watchedValues.timeNeeded}`
                         : '—'}
-                      {watchedValues.timeNeeded ? ` · ${watchedValues.timeNeeded} Uhr` : ''}
                     </p>
                   </div>
 
