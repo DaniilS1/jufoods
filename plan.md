@@ -23,3 +23,4 @@
 - Seeds/Mocks aktualisieren.
 - Lokalisierungen (DE/UK) für neue Torten-Subkategorien sicherstellen.
 - Migration/Deployment-Notizen ohne Join-Tabelle dokumentieren.
+.
