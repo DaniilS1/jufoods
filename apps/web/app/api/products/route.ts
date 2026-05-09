@@ -23,7 +23,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { slug, name_uk, name_de, description_uk, description_de, category, ingredients_uk, ingredients_de, allergens_uk, allergens_de, available_designs, image_url } = body
+    const {
+      slug,
+      name_uk,
+      name_de,
+      description_uk,
+      description_de,
+      category,
+      ingredients_uk,
+      ingredients_de,
+      allergens_uk,
+      allergens_de,
+      available_designs,
+      image_url,
+    } = body
 
     if (!name_uk || !name_de || !category) {
       return NextResponse.json({ error: 'Name and category are required' }, { status: 400 })
@@ -46,10 +59,10 @@ export async function POST(request: NextRequest) {
         description_uk: description_uk || null,
         description_de: description_de || null,
         category,
-        ingredients_uk: ingredients_uk?.filter((i: string) => i.trim() !== '') || null,
-        ingredients_de: ingredients_de?.filter((i: string) => i.trim() !== '') || null,
-        allergens_uk: allergens_uk?.filter((a: string) => a.trim() !== '') || null,
-        allergens_de: allergens_de?.filter((a: string) => a.trim() !== '') || null,
+        ingredients_uk: typeof ingredients_uk === 'string' && ingredients_uk.trim() ? ingredients_uk.trim() : null,
+        ingredients_de: typeof ingredients_de === 'string' && ingredients_de.trim() ? ingredients_de.trim() : null,
+        allergens_uk: typeof allergens_uk === 'string' && allergens_uk.trim() ? allergens_uk.trim() : null,
+        allergens_de: typeof allergens_de === 'string' && allergens_de.trim() ? allergens_de.trim() : null,
         available_designs: available_designs || [],
         image_url: image_url || null,
       })

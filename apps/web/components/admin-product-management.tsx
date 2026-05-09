@@ -16,7 +16,7 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent, TabsTrigger, AnimatedTabsList } from '@/components/ui/tabs-animated'
 import {
   Select,
   SelectContent,
@@ -40,15 +40,16 @@ const productSchema = z.object({
   description_de: z.string().optional(),
   category: z.enum(['desserts', 'cookies', 'macarons', 'cheesecakes']),
   sub_category: z.string().optional().nullable(),
-  ingredients_uk: z.array(z.string()).default([]),
-  ingredients_de: z.array(z.string()).default([]),
-  allergens_uk: z.array(z.string()).default([]),
-  allergens_de: z.array(z.string()).default([]),
+  ingredients_uk: z.string().optional(),
+  ingredients_de: z.string().optional(),
+  allergens_uk: z.string().optional(),
+  allergens_de: z.string().optional(),
   image_url: z.string().optional(),
   images_urls: z.array(z.string()).default([]),
 })
 
 type ProductFormData = z.infer<typeof productSchema>
+const NO_SUBCATEGORY_VALUE = 'none'
 
 interface Product {
   id: string
@@ -59,10 +60,10 @@ interface Product {
   description_de: string | null
   category: string
   sub_category: string | null
-  ingredients_uk: string[] | null
-  ingredients_de: string[] | null
-  allergens_uk: string[] | null
-  allergens_de: string[] | null
+  ingredients_uk: string | null
+  ingredients_de: string | null
+  allergens_uk: string | null
+  allergens_de: string | null
   available_designs: any
   image_url: string | null
   images_urls: string[] | null
@@ -75,6 +76,7 @@ export function AdminProductManagement() {
   const [uploading, setUploading] = useState(false)
   const [editingProduct, setEditingProduct] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<'de' | 'uk'>('de')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -96,54 +98,16 @@ export function AdminProductManagement() {
     defaultValues: {
       category: 'desserts',
       sub_category: null,
-      ingredients_uk: [],
-      ingredients_de: [],
-      allergens_uk: [],
-      allergens_de: [],
+      ingredients_uk: '',
+      ingredients_de: '',
+      allergens_uk: '',
+      allergens_de: '',
       images_urls: [],
     },
   })
 
-  // Type inference issue with zod schema and useFieldArray - using any as workaround
-  const {
-    fields: ingredientsUkFields,
-    append: appendIngredientUk,
-    remove: removeIngredientUk,
-  } = useFieldArray({
-    control: control as any,
-    name: 'ingredients_uk' as any,
-  })
-
-  const {
-    fields: ingredientsDeFields,
-    append: appendIngredientDe,
-    remove: removeIngredientDe,
-  } = useFieldArray({
-    control: control as any,
-    name: 'ingredients_de' as any,
-  })
-
-  const {
-    fields: allergensUkFields,
-    append: appendAllergenUk,
-    remove: removeAllergenUk,
-  } = useFieldArray({
-    control: control as any,
-    name: 'allergens_uk' as any,
-  })
-
-  const {
-    fields: allergensDeFields,
-    append: appendAllergenDe,
-    remove: removeAllergenDe,
-  } = useFieldArray({
-    control: control as any,
-    name: 'allergens_de' as any,
-  })
-
   const {
     fields: imagesUrlsFields,
-    append: appendImageUrl,
     remove: removeImageUrl,
   } = useFieldArray({
     control: control as any,
@@ -151,6 +115,7 @@ export function AdminProductManagement() {
   })
 
   const category = watch('category')
+  const selectedSubCategory = watch('sub_category')
 
   useEffect(() => {
     loadProducts()
@@ -248,12 +213,27 @@ export function AdminProductManagement() {
 
   function openCreateModal() {
     setEditingProduct(null)
-    reset()
+    setActiveTab('de')
+    reset({
+      name_uk: '',
+      name_de: '',
+      description_uk: '',
+      description_de: '',
+      category: 'desserts',
+      sub_category: null,
+      ingredients_uk: '',
+      ingredients_de: '',
+      allergens_uk: '',
+      allergens_de: '',
+      image_url: '',
+      images_urls: [],
+    })
     setIsModalOpen(true)
   }
 
   function startEdit(product: Product) {
     setEditingProduct(product.id)
+    setActiveTab('de')
     setError(null)
     setSuccess(null)
     
@@ -264,10 +244,10 @@ export function AdminProductManagement() {
     setValue('category', product.category as ProductFormData['category'])
     setValue('sub_category', product.sub_category || null)
     setValue('image_url', product.image_url || '')
-    setValue('ingredients_uk', product.ingredients_uk || [])
-    setValue('ingredients_de', product.ingredients_de || [])
-    setValue('allergens_uk', product.allergens_uk || [])
-    setValue('allergens_de', product.allergens_de || [])
+    setValue('ingredients_uk', product.ingredients_uk || '')
+    setValue('ingredients_de', product.ingredients_de || '')
+    setValue('allergens_uk', product.allergens_uk || '')
+    setValue('allergens_de', product.allergens_de || '')
     setValue('images_urls', product.images_urls || [])
     
     setIsModalOpen(true)
@@ -276,6 +256,7 @@ export function AdminProductManagement() {
   function closeModal() {
     setIsModalOpen(false)
     setEditingProduct(null)
+    setActiveTab('de')
     reset()
     setError(null)
     setSuccess(null)
@@ -299,10 +280,10 @@ export function AdminProductManagement() {
         slug,
         ...data,
         sub_category: data.sub_category || null,
-        ingredients_uk: data.ingredients_uk.filter((i) => i.trim() !== ''),
-        ingredients_de: data.ingredients_de.filter((i) => i.trim() !== ''),
-        allergens_uk: data.allergens_uk.filter((a) => a.trim() !== ''),
-        allergens_de: data.allergens_de.filter((a) => a.trim() !== ''),
+        ingredients_uk: data.ingredients_uk?.trim() ? data.ingredients_uk.trim() : null,
+        ingredients_de: data.ingredients_de?.trim() ? data.ingredients_de.trim() : null,
+        allergens_uk: data.allergens_uk?.trim() ? data.allergens_uk.trim() : null,
+        allergens_de: data.allergens_de?.trim() ? data.allergens_de.trim() : null,
         images_urls: data.images_urls.filter((url) => url.trim() !== ''),
         available_designs: [], // Empty array since we removed the design field from the form
       }
@@ -585,159 +566,99 @@ export function AdminProductManagement() {
 
       {/* Product Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90dvh] overflow-y-auto">
-          <DialogHeader className="pb-2">
-            <DialogTitle className="text-base">
+        <DialogContent className="flex max-h-[90dvh] w-[min(48rem,calc(100vw-2rem))] max-w-3xl flex-col gap-0 rounded-lg p-0">
+          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-[#735959] sm:text-left">
+            <DialogTitle className="text-base text-[#735959]">
               {editingProduct ? tAdmin('editProduct') : tAdmin('createProduct')}
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-xs text-[#735959]/90">
               {editingProduct ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Tabs defaultValue="de" className="w-full">
-              <TabsList>
-                <TabsTrigger value="de">Deutsch</TabsTrigger>
-                <TabsTrigger value="uk">Ukrainisch</TabsTrigger>
-        </TabsList>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959] [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'de' | 'uk')} className="w-full">
+                <AnimatedTabsList value={activeTab} className="grid w-full grid-cols-2 touch-manipulation">
+                  <TabsTrigger value="de" className="min-h-11 gap-1.5">
+                    <span aria-hidden>🇩🇪</span>
+                    Deutsch
+                  </TabsTrigger>
+                  <TabsTrigger value="uk" className="min-h-11 gap-1.5">
+                    <span aria-hidden>🇺🇦</span>
+                    Ukrainisch
+                  </TabsTrigger>
+                </AnimatedTabsList>
 
-              <TabsContent value="de" className="space-y-3 mt-3">
-                <div className="space-y-1">
-                  <Label className="text-xs" htmlFor="name_de">Name (Deutsch) *</Label>
-                  <Input id="name_de" {...register('name_de')} />
-                  {errors.name_de && (
-                    <p className="text-xs text-destructive">{errors.name_de.message}</p>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs" htmlFor="description_de">Beschreibung (Deutsch)</Label>
-                  <Textarea id="description_de" {...register('description_de')} rows={2} />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Zutaten (Deutsch)</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendIngredientDe('')}
-                    >
-                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
-                    </Button>
+                <TabsContent value="de" className="mt-3 space-y-3">
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="name_de">{tAdmin('nameDeLabel')}</Label>
+                    <Input id="name_de" {...register('name_de')} />
+                    {errors.name_de && <p className="text-xs text-destructive">{errors.name_de.message}</p>}
                   </div>
-                  {ingredientsDeFields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2">
-                      <Input {...register(`ingredients_de.${index}`)} />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeIngredientDe(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Allergene (Deutsch)</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendAllergenDe('')}
-                    >
-                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
-                    </Button>
-                  </div>
-                  {allergensDeFields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2">
-                      <Input {...register(`allergens_de.${index}`)} />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeAllergenDe(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                  </Button>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
 
-              <TabsContent value="uk" className="space-y-3 mt-3">
-                <div className="space-y-1">
-                  <Label className="text-xs" htmlFor="name_uk">Name (Ukrainisch) *</Label>
-                  <Input id="name_uk" {...register('name_uk')} />
-                  {errors.name_uk && (
-                    <p className="text-xs text-destructive">{errors.name_uk.message}</p>
-                )}
-              </div>
-                <div className="space-y-1">
-                  <Label className="text-xs" htmlFor="description_uk">Beschreibung (Ukrainisch)</Label>
-                  <Textarea id="description_uk" {...register('description_uk')} rows={2} />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Zutaten (Ukrainisch)</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendIngredientUk('')}
-                    >
-                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
-                    </Button>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="description_de">{tAdmin('descriptionDe')}</Label>
+                    <Textarea id="description_de" rows={4} {...register('description_de')} />
                   </div>
-                  {ingredientsUkFields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2">
-                      <Input {...register(`ingredients_uk.${index}`)} />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeIngredientUk(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Allergene (Ukrainisch)</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => appendAllergenUk('')}
-                    >
-                      <Plus className="h-3 w-3 mr-1" /> Hinzufügen
-                    </Button>
-                  </div>
-                  {allergensUkFields.map((field, index) => (
-                    <div key={field.id} className="flex gap-2">
-                      <Input {...register(`allergens_uk.${index}`)} />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeAllergenUk(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-            </Tabs>
 
-            {/* Common Fields */}
-            <div className="space-y-3 pt-3 border-t">
-                <div className="space-y-1">
-                  <Label className="text-xs">Kategorie *</Label>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="ingredients_de">{tAdmin('ingredientsDe')}</Label>
+                    <Textarea
+                      id="ingredients_de"
+                      rows={4}
+                      {...register('ingredients_de')}
+                      placeholder={tAdmin('ingredientsPlaceholder')}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="allergens_de">{tAdmin('allergensDe')}</Label>
+                    <Textarea
+                      id="allergens_de"
+                      rows={4}
+                      {...register('allergens_de')}
+                      placeholder={tAdmin('allergensPlaceholder')}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="uk" className="mt-3 space-y-3">
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="name_uk">{tAdmin('nameUkLabel')}</Label>
+                    <Input id="name_uk" {...register('name_uk')} />
+                    {errors.name_uk && <p className="text-xs text-destructive">{errors.name_uk.message}</p>}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="description_uk">{tAdmin('descriptionUk')}</Label>
+                    <Textarea id="description_uk" rows={4} {...register('description_uk')} />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="ingredients_uk">{tAdmin('ingredientsUk')}</Label>
+                    <Textarea
+                      id="ingredients_uk"
+                      rows={4}
+                      {...register('ingredients_uk')}
+                      placeholder={tAdmin('ingredientsPlaceholder')}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs" htmlFor="allergens_uk">{tAdmin('allergensUk')}</Label>
+                    <Textarea
+                      id="allergens_uk"
+                      rows={4}
+                      {...register('allergens_uk')}
+                      placeholder={tAdmin('allergensPlaceholder')}
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <div className="space-y-3 border-t pt-3">
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs">{tAdmin('categoryLabel')}</Label>
                   <Select
                     value={category}
                     onValueChange={(value) => {
@@ -747,7 +668,7 @@ export function AdminProductManagement() {
                       }
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-card">
                       <SelectValue placeholder="Kategorie auswählen" />
                     </SelectTrigger>
                     <SelectContent>
@@ -757,31 +678,28 @@ export function AdminProductManagement() {
                       <SelectItem value="cheesecakes">Cheesecakes</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.category && (
-                  <p className="text-xs text-destructive">{errors.category.message}</p>
-                  )}
+                  {errors.category && <p className="text-xs text-destructive">{errors.category.message}</p>}
                 </div>
 
                 {hasSubcategories(category) && (
-                  <div className="space-y-1">
-                    <Label className="text-xs">Unterkategorie</Label>
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-xs">{tAdmin('subCategoryLabel')}</Label>
                     <Select
-                      value={watch('sub_category') || undefined}
-                      onValueChange={(value) =>
-                        setValue('sub_category', value || null)
-                      }
+                      value={selectedSubCategory || NO_SUBCATEGORY_VALUE}
+                      onValueChange={(value) => setValue('sub_category', value === NO_SUBCATEGORY_VALUE ? null : value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-card">
                         <SelectValue placeholder="Unterkategorie auswählen (optional)" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value={NO_SUBCATEGORY_VALUE}>{tAdmin('noSubCategory')}</SelectItem>
                         {getSubcategoriesForCategory(category).map((subcategory) => {
-                          const translationKey = `subcategories.${category}.${subcategory.translationKey}`
+                          const translationKey = `subcategories.${category}.${subcategory.translationKey}` as const
                           const displayName = tCatalog(translationKey) || subcategory.id
                           return (
-                          <SelectItem key={subcategory.id} value={subcategory.id}>
+                            <SelectItem key={subcategory.id} value={subcategory.id}>
                               {displayName}
-                          </SelectItem>
+                            </SelectItem>
                           )
                         })}
                       </SelectContent>
@@ -789,85 +707,110 @@ export function AdminProductManagement() {
                   </div>
                 )}
 
-                <div className="space-y-1">
-                  <Label className="text-xs">Hauptbild (image_url)</Label>
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs" htmlFor="image_url">{tAdmin('mainImage')}</Label>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
                     <Input
+                      id="image_url"
+                      className="min-h-11 w-full sm:min-h-10 sm:flex-1"
+                      {...register('image_url')}
+                      placeholder={tAdmin('imageUrlPlaceholder')}
+                    />
+                    <Label
+                      htmlFor="product-image-upload"
+                      className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-2 text-sm touch-manipulation hover:bg-accent active:bg-accent sm:min-h-10 sm:shrink-0"
+                    >
+                      <Upload className="h-4 w-4" />
+                      {tAdmin('upload')}
+                    </Label>
+                    <input
+                      id="product-image-upload"
                       type="file"
                       accept="image/*"
+                      className="hidden"
                       onChange={handleImageUpload}
                       disabled={uploading}
-                      className="flex-1"
-                    />
-                    <Input
-                      type="text"
-                      placeholder="oder Bild-URL eingeben"
-                      {...register('image_url')}
-                      className="flex-1"
                     />
                   </div>
                   {uploading && (
-                  <p className="text-xs text-muted-foreground">Bild wird hochgeladen...</p>
+                    <p className="flex items-center gap-2 text-xs text-[#735959]/80">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      {tAdmin('uploading')}
+                    </p>
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Zusätzliche Bilder (images_urls)</Label>
-                    <Input
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <Label className="text-xs">{tAdmin('additionalImages')}</Label>
+                    <label
+                      htmlFor="product-additional-images-upload"
+                      className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-md border border-dashed border-muted-foreground/40 px-3 py-1.5 text-xs cursor-pointer hover:bg-accent active:bg-accent sm:min-h-10 sm:w-auto"
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      {tAdmin('addMoreImages')}
+                    </label>
+                    <input
+                      id="product-additional-images-upload"
                       type="file"
                       accept="image/*"
                       multiple
+                      className="hidden"
                       onChange={handleAdditionalImageUpload}
                       disabled={uploading}
-                      className="hidden"
-                      id="additional-images-input"
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById('additional-images-input')?.click()}
-                      disabled={uploading}
-                    >
-                      <Upload className="h-4 w-4 mr-1" /> Bilder hochladen
-                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    {imagesUrlsFields.map((field, index) => (
-                      <div key={field.id} className="flex gap-2">
-                        <Input
-                          {...register(`images_urls.${index}`)}
-                          placeholder="Bild-URL"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeImageUrl(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={closeModal}>
-                Abbrechen
-                    </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Speichere...
-                    </>
-                  ) : (
-                    editingProduct ? 'Produkt aktualisieren' : 'Produkt erstellen'
+                  {imagesUrlsFields.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {imagesUrlsFields.map((field, index) => {
+                        const url = watch(`images_urls.${index}`)
+                        return (
+                          <div key={field.id} className="relative group">
+                            <div className="relative h-20 w-20 overflow-hidden rounded-md border border-border bg-muted">
+                              {url && (
+                                <Image
+                                  src={normalizeSupabaseImageUrl(url)}
+                                  alt={`Additional image ${index + 1}`}
+                                  fill
+                                  className="object-cover"
+                                  sizes="80px"
+                                />
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeImageUrl(index)}
+                              className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                              aria-label="Remove image"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
                   )}
-                </Button>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="border-t px-4 py-3">
+              <Button type="button" variant="outline" onClick={closeModal}>
+                {tAdmin('cancel')}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {tAdmin('saving')}
+                  </>
+                ) : (
+                  editingProduct ? tAdmin('update') : tAdmin('save')
+                )}
+              </Button>
             </DialogFooter>
-              </form>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

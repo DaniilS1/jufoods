@@ -589,7 +589,7 @@ export function AdminFlavourManagement() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
-            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959]">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959] [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="flavour_number">
                   {activeTab === 'de' ? LABELS_DE.flavourNumber : LABELS_UK.flavourNumber}
