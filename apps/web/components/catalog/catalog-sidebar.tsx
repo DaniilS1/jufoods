@@ -35,7 +35,7 @@ export function CatalogSidebar({ locale, activeSectionId }: CatalogSidebarProps)
   )
 
   return (
-    <aside className="w-52 shrink-0 hidden lg:flex flex-col gap-6">
+    <aside className="w-[280px] shrink-0 hidden lg:flex flex-col gap-6 border-r border-border pr-6">
       <div>
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-3">
           {t('sectionGroupTorten')}

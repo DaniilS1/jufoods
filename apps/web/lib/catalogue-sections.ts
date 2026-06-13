@@ -14,16 +14,13 @@ export type CatalogueSectionId =
 export interface CatalogueSection {
   id: CatalogueSectionId
   group: CatalogueGroup
-  /** DB category to query */
   dbCategory: string
-  /** DB sub_category filter (undefined = no sub_category filter) */
   dbSubCategory?: string
-  /** For torten designs: filter by classic=true */
   classic?: boolean
-  /** i18n key: catalog.sections.{id} */
   labelKey: string
-  /** Emoji or color hint for the card */
   accent: string
+  descDe: string
+  descUk: string
 }
 
 export const catalogueSections: CatalogueSection[] = [
@@ -35,6 +32,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbSubCategory: 'feier',
     labelKey: 'feier',
     accent: '#C4907A',
+    descDe: 'Geburtstag · Jubiläum · Taufe',
+    descUk: 'День народження · Ювілей · Хрестини',
   },
   {
     id: 'hochzeit',
@@ -43,6 +42,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbSubCategory: 'hochzeit',
     labelKey: 'hochzeit',
     accent: '#D4B8A8',
+    descDe: 'Zweistöckig · Blumen · Klassisch',
+    descUk: 'Двоярусні · Квіти · Класика',
   },
   {
     id: 'bento',
@@ -51,6 +52,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbSubCategory: 'bento',
     labelKey: 'bento',
     accent: '#E8C4B8',
+    descDe: 'Klein · Kreativ · Persönlich',
+    descUk: 'Маленькі · Креативні · Особисті',
   },
   {
     id: 'zum-tee',
@@ -59,6 +62,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbSubCategory: 'zum-tee',
     labelKey: 'zum-tee',
     accent: '#C8A090',
+    descDe: 'Rollkuchen · Törtchen · Petit Fours',
+    descUk: 'Рулети · Тістечка · Petit Fours',
   },
   {
     id: 'klassische',
@@ -67,6 +72,8 @@ export const catalogueSections: CatalogueSection[] = [
     classic: true,
     labelKey: 'klassische',
     accent: '#B89080',
+    descDe: 'Medivnyk · Napoleon · Esterhazy',
+    descUk: 'Медівник · Наполеон · Естерхазі',
   },
 
   // ── Desserts ────────────────────────────────────────────────────
@@ -76,6 +83,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbCategory: 'desserts',
     labelKey: 'desserts',
     accent: '#8FB8A2',
+    descDe: 'Zephyr · Pavlova · Rohkost',
+    descUk: 'Зефір · Павлова · Сироїдіння',
   },
   {
     id: 'cheesecakes',
@@ -83,6 +92,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbCategory: 'cheesecakes',
     labelKey: 'cheesecakes',
     accent: '#A8C4B4',
+    descDe: 'Gebacken · No-Bake · Frischkäse',
+    descUk: 'Запечені · No-Bake · Вершковий сир',
   },
   {
     id: 'macarons',
@@ -90,6 +101,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbCategory: 'macarons',
     labelKey: 'macarons',
     accent: '#C4B8D4',
+    descDe: '12 Sorten · Premium Füllung',
+    descUk: '12 смаків · Преміум начинка',
   },
   {
     id: 'cookies',
@@ -97,6 +110,8 @@ export const catalogueSections: CatalogueSection[] = [
     dbCategory: 'cookies',
     labelKey: 'cookies',
     accent: '#D4C4A8',
+    descDe: 'Shortbread · Chocolate Chip · Nuss',
+    descUk: 'Шортбред · Шоколадний · Горіховий',
   },
 ]
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
@@ -19,6 +20,8 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const locale = useLocale()
   const t = useTranslations('common')
+  const pathname = usePathname()
+  const isAdmin = pathname?.includes('/admin')
 
   useEffect(() => {
     document.documentElement.lang = locale
@@ -34,7 +37,7 @@ export function AppShell({ children }: AppShellProps) {
       </div>
       <Header />
       <main className="flex-1">{children}</main>
-      <Footer />
+      {!isAdmin && <Footer />}
       <ShoppingCart />
       <NavigationDrawer />
     </div>

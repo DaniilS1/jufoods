@@ -248,13 +248,17 @@
   },
   "catalog": {
     "noProducts": "Поки що немає доступних {category}",
-    "title": "Каталог",
+    "title": "Наш асортимент",
+    "subtitle": "Торти та десерти ручної роботи на замовлення",
     "all": "Всі",
     "viewDesigns": "Дизайни",
     "viewFlavours": "Смаки",
     "sectionGroupTorten": "Торти",
     "sectionGroupDesserts": "Десерти",
     "backToCatalog": "Назад до каталогу",
+    "designsAvailable": "{count} дизайнів доступно",
+    "flavoursAvailable": "{count} смаків доступно",
+    "orderCta": "Замовити",
     "klassischeDesc": "Класичні торти без тематичного дизайну",
     "sections": {
       "feier": "Святкові торти",
@@ -554,9 +558,11 @@
         "week": "Цього тижня",
         "total": "Всього"
       },
+      "selectOrder": "Виберіть замовлення зі списку",
       "actions": {
         "status": "Змінити статус",
         "note": "Внутрішня нотатка",
+        "notePlaceholder": "Лише для внутрішнього використання…",
         "save": "Зберегти",
         "photoDownload": "Завантажити фото"
       },

@@ -103,23 +103,34 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ error: 'Missing order id' }, { status: 400 })
   }
 
-  let body: { status?: string }
+  let body: { status?: string; notes?: string }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const status = body.status
-  if (!status || !ALLOWED_STATUS.includes(status as (typeof ALLOWED_STATUS)[number])) {
-    return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+  const { status, notes } = body
+  if (status === undefined && notes === undefined) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+  }
+
+  const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() }
+  if (status !== undefined) {
+    if (!ALLOWED_STATUS.includes(status as (typeof ALLOWED_STATUS)[number])) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+    updatePayload.status = status
+  }
+  if (notes !== undefined) {
+    updatePayload.notes = notes
   }
 
   const { data, error } = await gate.supabase
     .from('orders')
-    .update({ status, updated_at: new Date().toISOString() })
+    .update(updatePayload)
     .eq('id', id)
-    .select('id, status, updated_at')
+    .select('id, status, notes, updated_at')
     .single()
 
   if (error) {

@@ -248,13 +248,17 @@
   },
   "catalog": {
     "noProducts": "Noch keine {category} verfügbar",
-    "title": "Katalog",
+    "title": "Unser Sortiment",
+    "subtitle": "Handgemachte Torten und Desserts nach Maß",
     "all": "Alle",
     "viewDesigns": "Designs",
     "viewFlavours": "Geschmacksrichtungen",
     "sectionGroupTorten": "Torten",
     "sectionGroupDesserts": "Desserts",
     "backToCatalog": "Zurück zum Katalog",
+    "designsAvailable": "{count} Designs verfügbar",
+    "flavoursAvailable": "{count} Geschmäcker verfügbar",
+    "orderCta": "Bestellen",
     "klassischeDesc": "Zeitlose Torten ohne Motivdesign",
     "sections": {
       "feier": "Festtorten",
@@ -554,9 +558,11 @@
         "week": "Diese Woche",
         "total": "Gesamt"
       },
+      "selectOrder": "Bestellung aus der Liste wählen",
       "actions": {
         "status": "Status ändern",
         "note": "Interne Notiz",
+        "notePlaceholder": "Nur intern sichtbar…",
         "save": "Speichern",
         "photoDownload": "Foto herunterladen"
       },

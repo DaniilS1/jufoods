@@ -4,11 +4,11 @@ import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
 import { CatalogSidebar } from '@/components/catalog/catalog-sidebar'
+import { CatalogTortenClient } from '@/components/catalog/catalog-torten-client'
 import { TortenViewToggle } from '@/components/torten-view-toggle'
 import { createClient } from '@/lib/supabase/server'
 import { getSectionById } from '@/lib/catalogue-sections'
 import type { Locale } from '@/i18n'
-import { z } from 'zod'
 
 interface SectionPageProps {
   params: { locale: Locale; section: string }
@@ -100,17 +100,41 @@ export default async function CatalogSectionPage({ params, searchParams }: Secti
   }
 
   const sectionLabel = t(`sections.${catalogSection.id}` as Parameters<typeof t>[0])
+  const groupLabel =
+    catalogSection.group === 'torten' ? t('sectionGroupTorten') : t('sectionGroupDesserts')
+
+  const countKey =
+    catalogSection.group === 'torten' && tortenView === 'flavours'
+      ? 'flavoursAvailable'
+      : 'designsAvailable'
 
   return (
     <div className="container py-6 md:py-8">
+      {/* Breadcrumb — desktop only */}
+      <nav className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground mb-5">
+        <Link href={`/${locale}`} className="hover:text-foreground transition-colors">
+          Home
+        </Link>
+        <span>›</span>
+        <Link href={`/${locale}/catalog`} className="hover:text-foreground transition-colors">
+          {t('title')}
+        </Link>
+        <span>›</span>
+        <Link href={`/${locale}/catalog`} className="hover:text-foreground transition-colors">
+          {groupLabel}
+        </Link>
+        <span>›</span>
+        <span className="text-foreground font-medium">{sectionLabel}</span>
+      </nav>
+
       <div className="flex gap-8">
         {/* Sidebar */}
         <CatalogSidebar locale={locale} activeSectionId={sectionId} />
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 mb-6">
+          {/* Back link — mobile only */}
+          <div className="flex items-center gap-2 mb-5 md:hidden">
             <Link
               href={`/${locale}/catalog`}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -121,27 +145,33 @@ export default async function CatalogSectionPage({ params, searchParams }: Secti
           </div>
 
           {/* Title row */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-1.5">
             <h1 className="font-display text-2xl md:text-3xl font-bold">{sectionLabel}</h1>
             {catalogSection.group === 'torten' && (
               <TortenViewToggle currentView={tortenView} />
             )}
           </div>
 
-          {/* Mobile section pills */}
-          <div className="lg:hidden overflow-x-auto mb-6 -mx-4 px-4">
-            <div className="flex gap-2 min-w-max pb-1">
-              {/* shown inline in sidebar on desktop, as pills on mobile */}
-            </div>
-          </div>
+          {/* Count */}
+          <p className="text-sm text-muted-foreground mb-6">
+            {t(countKey as Parameters<typeof t>[0], { count: products.length })}
+          </p>
 
-          {/* Product grid */}
+          {/* Product grid / empty state */}
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <ProductCard key={product.id} {...product} />
-              ))}
-            </div>
+            catalogSection.group === 'torten' && tortenView === 'designs' ? (
+              <CatalogTortenClient
+                products={products}
+                locale={locale}
+                subcategory={catalogSection.dbSubCategory ?? null}
+              />
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {products.map((product) => (
+                  <ProductCard key={product.id} {...product} />
+                ))}
+              </div>
+            )
           ) : (
             <div className="text-center py-16 text-muted-foreground">
               <p className="text-lg">{t('noProducts', { category: sectionLabel })}</p>
