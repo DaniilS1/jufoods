@@ -99,7 +99,7 @@ export function RegisterForm() {
   return (
     <Card className="w-full max-w-md mx-auto border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">{t('register')}</CardTitle>
+        <CardTitle className="font-display text-2xl font-bold text-center">{t('register')}</CardTitle>
         <CardDescription className="text-center">
           {t('registerDescription') || 'Erstellen Sie ein neues Konto'}
         </CardDescription>

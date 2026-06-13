@@ -1,0 +1,137 @@
+'use client'
+
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import { ShoppingBag, Image, UtensilsCrossed, Package, Users, Settings, LogOut } from 'lucide-react'
+import { Logo } from '@/components/logo'
+import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+
+type AdminTab = 'orders' | 'designs' | 'flavours' | 'products' | 'customers'
+
+const sidebarItems: { id: AdminTab; icon: React.ElementType; key: AdminTab }[] = [
+  { id: 'orders', icon: ShoppingBag, key: 'orders' },
+  { id: 'designs', icon: Image, key: 'designs' },
+  { id: 'flavours', icon: UtensilsCrossed, key: 'flavours' },
+  { id: 'products', icon: Package, key: 'products' },
+  { id: 'customers', icon: Users, key: 'customers' },
+]
+
+interface AdminSidebarProps {
+  locale: string
+}
+
+export function AdminSidebar({ locale }: AdminSidebarProps) {
+  const t = useTranslations('admin.sidebar')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const activeTab = (searchParams?.get('tab') as AdminTab) || 'orders'
+
+  const handleTabChange = (tab: AdminTab) => {
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', tab)
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    window.location.href = `/${locale}`
+  }
+
+  return (
+    <aside className="hidden lg:flex flex-col w-[228px] shrink-0 bg-secondary text-secondary-foreground min-h-[calc(100vh-56px)] sticky top-14">
+      {/* Logo area */}
+      <div className="px-5 py-5 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <Logo href={`/${locale}`} size="sm" />
+          <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Admin</span>
+        </div>
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex flex-col gap-0.5 p-3 flex-1">
+        {sidebarItems.map(({ id, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => handleTabChange(id)}
+            className={cn(
+              'flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
+              activeTab === id
+                ? 'bg-white/15 text-white'
+                : 'text-white/70 hover:bg-white/10 hover:text-white'
+            )}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            {t(id)}
+          </button>
+        ))}
+      </nav>
+
+      {/* Footer */}
+      <div className="p-3 border-t border-white/10 flex flex-col gap-0.5">
+        <Link
+          href={`/${locale}/account`}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+        >
+          <Settings className="h-4 w-4 shrink-0" />
+          {t('settings')}
+        </Link>
+        <button
+          onClick={handleSignOut}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors text-left"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          {t('logout')}
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+export function AdminMobileHeader({ locale }: { locale: string }) {
+  const t = useTranslations('admin.sidebar')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const activeTab = (searchParams?.get('tab') as AdminTab) || 'orders'
+
+  const mobileTabs: AdminTab[] = ['orders', 'designs', 'customers', 'flavours']
+
+  const handleTabChange = (tab: AdminTab) => {
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', tab)
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  return (
+    <div className="lg:hidden bg-secondary text-secondary-foreground">
+      <div className="flex items-center gap-3 px-4 py-3">
+        <Logo href={`/${locale}`} size="sm" />
+        <span className="text-sm font-semibold text-white/80">Admin</span>
+        <span className="ml-auto text-xs bg-primary/30 text-white px-2 py-0.5 rounded-full font-semibold">
+          Admin
+        </span>
+      </div>
+      {/* Tab pills */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 pb-3 -mx-0">
+        {mobileTabs.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => handleTabChange(tab)}
+            className={cn(
+              'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border',
+              activeTab === tab
+                ? 'bg-white/20 text-white border-white/30'
+                : 'text-white/60 border-white/15 hover:bg-white/10 hover:text-white'
+            )}
+          >
+            {t(tab)}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}

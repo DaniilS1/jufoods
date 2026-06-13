@@ -195,13 +195,19 @@ export function FavoritesClient() {
     return (
       <div className="text-center py-16">
         <div className="flex flex-col items-center gap-4">
-          <div className="rounded-full bg-primary/10 p-6">
-            <Heart className="h-12 w-12 text-primary opacity-50" />
+          <div className="rounded-full bg-primary/10 p-5">
+            <Heart className="h-10 w-10 text-primary/60" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold">{t('emptyTitle')}</h2>
-            <p className="text-muted-foreground max-w-md">{t('emptyDescription')}</p>
+            <h2 className="font-display text-xl font-bold">{t('emptyTitle')}</h2>
+            <p className="text-muted-foreground max-w-sm text-sm">{t('emptyDesc')}</p>
           </div>
+          <a
+            href={`/${locale}/catalog`}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors"
+          >
+            {t('emptyCta')}
+          </a>
         </div>
       </div>
     )
@@ -211,17 +217,23 @@ export function FavoritesClient() {
     return (
       <div className="text-center py-16">
         <div className="flex flex-col items-center gap-4">
-          <div className="rounded-full bg-primary/10 p-6">
-            <Heart className="h-12 w-12 text-primary opacity-50" />
+          <div className="rounded-full bg-primary/10 p-5">
+            <Heart className="h-10 w-10 text-primary/60" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold">{t('emptyTitle')}</h2>
+            <h2 className="font-display text-xl font-bold">{t('emptyTitle')}</h2>
             {error ? (
-              <p className="text-destructive max-w-md">{error}</p>
+              <p className="text-destructive max-w-sm text-sm">{error}</p>
             ) : (
-              <p className="text-muted-foreground max-w-md">{t('emptyDescription')}</p>
+              <p className="text-muted-foreground max-w-sm text-sm">{t('emptyDescription')}</p>
             )}
           </div>
+          <a
+            href={`/${locale}/catalog`}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 transition-colors"
+          >
+            {t('emptyCta')}
+          </a>
         </div>
       </div>
     )
@@ -243,7 +255,7 @@ export function FavoritesClient() {
             </Button>
           </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
         {products.map((product) => {
           const name = locale === 'uk' ? product.name_uk : product.name_de
           const description = locale === 'uk' ? product.description_uk : product.description_de

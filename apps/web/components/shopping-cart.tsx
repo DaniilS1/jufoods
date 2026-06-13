@@ -76,7 +76,7 @@ export function ShoppingCart() {
         <DialogHeader className="border-b px-4 sm:px-6 py-5">
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-3xl font-bold text-foreground">{t('title')}</DialogTitle>
+              <DialogTitle className="font-display text-2xl font-bold text-foreground">{t('title')}</DialogTitle>
               {mounted && (
                 <DialogDescription className="text-base mt-2 text-muted-foreground">
                   {items.length} {items.length === 1 ? t('item') : t('items')}

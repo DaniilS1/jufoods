@@ -17,11 +17,11 @@ export function Footer() {
 
   const footerLinks = {
     catalog: [
-      { name: t('cakes'), href: `/${locale}?category=torten` },
-      { name: t('desserts'), href: `/${locale}?category=desserts` },
-      { name: t('cookies'), href: `/${locale}?category=cookies` },
-      { name: t('macarons'), href: `/${locale}?category=macarons` },
-      { name: t('cheesecakes'), href: `/${locale}?category=cheesecakes` },
+      { name: t('cakes'), href: `/${locale}/catalog/torten` },
+      { name: t('desserts'), href: `/${locale}/catalog/desserts` },
+      { name: t('cookies'), href: `/${locale}/catalog/cookies` },
+      { name: t('macarons'), href: `/${locale}/catalog/macarons` },
+      { name: t('cheesecakes'), href: `/${locale}/catalog/cheesecakes` },
     ],
     pages: [
       { name: t('about'), href: `/${locale}/about` },

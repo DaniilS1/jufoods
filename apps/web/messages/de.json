@@ -61,7 +61,22 @@
     "personCountPlaceholder": "z. B. 10…",
     "selectDeliveryDate": "Datum wählen",
     "design": "Design",
-    "noDesignSelected": "Bitte wähle ein Design aus"
+    "noDesignSelected": "Bitte wähle ein Design aus",
+    "tabs": {
+      "info": "Info",
+      "ingredients": "Zutaten",
+      "nutrition": "KBZHU"
+    },
+    "composition": "Zusammensetzung",
+    "priceNote": "Der genaue Preis wird nach Ihrer Bestellung individuell berechnet.",
+    "orderButton": "Torte bestellen",
+    "noNutrition": "Nährwerte auf Anfrage erhältlich.",
+    "personLabels": {
+      "2to4": "2–4 Pers.",
+      "6to8": "6–8 Pers.",
+      "10to12": "10–12 Pers.",
+      "12plus": "12+ Pers."
+    }
   },
   "cart": {
     "title": "Warenkorb",
@@ -237,6 +252,32 @@
     "all": "Alle",
     "viewDesigns": "Designs",
     "viewFlavours": "Geschmacksrichtungen",
+    "sectionGroupTorten": "Torten",
+    "sectionGroupDesserts": "Desserts",
+    "backToCatalog": "Zurück zum Katalog",
+    "klassischeDesc": "Zeitlose Torten ohne Motivdesign",
+    "sections": {
+      "feier": "Festtorten",
+      "hochzeit": "Hochzeitstorten",
+      "bento": "Bento-Torten",
+      "zum-tee": "Zum Tee",
+      "klassische": "Klassische Torten",
+      "desserts": "Desserts",
+      "tarts": "Tarts",
+      "cinabons": "Cinabons",
+      "kulichi": "Kulitschi",
+      "kapkeiky": "Cupcakes",
+      "cake-pops": "Cake Pops",
+      "mousse": "Mousse",
+      "cheesecakes": "Cheesecakes",
+      "new-york": "New York",
+      "san-sebastian": "San Sebastian",
+      "cheesecake-on-a-stick": "Cheesecake am Stiel",
+      "macarons": "Macarons",
+      "cookies": "Cookies",
+      "chocolate": "Schokoladenkekse",
+      "blondie-cookies": "Blondie Cookies"
+    },
     "subcategories": {
       "torten": {
         "feier": "Feier",
@@ -266,7 +307,9 @@
   "favorites": {
     "title": "Meine Favoriten",
     "description": "Ihre gespeicherten Lieblingsprodukte",
-    "emptyTitle": "Keine Favoriten",
+    "emptyTitle": "Noch keine Favoriten",
+    "emptyDesc": "Speichere deine Lieblingsprodukte für später.",
+    "emptyCta": "Zum Katalog",
     "emptyDescription": "Sie haben noch keine Favoriten hinzugefügt. Durchsuchen Sie unseren Katalog und fügen Sie Ihre Lieblingsprodukte hinzu!",
     "clearAll": "Alle Favoriten entfernen",
     "count": "{count} Favorit{count, plural, =1 {} other {en}}"
@@ -307,19 +350,38 @@
     "designError": "Design konnte nicht gespeichert werden.",
     "designsEmpty": "Noch keine Designs hochgeladen.",
     "uploading": "Wird hochgeladen...",
-    "ordersCta": "Zum Shop",
+    "profileTab": "Profil",
+    "passwordTab": "Passwort",
+    "designsTab": "Designs",
+    "ordersTab": "Bestellungen",
+    "ordersCta": "Zum Katalog",
     "retry": "Erneut versuchen",
+    "orders": {
+      "filterAll": "Alle",
+      "expandDetails": "Details anzeigen",
+      "collapseDetails": "Schließen",
+      "noPrice": "–"
+    },
     "orderStatus": {
-      "pending": "Eingegangen",
-      "confirmed": "Bestätigt",
-      "completed": "Abgeschlossen",
-      "cancelled": "Storniert"
+      "pending": "🕐 Eingegangen",
+      "confirmed": "✅ Bestätigt",
+      "completed": "✔️ Abgeschlossen",
+      "cancelled": "✖ Storniert"
     },
     "orderItemCount": "{count, plural, one {# Artikel} other {# Artikel}}"
   },
   "admin": {
     "title": "Admin Panel",
     "description": "Verwalten Sie Produkte, Designs, Kunden und Bestellungen",
+    "sidebar": {
+      "orders": "Bestellungen",
+      "designs": "Designs",
+      "flavours": "Geschmäcker",
+      "products": "Produkte",
+      "customers": "Kunden",
+      "settings": "Einstellungen",
+      "logout": "Abmelden"
+    },
     "tabs": {
       "products": "Produkte",
       "designs": "Torten-Designs",
@@ -486,6 +548,19 @@
       "paginationPrevious": "Zurück",
       "paginationNext": "Weiter",
       "showingRange": "{from}–{to} von {total}",
+      "stats": {
+        "open": "Offen",
+        "pending": "Wartend",
+        "week": "Diese Woche",
+        "total": "Gesamt"
+      },
+      "actions": {
+        "status": "Status ändern",
+        "note": "Interne Notiz",
+        "save": "Speichern",
+        "photoDownload": "Foto herunterladen"
+      },
+      "customerSection": "Kundendaten",
       "markDone": "Als erledigt markieren",
       "doneLabel": "Erledigt",
       "openDetails": "Bestelldetails: {name}",
@@ -586,5 +661,31 @@
     "selectFlavourFirst": "Bitte wähle einen Geschmack aus",
     "fillDetailsFirst": "Bitte fülle alle Details aus",
     "addedToCart": "Torte wurde zum Warenkorb hinzugefügt!"
+  },
+  "home": {
+    "title": "Handgemachte Torten & Desserts",
+    "subtitle": "Auf Bestellung – mit Liebe gemacht",
+    "heroCakesTitle": "Torten",
+    "heroCakesDesc": "Individuelle Torten für Hochzeiten, Feste und besondere Anlässe",
+    "heroCakesCta": "Torten entdecken",
+    "heroDessertTitle": "Desserts",
+    "heroDessertDesc": "Süße Kleinigkeiten – Cinabons, Tarts, Cheesecakes & mehr",
+    "heroDessertCta": "Desserts entdecken",
+    "howTitle": "So wird bestellt",
+    "step1Title": "Design wählen",
+    "step1Desc": "Stöbere im Katalog und finde dein Lieblingsdesign",
+    "step2Title": "Details angeben",
+    "step2Desc": "Personenanzahl, Datum und Wunschgeschmack festlegen",
+    "step3Title": "Bestätigung",
+    "step3Desc": "Wir melden uns zeitnah und klären alle Details",
+    "step4Title": "Abholen & genießen",
+    "step4Desc": "Deine handgemachte Torte oder dein Dessert ist fertig",
+    "aboutTitle": "Über Jufoods",
+    "aboutText": "Handgemachte Torten und Desserts – hergestellt mit Sorgfalt und Leidenschaft in München.",
+    "aboutBadge1": "München",
+    "aboutBadge2": "Seit 2023",
+    "aboutBadge3": "Auf Bestellung",
+    "toCatalog": "Zum Katalog",
+    "toContact": "Kontakt aufnehmen"
   }
 }

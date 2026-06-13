@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #C8C0BB; }
+    select, input, textarea, button { font-family: 'Inter', system-ui, sans-serif; }
+    ::-webkit-scrollbar { height: 3px; width: 3px; }
+    ::-webkit-scrollbar-thumb { background: #C4A0A0; border-radius: 2px; }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#C8C0BB; background-image:radial-gradient(circle, rgba(59,42,42,0.04) 1px, transparent 1px); background-size:36px 36px;">
+
+  <!-- Canvas header -->
+  <div style="background:rgba(245,237,234,0.96); backdrop-filter:blur(20px); border-bottom:1px solid #E8DADA; padding:14px 40px; display:flex; align-items:center; justify-content:space-between; gap:24px; position:sticky; top:0; z-index:200;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="apps/web/public/IMG_4472.PNG" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #E8DADA;" alt=""/>
+      <div>
+        <h1 style="font-family:'Playfair Display',serif; font-size:18px; color:#3B2A2A; font-weight:700; line-height:1.2; margin:0;">Jufood.s — Design Mockup</h1>
+        <p style="font-size:11px; color:#9B7B7B; margin:2px 0 0;">Mobile UI · 375px · 10 Screens · Redesign Feedback</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:5px; align-items:center;">
+      <span style="padding:4px 12px; background:#3B2A2A; color:white; border-radius:999px; font-size:11px; font-weight:600;">10 Screens</span>
+      <span style="padding:4px 12px; background:rgba(196,160,160,0.2); color:#3B2A2A; border-radius:999px; font-size:11px; font-weight:600; border:1px solid #E8DADA;">Interactive</span>
+    </div>
+  </div>
+
+  <div style="padding:48px 40px 80px; max-width:1900px; margin:0 auto; display:flex; flex-direction:column; gap:72px;">
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION A: HOME                           -->
+    <!-- ══════════════════════════════════════════ -->
+    <div>
+      <div style="display:flex; align-items:baseline; gap:14px; margin-bottom:28px;">
+        <h2 style="font-family:'Playfair Display',serif; font-size:24px; color:#3B2A2A; font-weight:700; margin:0;">Home Page</h2>
+        <span style="font-size:13px; color:#9B7B7B;">Hero-Buttons · Über uns · So wird bestellt</span>
+      </div>
+      <div style="display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start;">
+
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">00 · Home Page</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:#F5EDEA; background-image:radial-gradient(circle,rgba(59,42,42,0.04) 1px,transparent 1px); background-size:42px 42px;">
+            <!-- Header -->
+            <div style="background:rgba(255,255,255,0.97); border-bottom:1px solid #E8DADA; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"><svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M0 1.5h20M0 7.5h20M0 13.5h20" stroke="#3B2A2A" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                <img src="apps/web/public/IMG_4472.PNG" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" alt=""/>
+              </div>
+              <div style="display:flex; align-items:center; gap:2px;">
+                <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span style="position:absolute; top:6px; right:6px; width:16px; height:16px; border-radius:50%; background:#C4A0A0; color:white; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span></button>
+                <div style="width:36px; height:36px; border-radius:50%; background:rgba(196,160,160,0.18); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#A07878; cursor:pointer;">J</div>
+              </div>
+            </div>
+            <!-- 2 hero cards -->
+            <div style="padding:14px 12px 0; display:flex; gap:10px;">
+              <div style="flex:1; height:210px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer;">
+                <div style="position:absolute; inset:0; background:#D4A89A; background-image:repeating-linear-gradient(45deg,transparent,transparent 14px,rgba(255,255,255,0.08) 14px,rgba(255,255,255,0.08) 15px);"></div>
+                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(40,20,20,0.75) 0%, transparent 55%);"></div>
+                <div style="position:absolute; bottom:14px; left:14px; right:8px;">
+                  <p style="font-size:24px; margin:0 0 2px; line-height:1;">🎂</p>
+                  <h3 style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:white; margin:0 0 3px; line-height:1.15; text-shadow:0 1px 6px rgba(0,0,0,0.4);">Torten</h3>
+                  <p style="font-size:11px; color:rgba(255,255,255,0.75); margin:0; line-height:1.4;">Geburtstag · Hochzeit · Bento</p>
+                </div>
+              </div>
+              <div style="flex:1; height:210px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer;">
+                <div style="position:absolute; inset:0; background:#8FB8A2; background-image:repeating-linear-gradient(45deg,transparent,transparent 14px,rgba(255,255,255,0.08) 14px,rgba(255,255,255,0.08) 15px);"></div>
+                <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(20,38,28,0.72) 0%, transparent 55%);"></div>
+                <div style="position:absolute; bottom:14px; left:14px; right:8px;">
+                  <p style="font-size:24px; margin:0 0 2px; line-height:1;">🍰</p>
+                  <h3 style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:white; margin:0 0 3px; line-height:1.15; text-shadow:0 1px 6px rgba(0,0,0,0.35);">Desserts</h3>
+                  <p style="font-size:11px; color:rgba(255,255,255,0.75); margin:0; line-height:1.4;">Macarons · Cookies · Zephyr</p>
+                </div>
+              </div>
+            </div>
+            <!-- About -->
+            <div style="padding:12px 12px 0;">
+              <div style="background:white; border-radius:14px; padding:16px; border:1px solid #E8DADA;">
+                <span style="font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#C4A0A0; display:block; margin-bottom:5px;">ÜBER UNS</span>
+                <h3 style="font-family:'Playfair Display',serif; font-size:17px; font-weight:700; color:#3B2A2A; margin:0 0 6px; line-height:1.3;">Hausgemacht mit Liebe</h3>
+                <p style="font-size:13px; color:#9B7B7B; line-height:1.65; margin:0;">Juliia backt individuelle Torten und Desserts nach Bestellung in München. Jedes Stück entsteht von Hand — frisch, persönlich und mit Liebe zum Detail.</p>
+              </div>
+            </div>
+            <!-- How to order -->
+            <div style="padding:12px 12px 20px;">
+              <span style="font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#C4A0A0; display:block; margin-bottom:10px; padding-left:2px;">SO WIRD BESTELLT</span>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div style="background:white; border-radius:12px; padding:12px; border:1px solid #E8DADA;"><span style="font-size:22px; display:block; margin-bottom:5px;">🔍</span><span style="font-size:10px; font-weight:700; color:#C4A0A0; display:block; margin-bottom:2px;">01</span><p style="font-size:12px; font-weight:600; color:#3B2A2A; margin:0; line-height:1.35;">Katalog durchsuchen</p></div>
+                <div style="background:white; border-radius:12px; padding:12px; border:1px solid #E8DADA;"><span style="font-size:22px; display:block; margin-bottom:5px;">📋</span><span style="font-size:10px; font-weight:700; color:#C4A0A0; display:block; margin-bottom:2px;">02</span><p style="font-size:12px; font-weight:600; color:#3B2A2A; margin:0; line-height:1.35;">Formular ausfüllen</p></div>
+                <div style="background:white; border-radius:12px; padding:12px; border:1px solid #E8DADA;"><span style="font-size:22px; display:block; margin-bottom:5px;">💬</span><span style="font-size:10px; font-weight:700; color:#C4A0A0; display:block; margin-bottom:2px;">03</span><p style="font-size:12px; font-weight:600; color:#3B2A2A; margin:0; line-height:1.35;">Preisangebot erhalten</p></div>
+                <div style="background:white; border-radius:12px; padding:12px; border:1px solid #E8DADA;"><span style="font-size:22px; display:block; margin-bottom:5px;">💳</span><span style="font-size:10px; font-weight:700; color:#C4A0A0; display:block; margin-bottom:2px;">04</span><p style="font-size:12px; font-weight:600; color:#3B2A2A; margin:0; line-height:1.35;">Anzahlung &amp; Bestätigung</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION B: KATALOG — GROSSE KARTEN        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div>
+      <div style="display:flex; align-items:baseline; gap:14px; margin-bottom:28px;">
+        <h2 style="font-family:'Playfair Display',serif; font-size:24px; color:#3B2A2A; font-weight:700; margin:0;">Katalog</h2>
+        <span style="font-size:13px; color:#9B7B7B;">Keine Tabs mehr — große Kategorie-Karten</span>
+      </div>
+      <div style="display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start;">
+
+        <!-- Screen 01: Category overview -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">01 · Kategorie-Übersicht</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:#F5EDEA; background-image:radial-gradient(circle,rgba(59,42,42,0.04) 1px,transparent 1px); background-size:42px 42px;">
+            <div style="background:rgba(255,255,255,0.97); border-bottom:1px solid #E8DADA; height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"><svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M0 1.5h20M0 7.5h20M0 13.5h20" stroke="#3B2A2A" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                <img src="apps/web/public/IMG_4472.PNG" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" alt=""/>
+              </div>
+              <div style="display:flex; align-items:center; gap:2px;">
+                <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+                <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span style="position:absolute; top:6px; right:6px; width:16px; height:16px; border-radius:50%; background:#C4A0A0; color:white; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span></button>
+              </div>
+            </div>
+            <!-- Big category cards list -->
+            <div style="padding:12px 12px; max-height:760px; overflow-y:auto; display:flex; flex-direction:column; gap:0;">
+              <!-- Torten header -->
+              <div style="display:flex; align-items:center; gap:10px; padding:2px 2px 10px;"><span style="font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9B7B7B; white-space:nowrap;">Torten</span><div style="flex:1; height:1px; background:#E8DADA;"></div></div>
+              <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+                <sc-for list="{{ tortenCats }}" as="cat" hint-placeholder-count="5">
+                  <div style="border-radius:14px; overflow:hidden; position:relative; height:116px; cursor:pointer; box-shadow:0 2px 10px rgba(59,42,42,0.1);" onClick="{{ cat.onClick }}">
+                    <div style="{{ cat.bg }}"></div>
+                    <div style="position:absolute; inset:0; background:linear-gradient(135deg, rgba(40,20,15,0.55) 0%, rgba(40,20,15,0.1) 50%, transparent 100%);"></div>
+                    <div style="position:absolute; inset:0; padding:14px 16px; display:flex; flex-direction:column; justify-content:flex-end;">
+                      <h3 style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:white; margin:0 0 3px; line-height:1.2; text-shadow:0 1px 4px rgba(0,0,0,0.35);">{{ cat.name }}</h3>
+                      <p style="font-size:11px; color:rgba(255,255,255,0.72); margin:0;">{{ cat.desc }}</p>
+                    </div>
+                    <div style="position:absolute; top:12px; right:12px; display:flex; align-items:center; gap:5px;">
+                      <sc-if value="{{ cat.count }}" hint-placeholder-val="''"><span style="padding:3px 8px; background:rgba(255,255,255,0.22); backdrop-filter:blur(4px); border-radius:999px; font-size:10px; font-weight:600; color:white; border:1px solid rgba(255,255,255,0.28);">{{ cat.count }}</span></sc-if>
+                      <span style="width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; color:white; font-size:13px;">→</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <!-- Desserts header -->
+              <div style="display:flex; align-items:center; gap:10px; padding:2px 2px 10px;"><span style="font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#9B7B7B; white-space:nowrap;">Desserts</span><div style="flex:1; height:1px; background:#E8DADA;"></div></div>
+              <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:6px;">
+                <sc-for list="{{ dessertCats }}" as="cat" hint-placeholder-count="5">
+                  <div style="border-radius:14px; overflow:hidden; position:relative; height:116px; cursor:pointer; box-shadow:0 2px 10px rgba(59,42,42,0.1);" onClick="{{ cat.onClick }}">
+                    <div style="{{ cat.bg }}"></div>
+                    <div style="position:absolute; inset:0; background:linear-gradient(135deg, rgba(40,20,15,0.55) 0%, rgba(40,20,15,0.1) 50%, transparent 100%);"></div>
+                    <div style="position:absolute; inset:0; padding:14px 16px; display:flex; flex-direction:column; justify-content:flex-end;">
+                      <h3 style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:white; margin:0 0 3px; line-height:1.2; text-shadow:0 1px 4px rgba(0,0,0,0.35);">{{ cat.name }}</h3>
+                      <p style="font-size:11px; color:rgba(255,255,255,0.72); margin:0;">{{ cat.desc }}</p>
+                    </div>
+                    <div style="position:absolute; top:12px; right:12px; display:flex; align-items:center; gap:5px;">
+                      <sc-if value="{{ cat.count }}" hint-placeholder-val="''"><span style="padding:3px 8px; background:rgba(255,255,255,0.22); backdrop-filter:blur(4px); border-radius:999px; font-size:10px; font-weight:600; color:white; border:1px solid rgba(255,255,255,0.28);">{{ cat.count }}</span></sc-if>
+                      <span style="width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; color:white; font-size:13px;">→</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 02: Category detail after tap -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">02 · {{ activeCatName }} <span style="font-weight:400; opacity:0.6;">(nach Klick)</span></p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:#F5EDEA; background-image:radial-gradient(circle,rgba(59,42,42,0.04) 1px,transparent 1px); background-size:42px 42px; position:relative;">
+            <div style="background:rgba(255,255,255,0.97); border-bottom:1px solid #E8DADA;">
+              <div style="height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;" onClick="{{ goBackCatalog }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+                  <h3 style="font-family:'Playfair Display',serif; font-size:17px; font-weight:700; color:#3B2A2A; margin:0;">{{ activeCatName }}</h3>
+                </div>
+                <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span style="position:absolute; top:6px; right:6px; width:16px; height:16px; border-radius:50%; background:#C4A0A0; color:white; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span></button>
+              </div>
+              <!-- Subcat filter pills -->
+              <div style="border-top:1px solid #E8DADA; overflow-x:auto; scrollbar-width:none; padding:0 12px;">
+                <div style="display:flex; gap:4px; padding:7px 0; min-width:max-content;">
+                  <sc-for list="{{ subcats }}" as="sub" hint-placeholder-count="5">
+                    <button style="{{ sub.style }}" onClick="{{ sub.onClick }}">{{ sub.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+            <!-- View toggle + count -->
+            <div style="padding:10px 16px; display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:12px; color:#9B7B7B;">{{ productCount }} Designs</span>
+              <div style="display:inline-flex; background:rgba(196,160,160,0.12); border-radius:9px; padding:3px; gap:2px;">
+                <button style="{{ designsBtnStyle }}" onClick="{{ setViewDesigns }}">🎨 Designs</button>
+                <button style="{{ flavoursBtnStyle }}" onClick="{{ setViewFlavours }}">🎂 Geschmäcker</button>
+              </div>
+            </div>
+            <!-- Product grid -->
+            <div style="padding:0 12px 72px; max-height:500px; overflow-y:auto;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <sc-for list="{{ products }}" as="p" hint-placeholder-count="6">
+                  <div style="background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(59,42,42,0.08); cursor:pointer;">
+                    <div style="aspect-ratio:4/5; position:relative; overflow:hidden;">
+                      <div style="{{ p.img }}"><span style="font-size:9px; color:rgba(59,42,42,0.22); letter-spacing:0.05em; text-transform:uppercase; text-align:center; line-height:1.6;">product<br/>photo</span></div>
+                      <button style="position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.92); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 4px rgba(59,42,42,0.1);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C4A0A0" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+                    </div>
+                    <div style="padding:9px 11px 11px;">
+                      <h3 style="font-family:'Playfair Display',serif; font-size:14px; font-weight:600; color:#3B2A2A; line-height:1.3; margin:0 0 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ p.name }}</h3>
+                      <p style="font-size:11px; color:#9B7B7B; line-height:1.4; margin:0; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">{{ p.desc }}</p>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <!-- FAB -->
+            <div style="position:absolute; bottom:16px; right:16px; width:44px; height:44px; border-radius:50%; background:#C4A0A0; box-shadow:0 4px 16px rgba(196,160,160,0.5); display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:20;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION C: ORDER FLOW                     -->
+    <!-- ══════════════════════════════════════════ -->
+    <div>
+      <div style="display:flex; align-items:baseline; gap:14px; margin-bottom:28px;">
+        <h2 style="font-family:'Playfair Display',serif; font-size:24px; color:#3B2A2A; font-weight:700; margin:0;">Order Flow</h2>
+        <span style="font-size:13px; color:#9B7B7B;">Produkt → Bestellen → Warenkorb</span>
+      </div>
+      <div style="display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start;">
+
+        <!-- Screen 03: Product detail -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">03 · Product Detail</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:#F5EDEA;">
+            <div style="height:56px; background:rgba(255,255,255,0.97); border-bottom:1px solid #E8DADA; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+              <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+              <button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            </div>
+            <div style="aspect-ratio:4/3; background:#F0E0D8; background-image:repeating-linear-gradient(45deg,transparent,transparent 16px,rgba(255,255,255,0.09) 16px,rgba(255,255,255,0.09) 17px); position:relative; display:flex; align-items:center; justify-content:center;"><span style="font-size:11px; color:rgba(59,42,42,0.22); letter-spacing:0.06em; text-transform:uppercase;">product photo</span><div style="position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:5px; align-items:center;"><span style="width:20px; height:3px; background:#3B2A2A; border-radius:2px;"></span><span style="width:6px; height:3px; background:rgba(59,42,42,0.22); border-radius:2px;"></span><span style="width:6px; height:3px; background:rgba(59,42,42,0.22); border-radius:2px;"></span></div></div>
+            <div style="background:white; border-radius:16px 16px 0 0; margin-top:-16px; position:relative; padding:18px 20px 0;">
+              <span style="font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#C4A0A0; display:block; margin-bottom:4px;">TORTEN · GEBURTSTAG</span>
+              <h2 style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#3B2A2A; line-height:1.2; margin:0 0 5px;">Sommergarten</h2>
+              <p style="font-size:13px; color:#9B7B7B; line-height:1.55; margin:0 0 14px;">Frische Beeren auf samtiger Vanillecreme, dekoriert mit essbaren Blumen.</p>
+              <div style="display:flex; border-bottom:1px solid #E8DADA; margin:0 -20px; padding:0 20px;"><button style="padding:10px 16px; font-size:12px; font-weight:600; color:#3B2A2A; border:none; background:none; border-bottom:2px solid #C4A0A0; cursor:pointer; margin-bottom:-1px;">Info</button><button style="padding:10px 16px; font-size:12px; font-weight:500; color:#9B7B7B; border:none; background:none; cursor:pointer;">Zutaten</button><button style="padding:10px 16px; font-size:12px; font-weight:500; color:#9B7B7B; border:none; background:none; cursor:pointer;">KBZHU</button></div>
+              <div style="padding:14px 0;"><div style="display:flex; gap:12px; margin-bottom:10px;"><span style="font-size:15px; flex-shrink:0; line-height:1.5;">⚗️</span><div><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 3px;">Zusammensetzung</p><p style="font-size:13px; color:#3B2A2A; line-height:1.5; margin:0;">Biskuit, Vanillecreme, Erdbeerkonfitüre, Beeren, Fondant</p></div></div><div style="display:flex; gap:12px;"><span style="font-size:15px; flex-shrink:0; line-height:1.5;">⚠️</span><div><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 3px;">Allergene</p><p style="font-size:13px; color:#3B2A2A; margin:0;">Gluten, Milch, Eier</p></div></div></div>
+            </div>
+            <div style="background:white; padding:12px 20px 22px; border-top:1px solid #E8DADA;"><div style="background:rgba(245,230,200,0.45); border:1px solid rgba(245,230,200,0.9); border-radius:10px; padding:10px 14px; margin-bottom:12px; display:flex; gap:10px;"><span style="font-size:15px; flex-shrink:0; line-height:1.5;">💬</span><p style="font-size:12px; color:#7B5E00; line-height:1.55; margin:0;">Preis nach Personenanzahl, Geschmack und Dekor.</p></div><button style="width:100%; padding:14px; background:#C4A0A0; color:white; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer;">Torte bestellen</button></div>
+          </div>
+        </div>
+
+        <!-- Screen 04: Order form (bottom sheet) -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">04 · Torte Bestellen</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:#3B2A2A; position:relative;">
+            <div style="height:130px; background:#C4907A; background-image:repeating-linear-gradient(45deg,transparent,transparent 14px,rgba(255,255,255,0.06) 14px,rgba(255,255,255,0.06) 15px); opacity:0.35;"></div>
+            <div style="position:absolute; top:0; left:0; right:0; height:130px; background:rgba(20,10,10,0.5);"></div>
+            <div style="background:white; border-radius:20px 20px 0 0; position:relative; z-index:10;">
+              <div style="padding:12px 0 6px; display:flex; justify-content:center;"><div style="width:40px; height:4px; background:#E8DADA; border-radius:2px;"></div></div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:4px 20px 12px;"><h3 style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:#3B2A2A; margin:0;">Torte bestellen</h3><button style="width:32px; height:32px; border-radius:50%; background:#F5EDEA; border:none; cursor:pointer; color:#9B7B7B; font-size:15px;">✕</button></div>
+              <div style="margin:0 20px 12px; padding:10px 14px; background:#F5EDEA; border-radius:10px; display:flex; gap:10px; align-items:center;"><div style="width:40px; height:40px; border-radius:8px; background:#F0E0D8; flex-shrink:0;"></div><div><p style="font-size:12px; font-weight:600; color:#3B2A2A; margin:0;">Sommergarten</p><p style="font-size:11px; color:#9B7B7B; margin:0;">Torte · Geburtstag</p></div></div>
+              <div style="padding:0 20px; max-height:450px; overflow-y:auto;">
+                <div style="margin-bottom:14px;"><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 8px;">Geschmacksrichtung</p><div style="display:flex; background:rgba(196,160,160,0.12); border-radius:9px; padding:3px; gap:2px;"><button style="{{ stdBtnStyle }}" onClick="{{ setTierStd }}">✅ Standard (12)</button><button style="{{ prmBtnStyle }}" onClick="{{ setTierPrm }}">⭐ Premium (6)</button></div></div>
+                <div style="display:flex; flex-direction:column; gap:5px; margin-bottom:14px; max-height:170px; overflow-y:auto;"><sc-for list="{{ flavours }}" as="fl" hint-placeholder-count="6"><button style="{{ fl.s }}">{{ fl.name }}</button></sc-for></div>
+                <div style="margin-bottom:14px;"><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 8px;">Größe</p><div style="display:flex; gap:8px;"><sc-for list="{{ sizes }}" as="sz" hint-placeholder-count="3"><button style="{{ sz.style }}" onClick="{{ sz.onClick }}">{{ sz.label }}</button></sc-for></div></div>
+                <div style="margin-bottom:14px;"><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 8px;">Abholdatum &amp; -zeit</p><button style="width:100%; padding:10px 14px; background:white; border:1px solid #E8DADA; border-radius:9px; display:flex; align-items:center; gap:10px; cursor:pointer; color:#9B7B7B; font-size:13px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B7B7B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Datum &amp; Uhrzeit wählen</button></div>
+                <div style="margin-bottom:14px;"><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 8px;">Kommentar</p><textarea style="width:100%; padding:10px 13px; background:white; border:1px solid #E8DADA; border-radius:9px; font-size:13px; color:#3B2A2A; resize:none; height:58px; outline:none;" placeholder="Besondere Wünsche, Beschriftung..."></textarea></div>
+              </div>
+              <div style="padding:12px 20px 22px; border-top:1px solid #E8DADA;"><button style="width:100%; padding:14px; background:#C4A0A0; color:white; border:none; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer;">In den Warenkorb</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 05: Cart -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">05 · Warenkorb</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:white;">
+            <div style="padding:18px 18px 14px; border-bottom:1px solid #E8DADA;"><h3 style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#3B2A2A; margin:0 0 2px;">Warenkorb</h3><p style="font-size:13px; color:#9B7B7B; margin:0;">2 Artikel</p></div>
+            <div style="padding:12px 12px; display:flex; flex-direction:column; gap:9px;">
+              <div style="border:1px solid #E8DADA; border-radius:13px; padding:12px; box-shadow:0 2px 6px rgba(59,42,42,0.04);"><div style="display:flex; gap:11px;"><div style="width:68px; height:68px; border-radius:9px; background:#F0E0D8; background-image:repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(255,255,255,0.12) 8px,rgba(255,255,255,0.12) 9px); flex-shrink:0;"></div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between;"><div><p style="font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#C4A0A0; margin:0 0 2px;">TORTEN</p><h4 style="font-size:13px; font-weight:600; color:#3B2A2A; margin:0 0 1px;">Sommergarten</h4><p style="font-size:11px; color:#9B7B7B; margin:0 0 1px;">M · Vanille &amp; Erdbeere · 15.07</p></div><button style="background:none; border:none; cursor:pointer; font-size:15px; color:#C4A0A0; padding:4px; flex-shrink:0;">✕</button></div><div style="margin-top:7px;"><span style="display:inline-flex; align-items:center; gap:4px; padding:3px 9px; background:#F5E6C8; border-radius:999px; font-size:10px; font-weight:600; color:#7B5E00;">🕐 Preisberechnung</span></div></div></div></div>
+              <div style="border:1px solid #E8DADA; border-radius:13px; padding:12px; box-shadow:0 2px 6px rgba(59,42,42,0.04);"><div style="display:flex; gap:11px;"><div style="width:68px; height:68px; border-radius:9px; background:#DFF0E8; background-image:repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(255,255,255,0.12) 8px,rgba(255,255,255,0.12) 9px); flex-shrink:0;"></div><div style="flex:1; min-width:0;"><div style="display:flex; justify-content:space-between;"><div><p style="font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#C4A0A0; margin:0 0 2px;">DESSERTS</p><h4 style="font-size:13px; font-weight:600; color:#3B2A2A; margin:0 0 1px;">Macarons Box</h4><p style="font-size:11px; color:#9B7B7B; margin:0;">12 Stück · Mix</p></div><button style="background:none; border:none; cursor:pointer; font-size:15px; color:#C4A0A0; padding:4px; flex-shrink:0;">✕</button></div><div style="margin-top:7px; display:flex; align-items:center; justify-content:space-between;"><span style="font-size:14px; font-weight:700; color:#3B2A2A;">24,00 €</span><div style="display:flex; align-items:center; gap:7px; border:1px solid #E8DADA; border-radius:8px; padding:4px 8px;"><button style="background:none; border:none; cursor:pointer; font-size:16px; color:#9B7B7B; padding:0; width:18px; text-align:center; line-height:1;">−</button><span style="font-size:13px; font-weight:600; color:#3B2A2A; width:14px; text-align:center;">1</span><button style="background:none; border:none; cursor:pointer; font-size:16px; color:#9B7B7B; padding:0; width:18px; text-align:center; line-height:1;">+</button></div></div></div></div></div>
+            </div>
+            <div style="border-top:1px solid #E8DADA; padding:12px 14px 18px; background:rgba(245,237,234,0.3);"><div style="margin-bottom:8px; padding:9px 12px; background:rgba(245,230,200,0.4); border-radius:9px; border:1px solid rgba(245,230,200,0.7);"><p style="font-size:12px; color:#7B5E00; margin:0;">Tortenpreis nach Bestätigung. Dessert-Subtotal: <strong>24,00 €</strong></p></div><div style="display:flex; gap:7px;"><button style="flex:1; padding:12px; border:1px solid #E8DADA; background:white; border-radius:10px; font-size:12px; font-weight:500; color:#9B7B7B; cursor:pointer;">← Weiter einkaufen</button><button style="flex:1; padding:12px; background:#C4A0A0; border:none; border-radius:10px; font-size:13px; font-weight:600; color:white; cursor:pointer;">Bestellung senden →</button></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- SECTION D: ADMIN PANEL                    -->
+    <!-- ══════════════════════════════════════════ -->
+    <div>
+      <div style="display:flex; align-items:baseline; gap:14px; margin-bottom:28px;">
+        <h2 style="font-family:'Playfair Display',serif; font-size:24px; color:#3B2A2A; font-weight:700; margin:0;">Admin Panel</h2>
+        <span style="font-size:13px; color:#9B7B7B;">Bestellverwaltung · Kundendaten · Design-Verwaltung</span>
+      </div>
+      <div style="display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start;">
+
+        <!-- Screen 06: Admin orders -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">06 · Admin · Bestellungen</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:white;">
+            <!-- Dark header -->
+            <div style="background:#3B2A2A; padding:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;"><div style="display:flex; align-items:center; gap:10px;"><img src="apps/web/public/IMG_4472.PNG" style="width:32px; height:32px; border-radius:50%; object-fit:cover; opacity:0.85;" alt=""/><div><h3 style="font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:white; margin:0; line-height:1.2;">Admin Panel</h3><p style="font-size:10px; color:rgba(255,255,255,0.5); margin:2px 0 0;">Jufood.s</p></div></div><span style="padding:4px 10px; background:rgba(196,160,160,0.28); color:rgba(255,255,255,0.8); border-radius:999px; font-size:10px; font-weight:600; border:1px solid rgba(196,160,160,0.35);">Admin</span></div>
+              <!-- Nav tabs -->
+              <div style="display:flex; gap:4px; background:rgba(0,0,0,0.15); border-radius:10px; padding:3px;">
+                <sc-for list="{{ adminTabs }}" as="tab" hint-placeholder-count="4">
+                  <button style="{{ tab.style }}" onClick="{{ tab.onClick }}">{{ tab.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <!-- Stats row -->
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1px solid #E8DADA;">
+              <div style="padding:12px; text-align:center; border-right:1px solid #E8DADA;"><p style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#3B2A2A; margin:0;">{{ adminStats.open }}</p><p style="font-size:10px; color:#9B7B7B; margin:2px 0 0; text-transform:uppercase; letter-spacing:0.05em;">Offen</p></div>
+              <div style="padding:12px; text-align:center; border-right:1px solid #E8DADA;"><p style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#C4A0A0; margin:0;">{{ adminStats.pending }}</p><p style="font-size:10px; color:#9B7B7B; margin:2px 0 0; text-transform:uppercase; letter-spacing:0.05em;">Wartend</p></div>
+              <div style="padding:12px; text-align:center;"><p style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:#2E7D32; margin:0;">{{ adminStats.revenue }}</p><p style="font-size:10px; color:#9B7B7B; margin:2px 0 0; text-transform:uppercase; letter-spacing:0.05em;">Woche</p></div>
+            </div>
+            <!-- Filter row -->
+            <div style="padding:8px 12px; background:rgba(245,237,234,0.5); border-bottom:1px solid #E8DADA; display:flex; gap:5px; overflow-x:auto; scrollbar-width:none;">
+              <sc-for list="{{ adminFilters }}" as="f" hint-placeholder-count="5">
+                <button style="{{ f.style }}" onClick="{{ f.onClick }}">{{ f.label }}</button>
+              </sc-for>
+            </div>
+            <!-- Order cards -->
+            <div style="padding:10px 10px; display:flex; flex-direction:column; gap:9px; max-height:650px; overflow-y:auto;">
+              <sc-for list="{{ adminOrders }}" as="ao" hint-placeholder-count="3">
+                <div style="border:1px solid #E8DADA; border-radius:12px; overflow:hidden; background:white; box-shadow:0 1px 4px rgba(59,42,42,0.04);">
+                  <!-- Summary / tap to expand -->
+                  <div style="padding:11px 13px; background:rgba(245,237,234,0.4); cursor:pointer; border-bottom:1px solid #E8DADA;" onClick="{{ ao.onToggle }}">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:3px;"><span style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.06em;">{{ ao.id }}</span><div style="display:flex; align-items:center; gap:5px;"><span style="{{ ao.badgeStyle }}">{{ ao.statusLabel }}</span><span style="font-size:12px; color:#C4A0A0;">{{ ao.chevron }}</span></div></div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end;"><div><h4 style="font-size:13px; font-weight:600; color:#3B2A2A; margin:0 0 1px;">{{ ao.customer }}</h4><p style="font-size:11px; color:#9B7B7B; margin:0;">{{ ao.product }} · {{ ao.date }}</p></div><sc-if value="{{ ao.price }}" hint-placeholder-val="''"><span style="font-size:14px; font-weight:700; color:#3B2A2A; flex-shrink:0;">{{ ao.price }} €</span></sc-if></div>
+                  </div>
+                  <!-- Quick actions always visible -->
+                  <div style="padding:9px 13px; display:flex; flex-direction:column; gap:7px;">
+                    <div style="display:flex; align-items:center; gap:8px;"><span style="font-size:11px; color:#9B7B7B; font-weight:500; width:50px; flex-shrink:0;">Status</span><select style="flex:1; padding:6px 9px; border:1px solid #E8DADA; border-radius:7px; font-size:11px; color:#3B2A2A; background:white; outline:none; cursor:pointer;"><option>🕐 Preisberechnung</option><option>💬 Preis gesendet</option><option>💳 Anzahlung ausstehend</option><option>✅ Bestätigt</option><option>🎂 In Produktion</option><option>📦 Abholbereit</option><option>✔️ Abgeschlossen</option></select></div>
+                    <div style="display:flex; align-items:center; gap:8px;"><span style="font-size:11px; color:#9B7B7B; font-weight:500; width:50px; flex-shrink:0;">Preis</span><div style="flex:1; display:flex; gap:5px;"><input style="flex:1; padding:6px 9px; border:1px solid #E8DADA; border-radius:7px; font-size:11px; color:#3B2A2A; background:white; outline:none;" type="number" placeholder="€" value="{{ ao.priceVal }}"/><button style="padding:6px 11px; background:#C4A0A0; color:white; border:none; border-radius:7px; font-size:11px; font-weight:600; cursor:pointer; flex-shrink:0;">Senden</button></div></div>
+                  </div>
+                  <!-- Expanded customer info -->
+                  <sc-if value="{{ ao.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div style="border-top:1px solid #E8DADA; padding:11px 13px; background:#FAFAF9; display:flex; flex-direction:column; gap:7px;">
+                      <p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 2px;">Kundendaten</p>
+                      <div style="display:flex; align-items:center; gap:7px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B7B7B" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18C1.61 2 2.55 1 3.75 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a style="font-size:12px; color:#C4A0A0; font-weight:500; text-decoration:none;">{{ ao.phone }}</a></div>
+                      <div style="display:flex; align-items:center; gap:7px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B7B7B" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span style="font-size:12px; color:#3B2A2A;">{{ ao.email }}</span></div>
+                      <div style="display:flex; align-items:center; gap:7px; font-size:12px; color:#3B2A2A;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9B7B7B" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Kontakt via <strong>{{ ao.contactMethod }}</strong></div>
+                      <div style="display:flex; gap:5px; margin-top:2px;">
+                        <div style="flex:1; display:flex; align-items:center; gap:7px; padding:7px 9px; background:white; border-radius:8px; border:1px solid #E8DADA; cursor:pointer;"><div style="width:17px; height:17px; border-radius:4px; border:2px solid #C4A0A0; background:rgba(196,160,160,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#C4A0A0" stroke-width="2.5" stroke-linecap="round"><path d="M2 6l3 3 5-5"/></svg></div><span style="font-size:11px; color:#3B2A2A; font-weight:500;">Anzahlung erhalten</span></div>
+                        <button style="padding:7px 10px; background:#F5EDEA; border:1px solid #E8DADA; border-radius:8px; font-size:11px; font-weight:600; color:#3B2A2A; cursor:pointer; flex-shrink:0;">📥 Foto</button>
+                      </div>
+                      <div><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:4px 0 5px;">Notiz</p><textarea style="width:100%; padding:8px 10px; border:1px solid #E8DADA; border-radius:8px; font-size:12px; color:#3B2A2A; resize:none; height:50px; outline:none; background:white;" placeholder="Intern...">{{ ao.notes }}</textarea></div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 07: Admin designs tab -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">07 · Admin · Designs verwalten</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:white;">
+            <div style="background:#3B2A2A; padding:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;"><div style="display:flex; align-items:center; gap:10px;"><img src="apps/web/public/IMG_4472.PNG" style="width:32px; height:32px; border-radius:50%; object-fit:cover; opacity:0.85;" alt=""/><div><h3 style="font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:white; margin:0; line-height:1.2;">Admin Panel</h3><p style="font-size:10px; color:rgba(255,255,255,0.5); margin:2px 0 0;">Jufood.s</p></div></div><span style="padding:4px 10px; background:rgba(196,160,160,0.28); color:rgba(255,255,255,0.8); border-radius:999px; font-size:10px; font-weight:600; border:1px solid rgba(196,160,160,0.35);">Admin</span></div>
+              <div style="display:flex; gap:4px; background:rgba(0,0,0,0.15); border-radius:10px; padding:3px;">
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:transparent; color:rgba(255,255,255,0.45); font-size:11px; cursor:pointer;">Bestellungen</button>
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:rgba(196,160,160,0.3); color:white; font-size:11px; font-weight:600; cursor:pointer;">Designs</button>
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:transparent; color:rgba(255,255,255,0.45); font-size:11px; cursor:pointer;">Kunden</button>
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:transparent; color:rgba(255,255,255,0.45); font-size:11px; cursor:pointer;">Geschmäcker</button>
+              </div>
+            </div>
+            <!-- Category tabs inside designs -->
+            <div style="padding:8px 12px; border-bottom:1px solid #E8DADA; display:flex; gap:5px; overflow-x:auto; scrollbar-width:none;">
+              <sc-for list="{{ designAdminCats }}" as="dc" hint-placeholder-count="5">
+                <button style="{{ dc.style }}" onClick="{{ dc.onClick }}">{{ dc.label }}</button>
+              </sc-for>
+            </div>
+            <!-- Add new + count -->
+            <div style="padding:10px 12px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #E8DADA;">
+              <span style="font-size:12px; color:#9B7B7B;">{{ activeDesignCat }} · 6 Designs</span>
+              <button style="display:flex; align-items:center; gap:6px; padding:7px 13px; background:#C4A0A0; color:white; border:none; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Neu hinzufügen</button>
+            </div>
+            <!-- Design management list -->
+            <div style="padding:10px 10px; display:flex; flex-direction:column; gap:8px; max-height:560px; overflow-y:auto;">
+              <sc-for list="{{ adminDesigns }}" as="d" hint-placeholder-count="5">
+                <div style="border:1px solid #E8DADA; border-radius:11px; overflow:hidden; background:white; display:flex;">
+                  <div style="{{ d.img }}"></div>
+                  <div style="flex:1; padding:10px 12px; display:flex; flex-direction:column; justify-content:space-between; min-height:88px;">
+                    <div><div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;"><div><h4 style="font-size:13px; font-weight:600; color:#3B2A2A; margin:0 0 2px;">{{ d.name }}</h4><p style="font-size:11px; color:#9B7B7B; margin:0 0 3px;">{{ d.cat }}</p></div><div style="{{ d.toggleStyle }}" style="flex-shrink:0;"></div></div></div>
+                    <div style="display:flex; gap:5px; margin-top:6px;"><button style="flex:1; padding:5px; border:1px solid #E8DADA; background:white; border-radius:7px; font-size:11px; color:#3B2A2A; cursor:pointer; font-weight:500;">✏️ Bearbeiten</button><button style="padding:5px 9px; border:1px solid #FFCDD2; background:#FFF5F5; border-radius:7px; font-size:11px; color:#C62828; cursor:pointer;">🗑</button></div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 08: Admin customers tab -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">08 · Admin · Kunden</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:white;">
+            <div style="background:#3B2A2A; padding:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;"><div style="display:flex; align-items:center; gap:10px;"><img src="apps/web/public/IMG_4472.PNG" style="width:32px; height:32px; border-radius:50%; object-fit:cover; opacity:0.85;" alt=""/><div><h3 style="font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:white; margin:0;">Admin Panel</h3><p style="font-size:10px; color:rgba(255,255,255,0.5); margin:2px 0 0;">Jufood.s</p></div></div><span style="padding:4px 10px; background:rgba(196,160,160,0.28); color:rgba(255,255,255,0.8); border-radius:999px; font-size:10px; font-weight:600; border:1px solid rgba(196,160,160,0.35);">Admin</span></div>
+              <div style="display:flex; gap:4px; background:rgba(0,0,0,0.15); border-radius:10px; padding:3px;">
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:transparent; color:rgba(255,255,255,0.45); font-size:11px; cursor:pointer;">Bestellungen</button>
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:transparent; color:rgba(255,255,255,0.45); font-size:11px; cursor:pointer;">Designs</button>
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:rgba(196,160,160,0.3); color:white; font-size:11px; font-weight:600; cursor:pointer;">Kunden</button>
+                <button style="flex:1; padding:7px; border-radius:8px; border:none; background:transparent; color:rgba(255,255,255,0.45); font-size:11px; cursor:pointer;">Geschmäcker</button>
+              </div>
+            </div>
+            <!-- Search -->
+            <div style="padding:10px 12px; border-bottom:1px solid #E8DADA;"><div style="display:flex; align-items:center; gap:9px; background:#F5EDEA; border-radius:9px; padding:9px 13px; border:1px solid #E8DADA;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9B7B7B" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span style="font-size:13px; color:#9B7B7B;">Kunden suchen...</span></div></div>
+            <!-- Customer list -->
+            <div style="padding:8px 10px; display:flex; flex-direction:column; gap:7px; max-height:640px; overflow-y:auto;">
+              <sc-for list="{{ adminCustomers }}" as="cust" hint-placeholder-count="5">
+                <div style="border:1px solid #E8DADA; border-radius:11px; padding:12px 13px; background:white; cursor:pointer;">
+                  <div style="display:flex; align-items:center; gap:11px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:{{ cust.avatarBg }}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:white; flex-shrink:0; letter-spacing:0.02em;">{{ cust.initials }}</div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start;"><h4 style="font-size:13px; font-weight:600; color:#3B2A2A; margin:0 0 1px;">{{ cust.name }}</h4><span style="font-size:10px; font-weight:600; color:#9B7B7B; flex-shrink:0;">{{ cust.orderCount }} Bestellungen</span></div>
+                      <p style="font-size:11px; color:#9B7B7B; margin:0 0 1px;">{{ cust.phone }}</p>
+                      <p style="font-size:11px; color:#9B7B7B; margin:0;">Letzter Kauf: {{ cust.lastOrder }}</p>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 09: Account — my orders -->
+        <div style="flex-shrink:0;">
+          <p style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.12em; text-transform:uppercase; margin:0 0 10px;">09 · Meine Bestellungen</p>
+          <div style="width:375px; border-radius:24px; overflow:hidden; box-shadow:0 20px 60px rgba(59,42,42,0.28); background:#F5EDEA; background-image:radial-gradient(circle,rgba(59,42,42,0.04) 1px,transparent 1px); background-size:42px 42px;">
+            <div style="height:56px; background:rgba(255,255,255,0.97); border-bottom:1px solid #E8DADA; display:flex; align-items:center; padding:0 16px; gap:10px;"><button style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B2A2A" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button><h3 style="font-family:'Playfair Display',serif; font-size:17px; font-weight:700; color:#3B2A2A; flex:1; margin:0;">Meine Bestellungen</h3><div style="width:34px; height:34px; border-radius:50%; background:rgba(196,160,160,0.18); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#A07878;">J</div></div>
+            <div style="background:white; border-bottom:1px solid #E8DADA; padding:7px 12px; display:flex; gap:5px; overflow-x:auto; scrollbar-width:none;">
+              <span style="padding:4px 10px; background:#F5E6C8; border-radius:999px; font-size:10px; font-weight:600; color:#7B5E00; white-space:nowrap; flex-shrink:0;">🕐 Preis ausstehend</span>
+              <span style="padding:4px 10px; background:#C8E6C9; border-radius:999px; font-size:10px; font-weight:600; color:#2E7D32; white-space:nowrap; flex-shrink:0;">✅ Bestätigt</span>
+              <span style="padding:4px 10px; background:#C4DEF6; border-radius:999px; font-size:10px; font-weight:600; color:#1565C0; white-space:nowrap; flex-shrink:0;">🎂 Produktion</span>
+              <span style="padding:4px 10px; background:#E8DADA; border-radius:999px; font-size:10px; font-weight:600; color:#7A5C5C; white-space:nowrap; flex-shrink:0;">📦 Abholbereit</span>
+            </div>
+            <div style="padding:10px 10px; display:flex; flex-direction:column; gap:8px; max-height:680px; overflow-y:auto;">
+              <sc-for list="{{ orders }}" as="order" hint-placeholder-count="3">
+                <div style="background:white; border-radius:14px; overflow:hidden; border:1px solid #E8DADA; box-shadow:0 2px 8px rgba(59,42,42,0.06);">
+                  <div style="padding:13px 15px; cursor:pointer;" onClick="{{ order.onToggle }}">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:7px;"><span style="font-size:10px; font-weight:700; color:#9B7B7B; letter-spacing:0.06em;">{{ order.id }}</span><span style="{{ order.badgeStyle }}">{{ order.statusLabel }}</span></div>
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px;"><div><h4 style="font-family:'Playfair Display',serif; font-size:15px; font-weight:600; color:#3B2A2A; margin:0 0 2px;">{{ order.product }}</h4><p style="font-size:11px; color:#9B7B7B; margin:0 0 2px;">{{ order.params }}</p><p style="font-size:11px; color:#9B7B7B; margin:0;">📅 {{ order.date }}</p></div><div style="text-align:right; flex-shrink:0;"><p style="{{ order.priceStyle }}">{{ order.price }}</p><span style="font-size:13px; color:#C4A0A0; cursor:pointer;">{{ order.chevron }}</span></div></div>
+                  </div>
+                  <sc-if value="{{ order.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div style="border-top:1px solid #E8DADA; padding:11px 15px; background:rgba(245,237,234,0.5);"><p style="font-size:10px; font-weight:700; color:#9B7B7B; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 7px;">Bestelldetails</p><div style="display:flex; flex-direction:column; gap:5px;"><div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#9B7B7B;">Produkt</span><span style="color:#3B2A2A; font-weight:500;">{{ order.product }}</span></div><div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#9B7B7B;">Größe / Geschmack</span><span style="color:#3B2A2A; font-weight:500;">{{ order.params }}</span></div><div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#9B7B7B;">Abholdatum</span><span style="color:#3B2A2A; font-weight:500;">{{ order.date }}</span></div><div style="display:flex; justify-content:space-between; font-size:12px;"><span style="color:#9B7B7B;">Preis</span><span style="color:#3B2A2A; font-weight:600;">{{ order.price }}</span></div></div></div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="border-top:1px solid rgba(59,42,42,0.1); padding-top:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px;"><img src="apps/web/public/IMG_4472.PNG" style="width:26px; height:26px; border-radius:50%; object-fit:cover; opacity:0.45;" alt=""/><span style="font-size:12px; color:#9B7B7B;">© Jufood.s 2025 · Design Mockup · Mobile First 375px</span></div>
+      <div style="display:flex; gap:7px;"><span style="font-size:11px; padding:4px 11px; background:rgba(59,42,42,0.06); border-radius:999px; color:#9B7B7B;">Playfair Display + Inter</span><span style="font-size:11px; padding:4px 11px; background:rgba(196,160,160,0.15); border-radius:999px; color:#9B7B7B; border:1px solid #E8DADA;">#F5EDEA · #C4A0A0 · #3B2A2A</span></div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    catalogSubcat: null,
+    catalogView: 'designs',
+    activeCat: 'birthday',
+    orderSize: 'M',
+    orderFlavourTier: 'standard',
+    expandedOrderId: null,
+    expandedAdminId: 'JF-001',
+    adminTab: 'orders',
+    adminFilter: 'all',
+    designAdminCat: 'Geburtstag',
+  };
+
+  renderVals() {
+    const s = this.state;
+
+    const tog = (active) => ({
+      flex: 1, padding: '7px 8px', borderRadius: '7px', fontSize: '11px',
+      fontWeight: active ? '600' : '400', border: 'none', cursor: 'pointer',
+      fontFamily: 'inherit', whiteSpace: 'nowrap',
+      background: active ? 'white' : 'transparent',
+      color: active ? '#3B2A2A' : '#9B7B7B',
+      boxShadow: active ? '0 1px 4px rgba(59,42,42,0.1)' : 'none',
+    });
+    const pill = (active) => ({
+      padding: '5px 12px', borderRadius: '999px', cursor: 'pointer',
+      border: active ? '1px solid #C4A0A0' : '1px solid transparent',
+      background: active ? 'rgba(196,160,160,0.12)' : 'transparent',
+      color: active ? '#3B2A2A' : '#9B7B7B',
+      fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap',
+      fontFamily: 'inherit',
+    });
+    const sz = (active) => ({
+      flex: 1, padding: '10px 4px', borderRadius: '10px', cursor: 'pointer',
+      border: active ? '1.5px solid #C4A0A0' : '1px solid #E8DADA',
+      background: active ? 'rgba(196,160,160,0.12)' : 'white',
+      color: active ? '#3B2A2A' : '#9B7B7B',
+      fontSize: '11px', fontWeight: active ? '600' : '400',
+      textAlign: 'center', fontFamily: 'inherit',
+    });
+    const imgStyle = (bg) => ({
+      position: 'absolute', inset: '0', backgroundColor: bg,
+      backgroundImage: 'repeating-linear-gradient(45deg,transparent,transparent 12px,rgba(255,255,255,0.1) 12px,rgba(255,255,255,0.1) 13px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    });
+    const catBg = (bg) => ({
+      position: 'absolute', inset: '0', backgroundColor: bg,
+      backgroundImage: 'repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(255,255,255,0.07) 18px,rgba(255,255,255,0.07) 19px)',
+    });
+
+    // ── Category cards ────────────────────────────────────────────
+    const tortenCats = [
+      { id: 'birthday', name: 'Geburtstagstorten', desc: 'Individuell gestaltete Torten', count: '24 Designs', bg: catBg('#C4907A') },
+      { id: 'occasions', name: 'Besondere Anlässe', desc: 'Taufe, Kommunion, Jubiläum & mehr', count: '', bg: catBg('#A08898') },
+      { id: 'bento', name: 'Bento Torten', desc: 'Mini-Torten für 4–6 Personen', count: '12 Designs', bg: catBg('#7AB09A') },
+      { id: 'tiered', name: 'Hochzeitstorten', desc: 'Mehrstöckige Traumtorten', count: '8 Designs', bg: catBg('#C4A87A') },
+      { id: 'classic', name: 'Klassische Torten', desc: 'Bewährte Rezepte zu Festpreisen', count: '5 Sorten', bg: catBg('#9A8878') },
+    ].map(c => ({ ...c, onClick: () => this.setState({ activeCat: c.id }) }));
+
+    const dessertCats = [
+      { id: 'macarons', name: 'Macarons', desc: 'Zarte Mandelschalen, 8 Sorten', count: '8 Sorten', bg: catBg('#C48090') },
+      { id: 'cookies', name: 'Cookies', desc: 'Handgemacht, verschiedene Sorten', count: '6 Sorten', bg: catBg('#C4A87A') },
+      { id: 'tubochky', name: 'Tubochky', desc: 'Ukrainische Crèmerollen', count: '', bg: catBg('#A08870') },
+      { id: 'zephyr', name: 'Zephyr', desc: 'Luftige Marshmallows in zarten Farben', count: '4 Sorten', bg: catBg('#B89090') },
+      { id: 'pavlova', name: 'Pavlova', desc: 'Baisertorte mit frischen Früchten', count: '', bg: catBg('#90A878') },
+    ].map(c => ({ ...c, onClick: () => this.setState({ activeCat: c.id }) }));
+
+    // ── Active cat name ───────────────────────────────────────────
+    const allCats = [...tortenCats, ...dessertCats];
+    const foundCat = allCats.find(c => c.id === s.activeCat);
+    const activeCatName = foundCat ? foundCat.name : 'Geburtstagstorten';
+    const goBackCatalog = () => this.setState({ activeCat: null });
+
+    // ── Subcats ───────────────────────────────────────────────────
+    const subcatDefs = [
+      { id: null, label: 'Alle' },
+      { id: 'children', label: 'Kinder' },
+      { id: 'women', label: 'Frauen' },
+      { id: 'men', label: 'Männer' },
+    ];
+    const subcats = subcatDefs.map(sub => ({
+      ...sub,
+      style: pill(s.catalogSubcat === sub.id),
+      onClick: () => this.setState({ catalogSubcat: sub.id }),
+    }));
+
+    // ── Products ──────────────────────────────────────────────────
+    const allProducts = [
+      { id: 1, name: 'Sommergarten', desc: 'Frische Beeren & Vanillecreme', sub: 'women', img: imgStyle('#F0E0D8') },
+      { id: 2, name: 'Waldbeere', desc: 'Dunkle Schokolade & Himbeere', sub: 'women', img: imgStyle('#E5D3D3') },
+      { id: 3, name: 'Regenbogen', desc: 'Bunt & verspielt für Kids', sub: 'children', img: imgStyle('#F0E8D0') },
+      { id: 4, name: 'Dinosaurier', desc: 'Abenteuer-Torte für Kinder', sub: 'children', img: imgStyle('#DFF0E8') },
+      { id: 5, name: 'Goldstück', desc: 'Karamell & gesalzene Butter', sub: 'men', img: imgStyle('#F5E8CC') },
+      { id: 6, name: 'Rosengarten', desc: 'Rose & Litschi, floraler Zauber', sub: 'women', img: imgStyle('#F0DDE0') },
+    ];
+    const products = s.catalogSubcat ? allProducts.filter(p => p.sub === s.catalogSubcat) : allProducts;
+    const productCount = products.length;
+    const designsBtnStyle = tog(s.catalogView === 'designs');
+    const flavoursBtnStyle = tog(s.catalogView === 'flavours');
+    const setViewDesigns = () => this.setState({ catalogView: 'designs' });
+    const setViewFlavours = () => this.setState({ catalogView: 'flavours' });
+
+    // ── Flavours ──────────────────────────────────────────────────
+    const flStyle = { padding: '9px 13px', borderRadius: '8px', border: '1px solid #E8DADA', background: 'white', fontSize: '13px', color: '#3B2A2A', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%' };
+    const flPremStyle = { padding: '9px 13px', borderRadius: '8px', border: '1px solid rgba(196,160,160,0.4)', background: 'rgba(245,237,234,0.6)', fontSize: '13px', color: '#3B2A2A', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', width: '100%' };
+    const flavoursStd = ['Vanille & Erdbeere','Schokolade & Kirsche','Lemon Mascarpone','Raffaello','Pistazie & Himbeere','Karamell & Apfel','Erdbeer-Joghurt','Mokka & Walnuss','Pfirsich-Maracuja','Schwarzwälder Kirsch','Tiramisu','Zitrone & Mohn'].map((name, i) => ({ id: i, name, s: flStyle }));
+    const flavoursPrm = ['⭐ Mango-Passion','⭐ Matcha & Weiße Schoko','⭐ Karamell-Salzbuttercrème','⭐ Himbeere & Rosen','⭐ Pistazie-Gianduja','⭐ Praline & Nougatine'].map((name, i) => ({ id: i, name, s: flPremStyle }));
+    const flavours = s.orderFlavourTier === 'premium' ? flavoursPrm : flavoursStd;
+    const stdBtnStyle = tog(s.orderFlavourTier === 'standard');
+    const prmBtnStyle = tog(s.orderFlavourTier === 'premium');
+    const setTierStd = () => this.setState({ orderFlavourTier: 'standard' });
+    const setTierPrm = () => this.setState({ orderFlavourTier: 'premium' });
+
+    // ── Sizes ─────────────────────────────────────────────────────
+    const sizes = [
+      { id: 'S', label: 'S · 5–6' },
+      { id: 'M', label: 'M · 10–12' },
+      { id: 'L', label: 'L · 15–20' },
+    ].map(item => ({ ...item, style: sz(s.orderSize === item.id), onClick: () => this.setState({ orderSize: item.id }) }));
+
+    // ── Admin tabs ────────────────────────────────────────────────
+    const adminTabDefs = [
+      { id: 'orders', label: 'Bestellungen' },
+      { id: 'designs', label: 'Designs' },
+      { id: 'customers', label: 'Kunden' },
+      { id: 'flavours', label: 'Geschmäcker' },
+    ];
+    const adminTabs = adminTabDefs.map(t => ({
+      ...t,
+      style: {
+        flex: 1, padding: '7px 4px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '11px',
+        background: s.adminTab === t.id ? 'rgba(196,160,160,0.3)' : 'transparent',
+        color: s.adminTab === t.id ? 'white' : 'rgba(255,255,255,0.45)',
+        fontWeight: s.adminTab === t.id ? '600' : '400',
+      },
+      onClick: () => this.setState({ adminTab: t.id }),
+    }));
+
+    // ── Admin filters ─────────────────────────────────────────────
+    const filterDefs = [
+      { id: 'all', label: 'Alle' },
+      { id: 'pending', label: '🕐 Preisberechnung' },
+      { id: 'confirmed', label: '✅ Bestätigt' },
+      { id: 'production', label: '🎂 Produktion' },
+      { id: 'ready', label: '📦 Abholbereit' },
+    ];
+    const adminFilters = filterDefs.map(f => ({
+      ...f,
+      style: {
+        padding: '4px 10px', borderRadius: '999px', cursor: 'pointer', border: 'none', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0, fontSize: '11px', fontWeight: '600',
+        background: s.adminFilter === f.id ? '#3B2A2A' : 'rgba(196,160,160,0.12)',
+        color: s.adminFilter === f.id ? 'white' : '#9B7B7B',
+      },
+      onClick: () => this.setState({ adminFilter: f.id }),
+    }));
+
+    const adminStats = { open: 3, pending: 1, revenue: '175€' };
+
+    // ── Admin orders ──────────────────────────────────────────────
+    const adminOrdersData = [
+      { id: 'JF-001', customer: 'Maria S.', phone: '+49 176 123 4567', email: 'maria@example.de', product: 'Sommergarten · M · Vanille', date: '15.07.2025', statusLabel: 'Bestätigt', statusBg: '#C8E6C9', statusText: '#2E7D32', priceVal: '85', notes: '', contactMethod: 'WhatsApp' },
+      { id: 'JF-002', customer: 'Anna K.', phone: '+49 152 876 5432', email: 'anna@example.de', product: 'Lemon Bliss · L · Premium', date: '20.07.2025', statusLabel: 'Produktion', statusBg: '#C4DEF6', statusText: '#1565C0', priceVal: '90', notes: 'Bitte Inschrift: „Herzlichen Glückwunsch"', contactMethod: 'Telegram' },
+      { id: 'JF-003', customer: 'Olga M.', phone: '+380 67 123 4567', email: 'olga@example.ua', product: 'Waldbeere · S · Schokolade', date: '28.07.2025', statusLabel: 'Preisberechnung', statusBg: '#F5E6C8', statusText: '#7B5E00', priceVal: '', notes: '', contactMethod: 'WhatsApp' },
+    ];
+    const adminOrders = adminOrdersData.map(o => ({
+      ...o,
+      price: o.priceVal ? o.priceVal : '',
+      badgeStyle: { padding: '3px 9px', borderRadius: '999px', fontSize: '10px', fontWeight: '600', background: o.statusBg, color: o.statusText, whiteSpace: 'nowrap' },
+      expanded: s.expandedAdminId === o.id,
+      chevron: s.expandedAdminId === o.id ? '▲' : '▼',
+      onToggle: () => this.setState(p => ({ expandedAdminId: p.expandedAdminId === o.id ? null : o.id })),
+    }));
+
+    // ── Admin designs ─────────────────────────────────────────────
+    const designCatDefs = ['Geburtstag', 'Hochzeit', 'Bento', 'Anlässe', 'Klassisch'];
+    const designAdminCats = designCatDefs.map(c => ({
+      id: c, label: c,
+      style: pill(s.designAdminCat === c),
+      onClick: () => this.setState({ designAdminCat: c }),
+    }));
+    const activeDesignCat = s.designAdminCat;
+    const designColors = ['#F0E0D8', '#E5D3D3', '#DFF0E8', '#F0E8D0', '#F5E8CC', '#F0DDE0'];
+    const adminDesigns = ['Sommergarten', 'Waldbeere', 'Regenbogen', 'Goldstück', 'Rosengarten', 'Lemon Bliss'].map((name, i) => ({
+      id: i, name,
+      cat: `Torten · ${s.designAdminCat}`,
+      img: { width: '88px', minHeight: '88px', flexShrink: 0, backgroundColor: designColors[i % designColors.length], backgroundImage: 'repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(255,255,255,0.1) 8px,rgba(255,255,255,0.1) 9px)' },
+      toggleStyle: { width: '36px', height: '20px', borderRadius: '999px', background: i % 3 !== 1 ? '#C4A0A0' : '#E8DADA', position: 'relative', cursor: 'pointer', flexShrink: 0 },
+    }));
+
+    // ── Admin customers ───────────────────────────────────────────
+    const avatarColors = ['#C4907A', '#8FB8A2', '#A08898', '#C4A87A', '#7A9AB0'];
+    const adminCustomers = [
+      { name: 'Maria Schneider', initials: 'MS', phone: '+49 176 123 4567', lastOrder: '15.07.2025', orderCount: 3 },
+      { name: 'Anna Kowalski', initials: 'AK', phone: '+49 152 876 5432', lastOrder: '20.07.2025', orderCount: 1 },
+      { name: 'Olga Melnyk', initials: 'OM', phone: '+380 67 123 4567', lastOrder: '28.07.2025', orderCount: 2 },
+      { name: 'Lena Fischer', initials: 'LF', phone: '+49 160 555 1234', lastOrder: '10.06.2025', orderCount: 4 },
+      { name: 'Sophie Weber', initials: 'SW', phone: '+49 176 888 2222', lastOrder: '05.06.2025', orderCount: 1 },
+    ].map((c, i) => ({ ...c, avatarBg: avatarColors[i % avatarColors.length] }));
+
+    // ── Customer orders ───────────────────────────────────────────
+    const orders = [
+      { id: 'JF-2025-001', product: 'Sommergarten', params: 'M · Vanille & Erdbeere', date: '15.07.2025', statusLabel: '✅ Bestätigt', statusBg: '#C8E6C9', statusText: '#2E7D32', price: '85 €' },
+      { id: 'JF-2025-002', product: 'Lemon Bliss', params: 'L · Mango Premium', date: '20.07.2025', statusLabel: '🎂 In Produktion', statusBg: '#C4DEF6', statusText: '#1565C0', price: '90 €' },
+      { id: 'JF-2025-003', product: 'Waldbeere', params: 'S · Schokolade & Kirsche', date: '28.07.2025', statusLabel: '🕐 Preis ausstehend', statusBg: '#F5E6C8', statusText: '#7B5E00', price: '—' },
+    ].map(o => ({
+      ...o,
+      badgeStyle: { padding: '3px 9px', borderRadius: '999px', fontSize: '10px', fontWeight: '600', background: o.statusBg, color: o.statusText, whiteSpace: 'nowrap' },
+      priceStyle: { fontSize: '15px', fontWeight: '700', color: o.price === '—' ? '#9B7B7B' : '#3B2A2A', margin: '0 0 2px' },
+      expanded: s.expandedOrderId === o.id,
+      chevron: s.expandedOrderId === o.id ? '▲' : '▼',
+      onToggle: () => this.setState(p => ({ expandedOrderId: p.expandedOrderId === o.id ? null : o.id })),
+    }));
+
+    return {
+      tortenCats, dessertCats, activeCatName, goBackCatalog,
+      subcats, products, productCount, designsBtnStyle, flavoursBtnStyle, setViewDesigns, setViewFlavours,
+      flavours, stdBtnStyle, prmBtnStyle, setTierStd, setTierPrm,
+      sizes,
+      adminTabs, adminFilters, adminStats, adminOrders,
+      designAdminCats, activeDesignCat, adminDesigns,
+      adminCustomers,
+      orders,
+    };
+  }
+}
+</script>
+</body>
+</html>

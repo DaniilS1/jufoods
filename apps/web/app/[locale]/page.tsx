@@ -1,190 +1,130 @@
 import { getTranslations } from 'next-intl/server'
-import { z } from 'zod'
-import { ProductCard } from '@/components/product-card'
-import { createClient } from '@/lib/supabase/server'
-import { SubcategoryTabs } from '@/components/subcategory-tabs'
-import { TortenViewToggle } from '@/components/torten-view-toggle'
-import { hasSubcategories } from '@/lib/subcategory-config'
+import Link from 'next/link'
 import type { Locale } from '@/i18n'
 
-const CATEGORY_KEYS = ['torten', 'desserts', 'cookies', 'macarons', 'cheesecakes'] as const
-
-const searchParamsSchema = z.object({
-  category: z.enum(CATEGORY_KEYS).optional(),
-  subcategory: z
-    .string()
-    .trim()
-    .min(1)
-    .optional(),
-  view: z.enum(['designs', 'flavours']).optional(),
-})
-
-interface CatalogPageProps {
+interface HomePageProps {
   params: { locale: Locale }
-  searchParams?: Record<string, string | string[] | undefined>
 }
 
-function resolveSearchParam(value?: string | string[]): string | undefined {
-  if (Array.isArray(value)) {
-    return value[0]
-  }
-  return value
-}
+export default async function HomePage({ params }: HomePageProps) {
+  const { locale } = params
+  const t = await getTranslations('home')
 
-export default async function CatalogPage({ params, searchParams }: CatalogPageProps) {
-  const locale = params.locale
-  const parsedSearchParams = searchParamsSchema.safeParse({
-    category: resolveSearchParam(searchParams?.category),
-    subcategory: resolveSearchParam(searchParams?.subcategory),
-    view: resolveSearchParam(searchParams?.view),
-  })
-
-  const resolvedCategory =
-    parsedSearchParams.success && parsedSearchParams.data.category ? parsedSearchParams.data.category : 'torten'
-  const activeCategory: (typeof CATEGORY_KEYS)[number] = resolvedCategory
-  const subcategory =
-    parsedSearchParams.success && parsedSearchParams.data.subcategory
-      ? parsedSearchParams.data.subcategory
-      : undefined
-  const tortenView: 'designs' | 'flavours' =
-    activeCategory === 'torten' && parsedSearchParams.success && parsedSearchParams.data.view === 'flavours'
-      ? 'flavours'
-      : 'designs'
-
-  const t = await getTranslations('nav')
-  const tCatalog = await getTranslations('catalog')
-
-  // Fetch products from Supabase
-  const supabase = await createClient()
-  let products:
-    | Array<{
-      id: string
-      slug: string
-      name: string
-      description: string
-      imageUrl: string
-      category: string
-      subCategory?: string | null
-      defaultFlavourName?: string | null
-    }>
-    | [] = []
-
-  try {
-    if (activeCategory === 'torten') {
-      if (tortenView === 'flavours') {
-        const { data: flavours, error } = await supabase
-          .from('torten_flavours')
-          .select('id, slug, name_de, name_uk, description_de, description_uk, image_url')
-          .order('flavour_number', { ascending: true })
-
-        if (error) {
-          console.warn('Error fetching torten flavours:', error.message)
-        } else if (flavours) {
-          products = flavours.map((flavour) => ({
-            id: flavour.id,
-            slug: flavour.slug,
-            name: locale === 'uk' ? flavour.name_uk : flavour.name_de,
-            description: (locale === 'uk' ? flavour.description_uk : flavour.description_de) || '',
-            imageUrl: flavour.image_url || '/placeholder-cake.svg',
-            category: 'torten',
-          }))
-        }
-      } else {
-        const { data: designs, error } = await supabase
-          .from('torten_designs')
-          .select('id, slug, name_de, name_uk, description_de, description_uk, sub_category, image_url')
-          .order('created_at', { ascending: false })
-
-        if (error) {
-          console.warn('Error fetching torten designs:', error.message)
-        } else if (designs) {
-          products =
-            designs.map((design) => ({
-              id: design.id,
-              slug: design.slug,
-              name: locale === 'uk' ? design.name_uk : design.name_de,
-              description: (locale === 'uk' ? design.description_uk : design.description_de) || '',
-              imageUrl: design.image_url || '/placeholder-cake.svg',
-              category: 'torten',
-              subCategory: design.sub_category,
-            })) || []
-
-          if (subcategory) {
-            products = products.filter((product) => product.subCategory === subcategory)
-          }
-        }
-      }
-    } else {
-      let productsQuery = supabase
-        .from('products')
-        .select('*')
-        .eq('category', activeCategory)
-
-      if (subcategory) {
-        productsQuery = productsQuery.eq('sub_category', subcategory)
-      }
-
-      const { data: productsData, error } = await productsQuery.order('created_at', { ascending: false })
-
-      if (error) {
-        console.warn('Error fetching products:', error.message)
-      } else if (productsData) {
-        products = productsData.map((product) => ({
-          id: product.id,
-          slug: product.slug,
-          name: locale === 'uk' ? product.name_uk : product.name_de,
-          description: locale === 'uk' ? product.description_uk : product.description_de,
-          imageUrl: product.image_url || '/placeholder-cake.svg',
-          category: product.category,
-          subCategory: product.sub_category,
-        }))
-      }
-    }
-  } catch (error) {
-    console.warn('Failed to fetch products from Supabase:', error instanceof Error ? error.message : 'Unknown error')
-    // Continue with empty products array - app will show "no products" message
-  }
-
-  // Get category name for empty state
-  const categoryNames: Record<(typeof CATEGORY_KEYS)[number], string> = {
-    torten: t('cakes'),
-    desserts: t('desserts'),
-    cookies: t('cookies'),
-    macarons: t('macarons'),
-    cheesecakes: t('cheesecakes'),
-  }
-
-  const showSubcategoryTabs = hasSubcategories(activeCategory)
+  const steps = [
+    { num: 1, title: t('step1Title'), desc: t('step1Desc') },
+    { num: 2, title: t('step2Title'), desc: t('step2Desc') },
+    { num: 3, title: t('step3Title'), desc: t('step3Desc') },
+    { num: 4, title: t('step4Title'), desc: t('step4Desc') },
+  ]
 
   return (
-    <>
-      {showSubcategoryTabs && (
-        <SubcategoryTabs
-          category={activeCategory}
-          currentSubcategory={subcategory || null}
-          locale={locale}
-          currentView={tortenView}
-        />
-      )}
-      <div className="container py-4">
-        {activeCategory === 'torten' && (
-          <div className="mb-6 flex justify-end items-start text-left">
-            <TortenViewToggle currentView={tortenView} />
-          </div>
-        )}
-        {products.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {products.map((product) => (
-              <ProductCard key={product.id} {...product} />
+    <main className="min-h-dvh">
+      {/* ── Hero section ───────────────────────────────────── */}
+      <section className="container py-8 md:py-12">
+        <div className="text-center mb-8 md:mb-10">
+          <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground leading-tight mb-3">
+            {t('title')}
+          </h1>
+          <p className="text-muted-foreground text-base md:text-lg">{t('subtitle')}</p>
+        </div>
+
+        {/* Two hero cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
+          {/* Torten card */}
+          <Link
+            href={`/${locale}/catalog/feier`}
+            className="group relative overflow-hidden rounded-2xl min-h-[220px] md:min-h-[280px] flex flex-col justify-end p-6 md:p-8 cursor-pointer transition-transform active:scale-[0.98] hover:scale-[1.01]"
+            style={{ background: 'linear-gradient(135deg, #C4907A 0%, #A87060 100%)' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+            <div className="relative z-10">
+              <p className="text-white/80 text-sm font-medium mb-1 uppercase tracking-widest">
+                {t('heroCakesTitle')}
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
+                {t('heroCakesDesc')}
+              </h2>
+              <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-sm font-semibold px-4 py-2 rounded-xl border border-white/30 group-hover:bg-white/30 transition-colors">
+                {t('heroCakesCta')} →
+              </span>
+            </div>
+          </Link>
+
+          {/* Desserts card */}
+          <Link
+            href={`/${locale}/catalog/desserts`}
+            className="group relative overflow-hidden rounded-2xl min-h-[220px] md:min-h-[280px] flex flex-col justify-end p-6 md:p-8 cursor-pointer transition-transform active:scale-[0.98] hover:scale-[1.01]"
+            style={{ background: 'linear-gradient(135deg, #8FB8A2 0%, #6D9880 100%)' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+            <div className="relative z-10">
+              <p className="text-white/80 text-sm font-medium mb-1 uppercase tracking-widest">
+                {t('heroDessertTitle')}
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
+                {t('heroDessertDesc')}
+              </h2>
+              <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-sm font-semibold px-4 py-2 rounded-xl border border-white/30 group-hover:bg-white/30 transition-colors">
+                {t('heroDessertCta')} →
+              </span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── How to order ───────────────────────────────────── */}
+      <section className="bg-card border-y border-border py-12 md:py-16">
+        <div className="container">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-10">
+            {t('howTitle')}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            {steps.map(({ num, title, desc }) => (
+              <div key={num} className="flex flex-col items-center text-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                  <span className="font-display text-xl font-bold text-primary">{num}</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm md:text-base text-foreground mb-1">{title}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              </div>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            <p className="text-lg">{tCatalog('noProducts', { category: categoryNames[activeCategory] })}</p>
+        </div>
+      </section>
+
+      {/* ── About strip ────────────────────────────────────── */}
+      <section className="container py-12 md:py-16">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="font-display text-2xl md:text-3xl font-bold mb-4">{t('aboutTitle')}</h2>
+          <p className="text-muted-foreground text-base md:text-lg mb-6 leading-relaxed">{t('aboutText')}</p>
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {[t('aboutBadge1'), t('aboutBadge2'), t('aboutBadge3')].map((badge) => (
+              <span
+                key={badge}
+                className="px-4 py-2 bg-primary/10 text-foreground text-sm font-medium rounded-full border border-primary/20"
+              >
+                {badge}
+              </span>
+            ))}
           </div>
-        )}
-      </div>
-    </>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href={`/${locale}/catalog`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 active:bg-primary/80 transition-colors"
+            >
+              {t('toCatalog')}
+            </Link>
+            <Link
+              href={`/${locale}/contact`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-card text-foreground font-semibold rounded-xl text-sm border border-border hover:bg-accent transition-colors"
+            >
+              {t('toContact')}
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
   )
 }
-

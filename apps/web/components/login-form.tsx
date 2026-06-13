@@ -114,7 +114,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">{t('login')}</CardTitle>
+        <CardTitle className="font-display text-2xl font-bold text-center">{t('login')}</CardTitle>
         <CardDescription className="text-center">
           {t('loginDescription') || 'Melden Sie sich mit Ihrem Konto an'}
         </CardDescription>

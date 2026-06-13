@@ -112,10 +112,10 @@ export function NavigationDrawer() {
           {/* Navigation Links */}
           <nav className="flex flex-col gap-1 w-full">
             <Link
-              href={`/${localePrefix}`}
+              href={`/${localePrefix}/catalog`}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
-                isActive('/') && !isActive('about') && !isActive('contact') && !isActive('admin')
+                isActive('catalog')
                   ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
               )}

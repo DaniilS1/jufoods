@@ -417,7 +417,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           {currentStep === 1 && (
             <Card>
               <CardHeader>
-                <CardTitle>{t('steps.customerInfo')}</CardTitle>
+                <CardTitle className="font-display">{t('steps.customerInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
@@ -504,7 +504,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           {currentStep === 2 && (
             <Card>
               <CardHeader>
-                <CardTitle>{t('steps.orderDetails')}</CardTitle>
+                <CardTitle className="font-display">{t('steps.orderDetails')}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
@@ -627,7 +627,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           {currentStep === 3 && (
             <Card>
               <CardHeader>
-                <CardTitle>{t('steps.deliveryInfo')}</CardTitle>
+                <CardTitle className="font-display">{t('steps.deliveryInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -730,7 +730,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           {currentStep === 4 && (
             <Card>
               <CardHeader>
-                <CardTitle>{t('steps.additionalInfo')}</CardTitle>
+                <CardTitle className="font-display">{t('steps.additionalInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
@@ -876,7 +876,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           {currentStep === 5 && (
             <Card className="w-full">
               <CardHeader>
-                <CardTitle className="text-2xl">{t('steps.review')}</CardTitle>
+                <CardTitle className="font-display text-2xl">{t('steps.review')}</CardTitle>
               </CardHeader>
 
               <CardContent className="grid gap-12 py-6 md:grid-cols-2 lg:grid-cols-2">
@@ -1078,7 +1078,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
       <div className="lg:col-span-1">
         <Card className="lg:sticky lg:top-8">
           <CardHeader>
-            <CardTitle>{tCart('orderSummary')}</CardTitle>
+            <CardTitle className="font-display">{tCart('orderSummary')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

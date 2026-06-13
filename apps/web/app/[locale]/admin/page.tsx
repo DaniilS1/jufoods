@@ -1,8 +1,9 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 import dynamic from 'next/dynamic'
+import { AdminSidebar, AdminMobileHeader } from '@/components/admin-sidebar'
 
 // Dynamically import admin components to reduce initial bundle size
 const AdminProductManagement = dynamic(
@@ -73,21 +74,27 @@ const AdminOrdersManagement = dynamic(
 
 export default function AdminPage() {
   const searchParams = useSearchParams()
-  const activeTab = searchParams?.get('tab') || 'products'
-  const t = useTranslations('admin')
+  const activeTab = searchParams?.get('tab') || 'orders'
+  const locale = useLocale()
 
   return (
-    <div className="container py-8 min-h-0">
-      <div className="mb-8 max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-2">{t('title')}</h1>
-        <p className="text-muted-foreground">{t('description')}</p>
-      </div>
-      <div className="mx-auto max-w-6xl space-y-6 min-h-0">
-        {activeTab === 'products' && <AdminProductManagement />}
-        {activeTab === 'designs' && <AdminDesignManagement />}
-        {activeTab === 'flavours' && <AdminFlavourManagement />}
-        {activeTab === 'customers' && <AdminCustomersManagement />}
-        {activeTab === 'orders' && <AdminOrdersManagement />}
+    <div className="flex min-h-[calc(100vh-56px)]">
+      {/* Desktop sidebar */}
+      <AdminSidebar locale={locale} />
+
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile dark sub-header */}
+        <AdminMobileHeader locale={locale} />
+
+        {/* Content */}
+        <div className="flex-1 p-4 md:p-6 lg:p-8">
+          {activeTab === 'products'  && <AdminProductManagement />}
+          {activeTab === 'designs'   && <AdminDesignManagement />}
+          {activeTab === 'flavours'  && <AdminFlavourManagement />}
+          {activeTab === 'customers' && <AdminCustomersManagement />}
+          {activeTab === 'orders'    && <AdminOrdersManagement />}
+        </div>
       </div>
     </div>
   )

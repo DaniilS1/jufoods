@@ -61,7 +61,22 @@
     "personCountPlaceholder": "напр. 10…",
     "selectDeliveryDate": "Обрати дату",
     "design": "Дизайн",
-    "noDesignSelected": "Будь ласка, виберіть дизайн"
+    "noDesignSelected": "Будь ласка, виберіть дизайн",
+    "tabs": {
+      "info": "Інфо",
+      "ingredients": "Інгредієнти",
+      "nutrition": "КБЖУ"
+    },
+    "composition": "Склад",
+    "priceNote": "Точна вартість розраховується після отримання замовлення.",
+    "orderButton": "Замовити торт",
+    "noNutrition": "Харчова цінність доступна на запит.",
+    "personLabels": {
+      "2to4": "2–4 ос.",
+      "6to8": "6–8 ос.",
+      "10to12": "10–12 ос.",
+      "12plus": "12+ ос."
+    }
   },
   "cart": {
     "title": "Кошик",
@@ -237,6 +252,32 @@
     "all": "Всі",
     "viewDesigns": "Дизайни",
     "viewFlavours": "Смаки",
+    "sectionGroupTorten": "Торти",
+    "sectionGroupDesserts": "Десерти",
+    "backToCatalog": "Назад до каталогу",
+    "klassischeDesc": "Класичні торти без тематичного дизайну",
+    "sections": {
+      "feier": "Святкові торти",
+      "hochzeit": "Весільні торти",
+      "bento": "Бенто-торти",
+      "zum-tee": "До чаю",
+      "klassische": "Класичні торти",
+      "desserts": "Десерти",
+      "tarts": "Тарти",
+      "cinabons": "Сіннабони",
+      "kulichi": "Кулічі",
+      "kapkeiky": "Капкейки",
+      "cake-pops": "Кейк-попи",
+      "mousse": "Мус",
+      "cheesecakes": "Чізкейки",
+      "new-york": "Нью-Йорк",
+      "san-sebastian": "Сан-Себастьян",
+      "cheesecake-on-a-stick": "Чізкейк на паличці",
+      "macarons": "Макарони",
+      "cookies": "Печиво",
+      "chocolate": "Шоколадне печиво",
+      "blondie-cookies": "Печиво Блонді"
+    },
     "subcategories": {
       "torten": {
         "feier": "Тематичні",
@@ -266,7 +307,9 @@
   "favorites": {
     "title": "Моє обране",
     "description": "Ваші збережені улюблені товари",
-    "emptyTitle": "Немає обраного",
+    "emptyTitle": "Ще немає обраного",
+    "emptyDesc": "Збережіть свої улюблені товари на потім.",
+    "emptyCta": "До каталогу",
     "emptyDescription": "Ви ще не додали товари в обране. Перегляньте наш каталог і додайте свої улюблені товари!",
     "clearAll": "Очистити обране",
     "count": "{count, plural, =1 {# обраний товар} few {# обрані товари} many {# обраних товарів} other {# обраних товарів}}"
@@ -307,13 +350,19 @@
     "designError": "Не вдалося зберегти дизайн.",
     "designsEmpty": "Поки що немає завантажених дизайнів.",
     "uploading": "Завантаження...",
-    "ordersCta": "До магазину",
+    "ordersCta": "До каталогу",
     "retry": "Спробувати ще раз",
+    "orders": {
+      "filterAll": "Усі",
+      "expandDetails": "Показати деталі",
+      "collapseDetails": "Закрити",
+      "noPrice": "–"
+    },
     "orderStatus": {
-      "pending": "Отримано",
-      "confirmed": "Підтверджено",
-      "completed": "Завершено",
-      "cancelled": "Скасовано"
+      "pending": "🕐 Отримано",
+      "confirmed": "✅ Підтверджено",
+      "completed": "✔️ Завершено",
+      "cancelled": "✖ Скасовано"
     },
     "orderItemCount": "{count, plural, =1 {# товар} few {# товари} many {# товарів} other {# товарів}}",
     "profileTab": "Профіль",
@@ -324,6 +373,15 @@
   "admin": {
     "title": "Панель адміністратора",
     "description": "Керуйте товарами, дизайнами, клієнтами та замовленнями",
+    "sidebar": {
+      "orders": "Замовлення",
+      "designs": "Дизайни",
+      "flavours": "Смаки",
+      "products": "Товари",
+      "customers": "Клієнти",
+      "settings": "Налаштування",
+      "logout": "Вийти"
+    },
     "tabs": {
       "products": "Товари",
       "designs": "Дизайни тортів",
@@ -490,6 +548,19 @@
       "paginationPrevious": "Назад",
       "paginationNext": "Далі",
       "showingRange": "{from}–{to} з {total}",
+      "stats": {
+        "open": "Відкриті",
+        "pending": "Очікують",
+        "week": "Цього тижня",
+        "total": "Всього"
+      },
+      "actions": {
+        "status": "Змінити статус",
+        "note": "Внутрішня нотатка",
+        "save": "Зберегти",
+        "photoDownload": "Завантажити фото"
+      },
+      "customerSection": "Дані клієнта",
       "markDone": "Позначити виконаним",
       "doneLabel": "Виконано",
       "openDetails": "Деталі замовлення: {name}",
@@ -590,5 +661,31 @@
     "selectFlavourFirst": "Будь ласка, оберіть смак",
     "fillDetailsFirst": "Будь ласка, заповніть всі деталі",
     "addedToCart": "Торт додано до кошика!"
+  },
+  "home": {
+    "title": "Торти та десерти ручної роботи",
+    "subtitle": "На замовлення – зроблено з любов'ю",
+    "heroCakesTitle": "Торти",
+    "heroCakesDesc": "Індивідуальні торти для весіль, свят та особливих моментів",
+    "heroCakesCta": "Переглянути торти",
+    "heroDessertTitle": "Десерти",
+    "heroDessertDesc": "Солодощі – Сіннабони, Тарти, Чізкейки та інше",
+    "heroDessertCta": "Переглянути десерти",
+    "howTitle": "Як зробити замовлення",
+    "step1Title": "Обрати дизайн",
+    "step1Desc": "Перегляньте каталог і знайдіть улюблений дизайн",
+    "step2Title": "Вказати деталі",
+    "step2Desc": "Кількість осіб, дата та смак",
+    "step3Title": "Підтвердження",
+    "step3Desc": "Ми зв'яжемося з вами і уточнимо всі деталі",
+    "step4Title": "Забрати та насолодитись",
+    "step4Desc": "Ваш торт або десерт ручної роботи готовий",
+    "aboutTitle": "Про Jufoods",
+    "aboutText": "Торти та десерти ручної роботи – виготовлені з турботою та пристрастю в Мюнхені.",
+    "aboutBadge1": "Мюнхен",
+    "aboutBadge2": "З 2023",
+    "aboutBadge3": "На замовлення",
+    "toCatalog": "До каталогу",
+    "toContact": "Зв'язатися з нами"
   }
 }
