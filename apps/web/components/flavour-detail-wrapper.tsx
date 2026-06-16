@@ -129,7 +129,7 @@ export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }:
           <section className="space-y-4" aria-labelledby="flavour-title">
             <h1
               id="flavour-title"
-              className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance"
+              className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance"
             >
               {flavour.name}
             </h1>

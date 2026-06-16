@@ -410,7 +410,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
 
         {/* Header with step indicator */}
         <div className="flex-none border-b bg-background px-6 py-4">
-          <h2 className="font-display text-xl font-bold mb-4">{t('title')}</h2>
+          <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
 
           <div className="flex items-center gap-0 w-full max-w-2xl mx-auto">
             {stepLabels.map((label, idx) => {

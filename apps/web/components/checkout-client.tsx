@@ -876,7 +876,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           {currentStep === 5 && (
             <Card className="w-full">
               <CardHeader>
-                <CardTitle className="font-display text-2xl">{t('steps.review')}</CardTitle>
+                <CardTitle className="text-2xl">{t('steps.review')}</CardTitle>
               </CardHeader>
 
               <CardContent className="grid gap-12 py-6 md:grid-cols-2 lg:grid-cols-2">

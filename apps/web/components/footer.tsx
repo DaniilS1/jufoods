@@ -31,10 +31,10 @@ export function Footer() {
 
   return (
     <footer className="border-t border-primary/10 bg-gradient-to-br from-primary-50/50 via-accent/30 to-primary-50/50 pb-[env(safe-area-inset-bottom)]">
-      <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+      <div className="container py-8 md:py-10">
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
           {/* Brand Section */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Logo href={`/${locale}`} size="md" />
             <p className="text-sm text-muted-foreground">
               {locale === 'uk'
@@ -64,14 +64,14 @@ export function Footer() {
           </div>
 
           {/* Catalog Links */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold">{t('catalog')}</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-0.5">
               {footerLinks.catalog.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="block py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                    className="block py-0.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -81,14 +81,14 @@ export function Footer() {
           </div>
 
           {/* Pages Links */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold">{t('pages')}</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-0.5">
               {footerLinks.pages.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="block py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                    className="block py-0.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -98,14 +98,14 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <h3 className="text-sm font-semibold">{tContact('title')}</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-1.5">
               <li className="flex items-start gap-3">
                 <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <a
                   href="mailto:info@jufoods.com"
-                  className="py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                 >
                   info@jufoods.com
                 </a>
@@ -114,7 +114,7 @@ export function Footer() {
                 <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                 <a
                   href="tel:+49123456789"
-                  className="py-1.5 text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary active:text-primary transition-colors"
                 >
                   +49 123 456 789
                 </a>
@@ -124,7 +124,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 border-t border-primary/10 pt-8">
+        <div className="mt-8 border-t border-primary/10 pt-6">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm text-muted-foreground text-center md:text-left">
               {locale === 'uk'
@@ -133,10 +133,10 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <LanguageSwitcher />
-              <Link href={`/${locale}/about`} className="py-1.5 hover:text-primary active:text-primary transition-colors">
+              <Link href={`/${locale}/about`} className="hover:text-primary active:text-primary transition-colors">
                 {t('about')}
               </Link>
-              <Link href={`/${locale}/contact`} className="py-1.5 hover:text-primary active:text-primary transition-colors">
+              <Link href={`/${locale}/contact`} className="hover:text-primary active:text-primary transition-colors">
                 {t('contact')}
               </Link>
             </div>

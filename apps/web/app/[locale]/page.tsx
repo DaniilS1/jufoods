@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale } from '@/i18n'
 
@@ -10,41 +11,79 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = params
   const t = await getTranslations('home')
 
-  const steps = [
-    { num: 1, title: t('step1Title'), desc: t('step1Desc') },
-    { num: 2, title: t('step2Title'), desc: t('step2Desc') },
-    { num: 3, title: t('step3Title'), desc: t('step3Desc') },
-    { num: 4, title: t('step4Title'), desc: t('step4Desc') },
-  ]
-
   return (
     <main className="min-h-dvh">
-      {/* ── Hero section ───────────────────────────────────── */}
-      <section className="container py-8 md:py-12">
-        <div className="text-center mb-8 md:mb-10">
-          <h1 className="font-display text-3xl md:text-5xl font-bold text-foreground leading-tight mb-3">
-            {t('title')}
-          </h1>
-          <p className="text-muted-foreground text-base md:text-lg">{t('subtitle')}</p>
+      {/* ── Hero image — padded + rounded (mockup style) ────── */}
+      <section className="px-4 pt-5 md:px-12 md:pt-6">
+        <div className="relative h-[62vh] md:h-[88vh] rounded-2xl overflow-hidden">
+          <Image
+            src="/image231.png"
+            alt="Jufoods sweets"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(105deg, rgba(20,8,6,0.68) 0%, rgba(20,8,6,0.32) 35%, transparent 58%)' }}
+          />
+          <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-14">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/65 mb-3 block">
+              {t('heroLabel')}
+            </span>
+            <h1
+              className="text-2xl md:text-[52px] font-bold text-white mb-3 leading-tight max-w-[260px] md:max-w-[520px]"
+              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.25)' }}
+            >
+              {t('title')}
+            </h1>
+            <p
+              className="hidden md:block text-base text-white/80 mb-7 leading-relaxed max-w-[430px]"
+              style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}
+            >
+              {t('subtitle')}
+            </p>
+            <div className="flex gap-3">
+              <Link
+                href={`/${locale}/catalog/feier`}
+                className="px-5 py-3 bg-white text-foreground font-bold text-sm rounded-xl hover:bg-white/90 transition-colors"
+              >
+                {t('heroCakesCta')} →
+              </Link>
+              <Link
+                href={`/${locale}/catalog/desserts`}
+                className="px-5 py-3 bg-white/15 text-white font-semibold text-sm rounded-xl border border-white/50 backdrop-blur-sm hover:bg-white/25 transition-colors"
+              >
+                {t('heroDessertCta')}
+              </Link>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Two hero cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
+      {/* ── Category cards — equal 50/50, big, minimal ─────── */}
+      <section className="px-4 pt-3.5 md:px-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+
           {/* Torten card */}
           <Link
             href={`/${locale}/catalog/feier`}
-            className="group relative overflow-hidden rounded-2xl min-h-[220px] md:min-h-[280px] flex flex-col justify-end p-6 md:p-8 cursor-pointer transition-transform active:scale-[0.98] hover:scale-[1.01]"
-            style={{ background: 'linear-gradient(135deg, #C4907A 0%, #A87060 100%)' }}
+            className="group relative aspect-square rounded-[18px] overflow-hidden cursor-pointer"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-            <div className="relative z-10">
-              <p className="text-white/80 text-sm font-medium mb-1 uppercase tracking-widest">
+            <Image src="/cakes.jpeg" alt="Torten" fill className="object-cover scale-[1.28]" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(59,28,18,0.25) 0%, transparent 60%)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(40,18,10,0.55) 0%, transparent 50%)' }} />
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase block mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
                 {t('heroCakesTitle')}
+              </span>
+              <h3 className="text-3xl md:text-[38px] font-bold text-white mb-2 leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.25)' }}>
+                {t('heroCakesHeading')}
+              </h3>
+              <p className="text-sm md:text-[15px] mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                {t('heroCakesSubtitle')}
               </p>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                {t('heroCakesDesc')}
-              </h2>
-              <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-sm font-semibold px-4 py-2 rounded-xl border border-white/30 group-hover:bg-white/30 transition-colors">
+              <span className="inline-block px-7 py-3 bg-white font-bold text-sm rounded-[10px] group-hover:bg-white/90 transition-colors" style={{ color: '#3B2A2A' }}>
                 {t('heroCakesCta')} →
               </span>
             </div>
@@ -53,75 +92,48 @@ export default async function HomePage({ params }: HomePageProps) {
           {/* Desserts card */}
           <Link
             href={`/${locale}/catalog/desserts`}
-            className="group relative overflow-hidden rounded-2xl min-h-[220px] md:min-h-[280px] flex flex-col justify-end p-6 md:p-8 cursor-pointer transition-transform active:scale-[0.98] hover:scale-[1.01]"
-            style={{ background: 'linear-gradient(135deg, #8FB8A2 0%, #6D9880 100%)' }}
+            className="group relative aspect-square rounded-[18px] overflow-hidden cursor-pointer"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-            <div className="relative z-10">
-              <p className="text-white/80 text-sm font-medium mb-1 uppercase tracking-widest">
+            <Image src="/desserts.jpeg" alt="Desserts" fill className="object-cover scale-[1.20]" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(40,20,10,0.2) 0%, transparent 60%)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(40,20,10,0.55) 0%, transparent 50%)' }} />
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
+              <span className="text-[10px] font-bold tracking-[0.2em] uppercase block mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
                 {t('heroDessertTitle')}
+              </span>
+              <h3 className="text-3xl md:text-[38px] font-bold text-white mb-2 leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.22)' }}>
+                {t('heroDessertHeading')}
+              </h3>
+              <p className="text-sm md:text-[15px] mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                {t('heroDessertSubtitle')}
               </p>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                {t('heroDessertDesc')}
-              </h2>
-              <span className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white text-sm font-semibold px-4 py-2 rounded-xl border border-white/30 group-hover:bg-white/30 transition-colors">
+              <span className="inline-block px-7 py-3 bg-white font-bold text-sm rounded-[10px] group-hover:bg-white/90 transition-colors" style={{ color: '#3B2A2A' }}>
                 {t('heroDessertCta')} →
               </span>
             </div>
           </Link>
+
         </div>
       </section>
 
-      {/* ── How to order ───────────────────────────────────── */}
-      <section className="bg-card border-y border-border py-12 md:py-16">
-        <div className="container">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-center mb-10">
-            {t('howTitle')}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {steps.map(({ num, title, desc }) => (
-              <div key={num} className="flex flex-col items-center text-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                  <span className="font-display text-xl font-bold text-primary">{num}</span>
-                </div>
-                <div>
-                  <p className="font-semibold text-sm md:text-base text-foreground mb-1">{title}</p>
-                  <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">{desc}</p>
-                </div>
-              </div>
-            ))}
+      {/* ── About strip ─────────────────────────────────────── */}
+      <section className="px-4 pt-3.5 pb-10 md:px-12 md:pb-12">
+        <div className="bg-white rounded-2xl border border-border p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8">
+          <div className="flex-1 min-w-0">
+            <span className="text-[9px] font-bold tracking-[0.14em] uppercase block mb-2" style={{ color: '#C4A0A0' }}>
+              {t('aboutTitle')}
+            </span>
+            <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2 leading-tight">
+              {t('aboutHeading')}
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{t('aboutText')}</p>
           </div>
-        </div>
-      </section>
-
-      {/* ── About strip ────────────────────────────────────── */}
-      <section className="container py-12 md:py-16">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-2xl md:text-3xl font-bold mb-4">{t('aboutTitle')}</h2>
-          <p className="text-muted-foreground text-base md:text-lg mb-6 leading-relaxed">{t('aboutText')}</p>
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
+          <div className="flex flex-wrap gap-2 md:justify-end shrink-0">
             {[t('aboutBadge1'), t('aboutBadge2'), t('aboutBadge3')].map((badge) => (
-              <span
-                key={badge}
-                className="px-4 py-2 bg-primary/10 text-foreground text-sm font-medium rounded-full border border-primary/20"
-              >
+              <span key={badge} className="px-4 py-1.5 text-xs font-medium text-foreground rounded-full border border-border" style={{ background: 'rgba(196,160,160,0.1)' }}>
                 {badge}
               </span>
             ))}
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href={`/${locale}/catalog`}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-xl text-sm hover:bg-primary/90 active:bg-primary/80 transition-colors"
-            >
-              {t('toCatalog')}
-            </Link>
-            <Link
-              href={`/${locale}/contact`}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-card text-foreground font-semibold rounded-xl text-sm border border-border hover:bg-accent transition-colors"
-            >
-              {t('toContact')}
-            </Link>
           </div>
         </div>
       </section>

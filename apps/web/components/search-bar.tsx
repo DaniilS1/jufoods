@@ -194,13 +194,13 @@ export function SearchBar() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onFocus={() => searchQuery.length >= 2 && setShowResults(true)}
-          className="pl-8 pr-9 w-full sm:w-64 rounded-md opacity-70 transition-all bg-primary/10 duration-100"
+          className="h-8 pl-8 pr-9 w-full sm:w-64 rounded-md opacity-70 transition-all bg-primary/10 duration-100"
         />
         {searchQuery && (
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 touch-manipulation"
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 touch-manipulation"
             onClick={handleClear}
           >
             <X className="h-3.5 w-3.5" />

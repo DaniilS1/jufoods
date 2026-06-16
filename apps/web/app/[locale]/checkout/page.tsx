@@ -32,7 +32,7 @@ export default async function CheckoutPage() {
 
   return (
     <div className="container py-8">
-      <h1 className="font-display text-2xl font-bold mb-8 sm:text-3xl md:text-4xl">{t('title')}</h1>
+      <h1 className="text-2xl font-bold mb-8 sm:text-3xl md:text-4xl">{t('title')}</h1>
       <CheckoutClient userProfile={userProfile} />
     </div>
   )

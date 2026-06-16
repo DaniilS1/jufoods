@@ -62,13 +62,13 @@ export function Header() {
   if (isAuthPage) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 shadow-sm pt-[env(safe-area-inset-top)]">
-        <div className="container flex h-14 items-center justify-between">
+        <div className="container flex h-12 items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={openNavDrawer}
-              className="h-11 w-11 hover:bg-accent rounded-full"
+              className="h-10 w-10 hover:bg-accent rounded-full"
             >
               <Menu className="h-5 w-5" aria-hidden="true" />
               <span className="sr-only">Menu</span>
@@ -82,14 +82,14 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 shadow-sm pt-[env(safe-area-inset-top)]">
-      <div className="container flex h-14 items-center gap-3">
+      <div className="container flex h-12 items-center gap-3">
         {/* Left: Hamburger + Logo */}
         <div className="flex items-center gap-2 shrink-0">
           <Button
             variant="ghost"
             size="icon"
             onClick={openNavDrawer}
-            className="h-11 w-11 hover:bg-accent rounded-full"
+            className="h-10 w-10 hover:bg-accent rounded-full"
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
             <span className="sr-only">Menu</span>
@@ -105,7 +105,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                  'px-3 py-1 rounded-lg text-sm font-medium transition-colors',
                   isNavActive(link.href)
                     ? 'text-foreground bg-accent'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent'
@@ -152,7 +152,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             asChild
-            className="h-11 w-11 hover:bg-accent rounded-full"
+            className="h-10 w-10 hover:bg-accent rounded-full"
             aria-label={t('account')}
           >
             <Link href={userEmail ? `/${locale}/account` : `/${locale}/login`}>

@@ -73,7 +73,7 @@ export function CatalogDesignCard({
       {/* Content */}
       <div className="flex flex-col flex-1 p-3 sm:p-4 gap-1.5">
         <Link href={`/${locale}/products/${slug}`}>
-          <h3 className="font-display font-semibold text-sm sm:text-base text-foreground leading-tight line-clamp-1">
+          <h3 className="font-semibold text-sm sm:text-base text-foreground leading-tight line-clamp-1">
             {name}
           </h3>
         </Link>

@@ -49,7 +49,7 @@ export function SectionCard({
 
       {/* Bottom content */}
       <div className="relative z-10 p-3 md:p-4">
-        <p className="font-display font-semibold text-white text-sm md:text-base leading-tight drop-shadow-sm">
+        <p className="font-semibold text-white text-sm md:text-base leading-tight drop-shadow-sm">
           {label}
         </p>
         {desc && (

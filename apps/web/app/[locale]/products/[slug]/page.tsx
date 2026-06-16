@@ -469,7 +469,7 @@ export default async function ProductDetailPage({
         {/* Similar Products */}
         {similarProducts.length > 0 && (
           <div className="mt-12 pt-8 border-t">
-            <h2 className="font-display text-2xl font-bold mb-6">{t('similarProducts')}</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('similarProducts')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {similarProducts.map((similarProduct) => (
                 <ProductCard

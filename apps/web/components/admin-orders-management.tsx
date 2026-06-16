@@ -337,7 +337,7 @@ function DetailPanel({ order, enrichedItems, enrichedLoading, adminNote, setAdmi
           <span className="text-[10px] font-bold tracking-wider text-muted-foreground">{order.id.slice(0, 8).toUpperCase()}</span>
           <StatusBadge status={order.status} />
         </div>
-        <h2 className="font-display text-lg font-bold text-foreground leading-tight">{order.customer_name}</h2>
+        <h2 className="text-lg font-bold text-foreground leading-tight">{order.customer_name}</h2>
         <p className="text-xs text-muted-foreground mt-0.5">{order.customer_email} · {shortDate(order.created_at)}</p>
       </div>
 
@@ -390,7 +390,7 @@ function StatTile({ label, value, valueClass }: { label: string; value: number; 
   return (
     <div className="bg-card border border-border rounded-xl px-4 py-3 flex flex-col gap-1">
       <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className={cn('font-display text-2xl font-bold text-foreground', valueClass)}>{value}</p>
+      <p className={cn('text-2xl font-bold text-foreground', valueClass)}>{value}</p>
     </div>
   )
 }
