@@ -42,7 +42,7 @@ export function CatalogDesignCard({
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm transition-shadow duration-200 hover:shadow-md">
       {/* Image */}
-      <div className="relative aspect-[4/5] sm:aspect-[4/3] w-full overflow-hidden bg-muted">
+      <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full overflow-hidden bg-muted">
         <Link href={`/${locale}/products/${slug}`} className="block h-full w-full">
           <Image
             src={normalizeSupabaseImageUrl(imageUrl)}
@@ -77,10 +77,6 @@ export function CatalogDesignCard({
             {name}
           </h3>
         </Link>
-        <div
-          className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed flex-1 [&_p]:m-0 [&_ul]:m-0 [&_ul]:pl-4"
-          dangerouslySetInnerHTML={{ __html: description }}
-        />
         <Button
           size="sm"
           className="w-full mt-2 bg-primary text-primary-foreground hover:bg-primary/90"

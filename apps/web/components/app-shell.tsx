@@ -36,7 +36,7 @@ export function AppShell({ children }: AppShellProps) {
         {t('devBanner')}
       </div>
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="mx-auto w-full max-w-[1200px] flex-1">{children}</main>
       {!isAdmin && <Footer />}
       <ShoppingCart />
       <NavigationDrawer />
