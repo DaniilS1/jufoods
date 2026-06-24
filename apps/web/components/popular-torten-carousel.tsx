@@ -61,7 +61,7 @@ export function PopularTortenCarousel({ items, locale }: PopularTortenCarouselPr
           <Button
             variant="outline"
             size="icon"
-            className="h-11 w-11 rounded-full"
+            className="h-9 w-9 rounded-full"
             onClick={() => emblaApi?.scrollPrev()}
             disabled={!canPrev}
             aria-label={t('popularPrev')}
@@ -71,7 +71,7 @@ export function PopularTortenCarousel({ items, locale }: PopularTortenCarouselPr
           <Button
             variant="outline"
             size="icon"
-            className="h-11 w-11 rounded-full"
+            className="h-9 w-9 rounded-full"
             onClick={() => emblaApi?.scrollNext()}
             disabled={!canNext}
             aria-label={t('popularNext')}
