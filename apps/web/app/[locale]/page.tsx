@@ -14,7 +14,7 @@ export default async function HomePage({ params }: HomePageProps) {
   return (
     <main className="min-h-dvh">
       {/* ── Hero image — padded + rounded (mockup style) ────── */}
-      <section className="px-4 pt-5 md:px-12 md:pt-6">
+      <section className="px-4 pt-5">
         <div className="relative h-[62vh] md:h-[88vh] rounded-2xl overflow-hidden">
           <Image
             src="/image231.png"
@@ -25,44 +25,46 @@ export default async function HomePage({ params }: HomePageProps) {
           />
           <div
             className="absolute inset-0"
-            style={{ background: 'linear-gradient(105deg, rgba(20,8,6,0.68) 0%, rgba(20,8,6,0.32) 35%, transparent 58%)' }}
+            style={{ background: 'linear-gradient(105deg, rgba(20,8,6,0.65) 0%, rgba(20,8,6,0.32) 30%, transparent 50%)' }}
           />
-          <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-14">
-            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/65 mb-3 block">
-              {t('heroLabel')}
-            </span>
-            <h1
-              className="text-2xl md:text-[52px] font-bold text-white mb-3 leading-tight max-w-[260px] md:max-w-[520px]"
-              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.25)' }}
-            >
-              {t('title')}
-            </h1>
-            <p
-              className="hidden md:block text-base text-white/80 mb-7 leading-relaxed max-w-[430px]"
-              style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}
-            >
-              {t('subtitle')}
-            </p>
-            <div className="flex gap-3">
-              <Link
-                href={`/${locale}/catalog/feier`}
-                className="px-5 py-3 bg-white text-foreground font-bold text-sm rounded-xl hover:bg-white/90 transition-colors"
+          <div className="absolute inset-0 flex flex-col justify-end px-8 pb-10 md:px-14 md:pb-16">
+            <div className="flex flex-col">
+              <span className="text-xs md:text-[10px] font-bold tracking-[0.2em] uppercase text-white/65 mb-3 block">
+                {t('heroLabel')}
+              </span>
+              <h1
+                className="text-[34px] md:text-[52px] font-bold text-white mb-3 leading-tight max-w-[300px] md:max-w-[520px]"
+                style={{ textShadow: '0 2px 12px rgba(0,0,0,0.25)' }}
               >
-                {t('heroCakesCta')} →
-              </Link>
-              <Link
-                href={`/${locale}/catalog/desserts`}
-                className="px-5 py-3 bg-white/15 text-white font-semibold text-sm rounded-xl border border-white/50 backdrop-blur-sm hover:bg-white/25 transition-colors"
+                {t('title')}
+              </h1>
+              <p
+                className="hidden md:block text-base text-white/80 mb-7 leading-relaxed max-w-[430px]"
+                style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}
               >
-                {t('heroDessertCta')}
-              </Link>
+                {t('subtitle')}
+              </p>
+              <div className="flex w-full max-w-[200px] md:max-w-none flex-col gap-3 md:flex-row">
+                <Link
+                  href={`/${locale}/catalog/feier`}
+                  className="px-5 py-3.5 bg-white text-foreground font-bold text-base md:text-sm sm:text-xs rounded-xl hover:bg-white/90 transition-colors text-center"
+                >
+                  {t('heroCakesCta')} →
+                </Link>
+                <Link
+                  href={`/${locale}/catalog/desserts`}
+                  className="px-5 py-3.5 bg-white/15 text-white font-semibold text-base md:text-sm sm:text-xs rounded-xl border border-white/50 backdrop-blur-sm hover:bg-white/25 transition-colors text-center"
+                >
+                  {t('heroDessertCta')}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Category cards — equal 50/50, big, minimal ─────── */}
-      <section className="px-4 pt-3.5 md:px-12">
+      <section className="px-4 pt-3.5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
 
           {/* Torten card */}
@@ -117,7 +119,7 @@ export default async function HomePage({ params }: HomePageProps) {
       </section>
 
       {/* ── About strip ─────────────────────────────────────── */}
-      <section className="px-4 pt-3.5 pb-10 md:px-12 md:pb-12">
+      <section className="px-4 pt-3.5 pb-10 md:pb-12">
         <div className="bg-white rounded-2xl border border-border p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-8">
           <div className="flex-1 min-w-0">
             <span className="text-[9px] font-bold tracking-[0.14em] uppercase block mb-2" style={{ color: '#C4A0A0' }}>

@@ -31,7 +31,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-primary/10 bg-gradient-to-br from-primary-50/50 via-accent/30 to-primary-50/50 pb-[env(safe-area-inset-bottom)]">
-      <div className="container py-8 md:py-10">
+      <div className="mx-auto w-full max-w-[1200px] px-4 py-8 md:py-10">
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-3">

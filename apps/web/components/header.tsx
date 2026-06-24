@@ -22,6 +22,7 @@ export function Header() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
   const totalItems = useCartStore((state: CartStore) => state.getTotalItems())
   const favoriteIds = useFavoritesStore((state) => state.favoriteIds)
   const favoriteCount = favoriteIds.length
@@ -32,14 +33,38 @@ export function Header() {
 
   useEffect(() => {
     setMounted(true)
+    const loadName = async (userId: string | undefined) => {
+      if (!userId) {
+        setUserName(null)
+        return
+      }
+      const { data } = await supabase
+        .from('users')
+        .select('full_name')
+        .eq('id', userId)
+        .single()
+      const name = data?.full_name?.trim()
+      setUserName(name || null)
+    }
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUserEmail(user?.email ?? null)
+      loadName(user?.id)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user?.email ?? null)
+      loadName(session?.user?.id)
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  const avatarInitials = userName
+    ? userName
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0))
+        .join('')
+        .toUpperCase()
+    : userEmail?.charAt(0).toUpperCase()
 
   const isAuthPage = pathname?.includes('/login') || pathname?.includes('/register') ||
     pathname?.includes('/forgot-password') || pathname?.includes('/reset-password')
@@ -62,7 +87,7 @@ export function Header() {
   if (isAuthPage) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 shadow-sm pt-[env(safe-area-inset-top)]">
-        <div className="container flex h-12 items-center justify-between">
+        <div className="mx-auto flex h-12 w-full max-w-[1200px] items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -70,7 +95,7 @@ export function Header() {
               onClick={openNavDrawer}
               className="h-10 w-10 hover:bg-accent rounded-full"
             >
-              <Menu className="h-5 w-5" aria-hidden="true" />
+              <Menu className="h-6 w-6" aria-hidden="true" />
               <span className="sr-only">Menu</span>
             </Button>
             <Logo href={`/${locale}`} size="sm" priority />
@@ -82,7 +107,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80 shadow-sm pt-[env(safe-area-inset-top)]">
-      <div className="container flex h-12 items-center gap-3">
+      <div className="mx-auto flex h-12 w-full max-w-[1200px] items-center gap-3 px-4">
         {/* Left: Hamburger + Logo */}
         <div className="flex items-center gap-2 shrink-0">
           <Button
@@ -91,7 +116,7 @@ export function Header() {
             onClick={openNavDrawer}
             className="h-10 w-10 hover:bg-accent rounded-full"
           >
-            <Menu className="h-5 w-5" aria-hidden="true" />
+            <Menu className="h-6 w-6" aria-hidden="true" />
             <span className="sr-only">Menu</span>
           </Button>
           <Logo href={`/${locale}`} size="sm" priority />
@@ -126,9 +151,9 @@ export function Header() {
             <SearchBar />
           </div>
 
-          <Button variant="ghost" size="icon" asChild className="relative h-11 w-11 hover:bg-accent rounded-full">
+          <Button variant="ghost" size="icon" asChild className="relative h-9 w-9 hover:bg-accent rounded-full">
             <Link href={`/${locale}/favorites`}>
-              <Heart className="h-5 w-5" aria-hidden="true" />
+              <Heart className="h-6 w-6" aria-hidden="true" />
               {mounted && favoriteCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 flex h-4.5 w-4.5 min-w-[18px] h-[18px] items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground shadow-sm px-1">
                   {favoriteCount}
@@ -138,10 +163,10 @@ export function Header() {
             </Link>
           </Button>
 
-          <Button variant="ghost" size="icon" onClick={openCart} className="relative h-11 w-11 hover:bg-accent rounded-full">
-            <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+          <Button variant="ghost" size="icon" onClick={openCart} className="relative h-9 w-9 hover:bg-accent rounded-full">
+            <ShoppingCart className="h-6 w-6" aria-hidden="true" />
             {mounted && totalItems > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground shadow-sm px-1">
+              <span className="absolute -top-[-1.5px] -right-0 flex min-w-[16px] h-[16px] items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground shadow-sm px-1">
                 {totalItems}
               </span>
             )}
@@ -152,18 +177,18 @@ export function Header() {
             variant="ghost"
             size="icon"
             asChild
-            className="h-10 w-10 hover:bg-accent rounded-full"
+            className="h-9 w-9 hover:bg-accent rounded-full"
             aria-label={t('account')}
           >
             <Link href={userEmail ? `/${locale}/account` : `/${locale}/login`}>
               {mounted && userEmail ? (
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-9 w-9">
                   <AvatarFallback className="bg-primary/15 text-primary text-xs font-semibold">
-                    {userEmail.charAt(0).toUpperCase()}
+                    {avatarInitials}
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <User className="h-5 w-5" aria-hidden="true" />
+                <User className="h-6 w-6" aria-hidden="true" />
               )}
             </Link>
           </Button>
