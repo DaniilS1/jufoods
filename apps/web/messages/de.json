@@ -467,6 +467,8 @@
       "formDescriptionEdit": "Passe die Angaben des Tortendesigns an. Änderungen werden direkt veröffentlicht.",
       "classic": "Klassisch",
       "classicDescription": "Klassische Designs haben keine Geschmackszuordnung.",
+      "popularityRank": "Beliebtheits-Rang",
+      "popularityRankHelp": "Zahl = auf der Startseite unter „Beliebte Torten“ anzeigen (1 = zuerst). Leer = nicht anzeigen.",
       "additionalImages": "Weitere Bilder",
       "addMoreImages": "Bilder hochladen",
       "flavourAssignmentsTitle": "Geschmackszuordnung",
@@ -702,6 +704,10 @@
     "aboutBadge2": "Seit 2023",
     "aboutBadge3": "Auf Bestellung",
     "toCatalog": "Zum Katalog",
-    "toContact": "Kontakt aufnehmen"
+    "toContact": "Kontakt aufnehmen",
+    "popularLabel": "Am beliebtesten",
+    "popularTitle": "Beliebte Torten",
+    "popularPrev": "Vorherige Torten",
+    "popularNext": "Weitere Torten"
   }
 }

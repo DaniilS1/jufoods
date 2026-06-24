@@ -2,6 +2,8 @@ import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale } from '@/i18n'
+import { HowToOrder } from '@/components/how-to-order'
+import { PopularTorten } from '@/components/popular-torten'
 
 interface HomePageProps {
   params: { locale: Locale }
@@ -117,6 +119,12 @@ export default async function HomePage({ params }: HomePageProps) {
 
         </div>
       </section>
+
+      {/* ── How to order ────────────────────────────────────── */}
+      <HowToOrder />
+
+      {/* ── Popular torten carousel ─────────────────────────── */}
+      <PopularTorten locale={locale} />
 
       {/* ── About strip ─────────────────────────────────────── */}
       <section className="px-4 pt-3.5 pb-10 md:pb-12">

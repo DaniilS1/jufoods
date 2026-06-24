@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 const SIZES = {
-  sm: 36,
+  sm: 32,
   md: 44,
   lg: 56,
 } as const

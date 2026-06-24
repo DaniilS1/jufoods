@@ -78,7 +78,7 @@ export default function AdminPage() {
   const locale = useLocale()
 
   return (
-    <div className="flex min-h-[calc(100vh-56px)]">
+    <div className="flex flex-1 min-h-0">
       {/* Desktop sidebar */}
       <AdminSidebar locale={locale} />
 

@@ -114,7 +114,7 @@ export function Header() {
             variant="ghost"
             size="icon"
             onClick={openNavDrawer}
-            className="h-10 w-10 hover:bg-accent rounded-full"
+            className="h-9 w-9 hover:bg-accent rounded-full"
           >
             <Menu className="h-6 w-6" aria-hidden="true" />
             <span className="sr-only">Menu</span>
@@ -124,13 +124,13 @@ export function Header() {
 
         {/* Center: Desktop nav links */}
         {!isAdminPage && !isCheckoutPage && (
-          <nav className="hidden md:flex items-center gap-1 ml-4">
+          <nav className="hidden md:flex items-center gap-1 ml-2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'px-3 py-1 rounded-lg text-sm font-medium transition-colors',
+                  'px-3 py-1 rounded-md text-xs font-medium transition-colors',
                   isNavActive(link.href)
                     ? 'text-foreground bg-accent'
                     : 'text-muted-foreground hover:text-foreground hover:bg-accent'
@@ -146,7 +146,7 @@ export function Header() {
         <div className="flex-1" />
 
         {/* Right: Search + Icons */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="hidden md:block mr-1">
             <SearchBar />
           </div>
@@ -166,7 +166,7 @@ export function Header() {
           <Button variant="ghost" size="icon" onClick={openCart} className="relative h-9 w-9 hover:bg-accent rounded-full">
             <ShoppingCart className="h-6 w-6" aria-hidden="true" />
             {mounted && totalItems > 0 && (
-              <span className="absolute -top-[-1.5px] -right-0 flex min-w-[16px] h-[16px] items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground shadow-sm px-1">
+              <span className="absolute -top-[-1.5px] -right-0 flex min-w-[16px] h-[16px] items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground shadow-sm">
                 {totalItems}
               </span>
             )}

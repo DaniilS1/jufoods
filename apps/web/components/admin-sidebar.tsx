@@ -42,7 +42,7 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
   }
 
   return (
-    <aside className="hidden lg:flex flex-col w-[228px] shrink-0 bg-secondary text-secondary-foreground min-h-[calc(100vh-56px)] sticky top-14">
+    <aside className="hidden lg:flex flex-col w-[228px] shrink-0 bg-secondary text-secondary-foreground sticky top-0 h-screen overflow-y-auto">
       {/* Logo area */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-2">

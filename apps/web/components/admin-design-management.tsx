@@ -42,6 +42,10 @@ const designSchema = z.object({
   image_url: z.string().optional(),
   images_urls: z.array(z.string()).default([]),
   classic: z.boolean(),
+  popularity_rank: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? null : Number(v)),
+    z.number().int().min(1).nullable()
+  ),
 })
 
 type DesignFormData = z.infer<typeof designSchema>
@@ -57,6 +61,7 @@ interface DesignRecord {
   image_url: string | null
   images_urls: string[] | null
   classic: boolean
+  popularity_rank: number | null
 }
 
 interface FlavourSummary {
@@ -110,6 +115,7 @@ export function AdminDesignManagement() {
       image_url: '',
       images_urls: [],
       classic: false,
+      popularity_rank: null,
     },
   })
 
@@ -156,7 +162,8 @@ export function AdminDesignManagement() {
             sub_category,
             image_url,
             images_urls,
-            classic
+            classic,
+            popularity_rank
           `
         )
         .order('created_at', { ascending: false })
@@ -281,6 +288,7 @@ export function AdminDesignManagement() {
       image_url: '',
       images_urls: [],
       classic: false,
+      popularity_rank: null,
     })
     setSelectedFlavourIds([])
     setIsModalOpen(true)
@@ -298,6 +306,7 @@ export function AdminDesignManagement() {
       image_url: design.image_url || '',
       images_urls: design.images_urls || [],
       classic: design.classic ?? false,
+      popularity_rank: design.popularity_rank ?? null,
     })
     loadDesignFlavours(design.id)
     setIsModalOpen(true)
@@ -327,6 +336,7 @@ export function AdminDesignManagement() {
         images_urls: data.images_urls.filter((u) => u.trim() !== ''),
         category: 'torten',
         classic: data.classic ?? false,
+        popularity_rank: data.popularity_rank ?? null,
       }
 
       let designId = editingDesign?.id ?? ''
@@ -752,6 +762,22 @@ export function AdminDesignManagement() {
               {classicValue && (
                 <p className="text-xs text-[#735959]/80">{tAdmin('classicDescription')}</p>
               )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="popularity_rank" className="text-xs font-medium">
+                {tAdmin('popularityRank')}
+              </Label>
+              <Input
+                id="popularity_rank"
+                type="number"
+                min={1}
+                step={1}
+                placeholder="—"
+                className="w-28"
+                {...register('popularity_rank')}
+              />
+              <p className="text-xs text-[#735959]/80">{tAdmin('popularityRankHelp')}</p>
             </div>
 
             {!classicValue && (
