@@ -72,6 +72,21 @@ const AdminOrdersManagement = dynamic(
   }
 )
 
+const AdminCategoryImages = dynamic(
+  () =>
+    import('@/components/admin-category-images').then((mod) => ({
+      default: mod.AdminCategoryImages,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    ),
+  }
+)
+
 export default function AdminPage() {
   const searchParams = useSearchParams()
   const activeTab = searchParams?.get('tab') || 'orders'
@@ -89,11 +104,12 @@ export default function AdminPage() {
 
         {/* Content */}
         <div className="flex-1 p-4 md:p-6 lg:p-8">
-          {activeTab === 'products'  && <AdminProductManagement />}
-          {activeTab === 'designs'   && <AdminDesignManagement />}
-          {activeTab === 'flavours'  && <AdminFlavourManagement />}
-          {activeTab === 'customers' && <AdminCustomersManagement />}
-          {activeTab === 'orders'    && <AdminOrdersManagement />}
+          {activeTab === 'products'   && <AdminProductManagement />}
+          {activeTab === 'designs'    && <AdminDesignManagement />}
+          {activeTab === 'flavours'   && <AdminFlavourManagement />}
+          {activeTab === 'customers'  && <AdminCustomersManagement />}
+          {activeTab === 'orders'     && <AdminOrdersManagement />}
+          {activeTab === 'categories' && <AdminCategoryImages />}
         </div>
       </div>
     </div>

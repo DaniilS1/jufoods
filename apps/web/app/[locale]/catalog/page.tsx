@@ -12,17 +12,23 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
   const { locale } = params
   const [t, supabase] = await Promise.all([getTranslations('catalog'), createClient()])
 
-  // 2 queries — count in JS
-  const [{ data: tortenDesigns }, { data: dessertProducts }] = await Promise.all([
-    supabase
-      .from('torten_designs')
-      .select('sub_category, classic')
-      .eq('category', 'torten'),
-    supabase
-      .from('products')
-      .select('category')
-      .in('category', ['desserts', 'cheesecakes', 'macarons', 'cookies']),
-  ])
+  const [{ data: tortenDesigns }, { data: dessertProducts }, { data: categoryImages }] =
+    await Promise.all([
+      supabase
+        .from('torten_designs')
+        .select('sub_category, classic')
+        .eq('category', 'torten'),
+      supabase
+        .from('products')
+        .select('category')
+        .in('category', ['desserts', 'cheesecakes', 'macarons', 'cookies']),
+      supabase.from('category_images').select('section_id, image_url'),
+    ])
+
+  const imageMap: Record<string, string> = {}
+  for (const row of categoryImages ?? []) {
+    imageMap[row.section_id] = row.image_url
+  }
 
   // Build torten count map
   const tortenCountMap: Record<string, number> = {}
@@ -78,6 +84,7 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
               desc={locale === 'uk' ? section.descUk : section.descDe}
               count={getTortenCount(section)}
               variant="torten"
+              imageUrl={imageMap[section.id]}
             />
           ))}
         </div>
@@ -101,6 +108,7 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
               desc={locale === 'uk' ? section.descUk : section.descDe}
               count={getDessertCount(section)}
               variant="dessert"
+              imageUrl={imageMap[section.id]}
             />
           ))}
         </div>

@@ -86,7 +86,7 @@ export function PopularTortenCarousel({ items, locale }: PopularTortenCarouselPr
           {items.map((item) => (
             <div
               key={item.id}
-              className="min-w-0 shrink-0 grow-0 basis-[80%] sm:basis-[45%] lg:basis-1/4 pl-3 md:pl-4"
+              className="min-w-0 shrink-0 grow-0 basis-[50%] sm:basis-[38%] lg:basis-1/4 pl-3 md:pl-4"
             >
               <CatalogDesignCard
                 {...item}

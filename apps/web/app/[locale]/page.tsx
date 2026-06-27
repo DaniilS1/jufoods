@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Locale } from '@/i18n'
 import { HowToOrder } from '@/components/how-to-order'
 import { PopularTorten } from '@/components/popular-torten'
+import { createClient } from '@/lib/supabase/server'
 
 interface HomePageProps {
   params: { locale: Locale }
@@ -11,7 +12,20 @@ interface HomePageProps {
 
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = params
-  const t = await getTranslations('home')
+  const [t, supabase] = await Promise.all([getTranslations('home'), createClient()])
+
+  const { data: categoryImages } = await supabase
+    .from('category_images')
+    .select('section_id, image_url')
+    .in('section_id', ['main-torten', 'main-desserts'])
+
+  const imageMap: Record<string, string> = {}
+  for (const row of categoryImages ?? []) {
+    imageMap[row.section_id] = row.image_url
+  }
+
+  const tortenSrc = imageMap['main-torten'] ?? '/cakes.jpeg'
+  const dessertsSrc = imageMap['main-desserts'] ?? '/desserts.jpeg'
 
   return (
     <main className="min-h-dvh">
@@ -46,16 +60,16 @@ export default async function HomePage({ params }: HomePageProps) {
               >
                 {t('subtitle')}
               </p>
-              <div className="flex w-full max-w-[200px] md:max-w-none flex-col gap-3 md:flex-row">
+              <div className="flex flex-row flex-wrap gap-2.5">
                 <Link
-                  href={`/${locale}/catalog/feier`}
-                  className="px-5 py-3.5 bg-white text-foreground font-bold text-base md:text-sm sm:text-xs rounded-xl hover:bg-white/90 transition-colors text-center"
+                  href={`/${locale}/torten`}
+                  className="px-4 py-2.5 bg-white text-foreground font-bold text-xs sm:text-sm rounded-lg hover:bg-white/90 transition-colors text-center whitespace-nowrap"
                 >
                   {t('heroCakesCta')} →
                 </Link>
                 <Link
-                  href={`/${locale}/catalog/desserts`}
-                  className="px-5 py-3.5 bg-white/15 text-white font-semibold text-base md:text-sm sm:text-xs rounded-xl border border-white/50 backdrop-blur-sm hover:bg-white/25 transition-colors text-center"
+                  href={`/${locale}/desserts`}
+                  className="px-4 py-2.5 bg-white/15 text-white font-semibold text-xs sm:text-sm rounded-lg border border-white/50 backdrop-blur-sm hover:bg-white/25 transition-colors text-center whitespace-nowrap"
                 >
                   {t('heroDessertCta')}
                 </Link>
@@ -71,11 +85,11 @@ export default async function HomePage({ params }: HomePageProps) {
 
           {/* Torten card */}
           <Link
-            href={`/${locale}/catalog/feier`}
+            href={`/${locale}/torten`}
             className="group relative aspect-square rounded-[18px] overflow-hidden cursor-pointer"
           >
-            <Image src="/cakes.jpeg" alt="Torten" fill className="object-cover scale-[1.28]" />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(59,28,18,0.25) 0%, transparent 60%)' }} />
+            <Image src={tortenSrc} alt="Torten" fill className="object-cover scale-[1]" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(59,28,18,0.25) 0%, transparent 30%)' }} />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(40,18,10,0.55) 0%, transparent 50%)' }} />
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase block mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -88,18 +102,18 @@ export default async function HomePage({ params }: HomePageProps) {
                 {t('heroCakesSubtitle')}
               </p>
               <span className="inline-block px-7 py-3 bg-white font-bold text-sm rounded-[10px] group-hover:bg-white/90 transition-colors" style={{ color: '#3B2A2A' }}>
-                {t('heroCakesCta')} →
+                {t('heroCakesCta')}
               </span>
             </div>
           </Link>
 
           {/* Desserts card */}
           <Link
-            href={`/${locale}/catalog/desserts`}
+            href={`/${locale}/desserts`}
             className="group relative aspect-square rounded-[18px] overflow-hidden cursor-pointer"
           >
-            <Image src="/desserts.jpeg" alt="Desserts" fill className="object-cover scale-[1.20]" />
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(40,20,10,0.2) 0%, transparent 60%)' }} />
+            <Image src={dessertsSrc} alt="Desserts" fill className="object-cover scale-[1]" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(40,20,10,0.2) 0%, transparent 30%)' }} />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(40,20,10,0.55) 0%, transparent 50%)' }} />
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase block mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
@@ -112,7 +126,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 {t('heroDessertSubtitle')}
               </p>
               <span className="inline-block px-7 py-3 bg-white font-bold text-sm rounded-[10px] group-hover:bg-white/90 transition-colors" style={{ color: '#3B2A2A' }}>
-                {t('heroDessertCta')} →
+                {t('heroDessertCta')}
               </span>
             </div>
           </Link>

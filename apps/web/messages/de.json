@@ -255,6 +255,8 @@
     "viewFlavours": "Geschmacksrichtungen",
     "sectionGroupTorten": "Torten",
     "sectionGroupDesserts": "Desserts",
+    "tortenPageSubtitle": "Individuelle Torten für jeden Anlass",
+    "dessertsPageSubtitle": "Süße Kleinigkeiten, handgemacht",
     "backToCatalog": "Zurück zum Katalog",
     "designsAvailable": "{count} Designs verfügbar",
     "flavoursAvailable": "{count} Geschmäcker verfügbar",
@@ -384,14 +386,16 @@
       "products": "Produkte",
       "customers": "Kunden",
       "settings": "Einstellungen",
-      "logout": "Abmelden"
+      "logout": "Abmelden",
+      "categories": "Kategoriebilder"
     },
     "tabs": {
       "products": "Produkte",
       "designs": "Torten-Designs",
       "flavours": "Torten-Geschmäcker",
       "customers": "Kunden",
-      "orders": "Bestellungen"
+      "orders": "Bestellungen",
+      "categories": "Kategoriebilder"
     },
     "products": {
       "title": "Produkte",

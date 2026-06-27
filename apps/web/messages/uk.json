@@ -255,6 +255,8 @@
     "viewFlavours": "Смаки",
     "sectionGroupTorten": "Торти",
     "sectionGroupDesserts": "Десерти",
+    "tortenPageSubtitle": "Індивідуальні торти для будь-якої нагоди",
+    "dessertsPageSubtitle": "Солодкі дрібнички ручної роботи",
     "backToCatalog": "Назад до каталогу",
     "designsAvailable": "{count} дизайнів доступно",
     "flavoursAvailable": "{count} смаків доступно",
@@ -384,14 +386,16 @@
       "products": "Товари",
       "customers": "Клієнти",
       "settings": "Налаштування",
-      "logout": "Вийти"
+      "logout": "Вийти",
+      "categories": "Зображення категорій"
     },
     "tabs": {
       "products": "Товари",
       "designs": "Дизайни тортів",
       "flavours": "Смаки тортів",
       "customers": "Клієнти",
-      "orders": "Замовлення"
+      "orders": "Замовлення",
+      "categories": "Зображення категорій"
     },
     "products": {
       "title": "Товари",

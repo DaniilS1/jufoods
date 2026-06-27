@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { CatalogueSection } from '@/lib/catalogue-sections'
 
 interface SectionCardProps {
@@ -8,6 +9,7 @@ interface SectionCardProps {
   desc?: string
   count?: number
   variant?: 'torten' | 'dessert'
+  imageUrl?: string
 }
 
 export function SectionCard({
@@ -17,6 +19,7 @@ export function SectionCard({
   desc,
   count,
   variant = 'torten',
+  imageUrl,
 }: SectionCardProps) {
   const heightClass =
     variant === 'torten'
@@ -27,10 +30,21 @@ export function SectionCard({
     <Link
       href={`/${locale}/catalog/${section.id}`}
       className={`group relative overflow-hidden rounded-2xl flex flex-col justify-end cursor-pointer transition-transform active:scale-[0.97] hover:scale-[1.02] ${heightClass}`}
-      style={{
+      style={imageUrl ? undefined : {
         background: `linear-gradient(135deg, ${section.accent} 0%, ${section.accent}bb 100%)`,
       }}
     >
+      {/* Background image */}
+      {imageUrl && (
+        <Image
+          src={imageUrl}
+          alt={label}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
+      )}
+
       {/* Double gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />

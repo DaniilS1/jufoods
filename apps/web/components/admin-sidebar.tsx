@@ -3,12 +3,12 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { ShoppingBag, Image, UtensilsCrossed, Package, Users, Settings, LogOut } from 'lucide-react'
+import { ShoppingBag, Image, UtensilsCrossed, Package, Users, Settings, LogOut, LayoutGrid } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
-type AdminTab = 'orders' | 'designs' | 'flavours' | 'products' | 'customers'
+type AdminTab = 'orders' | 'designs' | 'flavours' | 'products' | 'customers' | 'categories'
 
 const sidebarItems: { id: AdminTab; icon: React.ElementType; key: AdminTab }[] = [
   { id: 'orders', icon: ShoppingBag, key: 'orders' },
@@ -16,6 +16,7 @@ const sidebarItems: { id: AdminTab; icon: React.ElementType; key: AdminTab }[] =
   { id: 'flavours', icon: UtensilsCrossed, key: 'flavours' },
   { id: 'products', icon: Package, key: 'products' },
   { id: 'customers', icon: Users, key: 'customers' },
+  { id: 'categories', icon: LayoutGrid, key: 'categories' },
 ]
 
 interface AdminSidebarProps {
@@ -98,7 +99,7 @@ export function AdminMobileHeader({ locale }: { locale: string }) {
   const searchParams = useSearchParams()
   const activeTab = (searchParams?.get('tab') as AdminTab) || 'orders'
 
-  const mobileTabs: AdminTab[] = ['orders', 'designs', 'customers', 'flavours']
+  const mobileTabs: AdminTab[] = ['orders', 'designs', 'flavours', 'products', 'customers', 'categories']
 
   const handleTabChange = (tab: AdminTab) => {
     const params = new URLSearchParams(searchParams?.toString() || '')
