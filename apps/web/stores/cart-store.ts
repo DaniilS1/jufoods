@@ -13,6 +13,10 @@ export interface CartItem {
   personCount?: number
   deliveryDate?: string
   remarks?: string
+  /** Custom torte: URLs of customer-uploaded design images (Supabase Storage) */
+  customImageUrls?: string[]
+  /** Custom torte: free-text description of the desired design */
+  customDesignNote?: string
 }
 
 export interface CartStore {

@@ -2,8 +2,6 @@ import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Locale } from '@/i18n'
-import { HowToOrder } from '@/components/how-to-order'
-import { PopularTorten } from '@/components/popular-torten'
 import { createClient } from '@/lib/supabase/server'
 
 interface HomePageProps {
@@ -31,7 +29,7 @@ export default async function HomePage({ params }: HomePageProps) {
     <main className="min-h-dvh">
       {/* ── Hero image — padded + rounded (mockup style) ────── */}
       <section className="px-4 pt-5">
-        <div className="relative h-[62vh] md:h-[88vh] rounded-2xl overflow-hidden">
+        <div className="relative h-[72vh] md:h-[88vh] rounded-2xl overflow-hidden">
           <Image
             src="/image231.png"
             alt="Jufoods sweets"
@@ -55,25 +53,11 @@ export default async function HomePage({ params }: HomePageProps) {
                 {t('title')}
               </h1>
               <p
-                className="hidden md:block text-base text-white/80 mb-7 leading-relaxed max-w-[430px]"
+                className="hidden md:block text-base text-white/80 leading-relaxed max-w-[430px]"
                 style={{ textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}
               >
                 {t('subtitle')}
               </p>
-              <div className="flex flex-row flex-wrap gap-2.5">
-                <Link
-                  href={`/${locale}/torten`}
-                  className="px-4 py-2.5 bg-white text-foreground font-bold text-xs sm:text-sm rounded-lg hover:bg-white/90 transition-colors text-center whitespace-nowrap"
-                >
-                  {t('heroCakesCta')} →
-                </Link>
-                <Link
-                  href={`/${locale}/desserts`}
-                  className="px-4 py-2.5 bg-white/15 text-white font-semibold text-xs sm:text-sm rounded-lg border border-white/50 backdrop-blur-sm hover:bg-white/25 transition-colors text-center whitespace-nowrap"
-                >
-                  {t('heroDessertCta')}
-                </Link>
-              </div>
             </div>
           </div>
         </div>
@@ -86,59 +70,53 @@ export default async function HomePage({ params }: HomePageProps) {
           {/* Torten card */}
           <Link
             href={`/${locale}/torten`}
-            className="group relative aspect-square rounded-[18px] overflow-hidden cursor-pointer"
+            className="group relative aspect-[3/4] rounded-[18px] overflow-hidden cursor-pointer"
           >
             <Image src={tortenSrc} alt="Torten" fill className="object-cover scale-[1]" />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(59,28,18,0.25) 0%, transparent 30%)' }} />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(40,18,10,0.55) 0%, transparent 50%)' }} />
+            <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/25" />
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase block mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                {t('heroCakesTitle')}
-              </span>
-              <h3 className="text-3xl md:text-[38px] font-bold text-white mb-2 leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.25)' }}>
+              <h3 className="text-3xl md:text-[38px] font-bold text-white mb-1 leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.25)' }}>
                 {t('heroCakesHeading')}
               </h3>
-              <p className="text-sm md:text-[15px] mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
+              <p className="text-sm md:text-[15px] leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>
                 {t('heroCakesSubtitle')}
               </p>
-              <span className="inline-block px-7 py-3 bg-white font-bold text-sm rounded-[10px] group-hover:bg-white/90 transition-colors" style={{ color: '#3B2A2A' }}>
-                {t('heroCakesCta')}
-              </span>
+              <div className="grid grid-rows-[1fr] opacity-100 mt-3 transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] [@media(hover:hover)]:grid-rows-[0fr] [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:mt-0 [@media(hover:hover)]:group-hover:grid-rows-[1fr] [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:mt-3">
+                <span className="flex items-center gap-1.5 min-h-0 overflow-hidden text-sm font-semibold text-white">
+                  {t('heroCakesLink')} →
+                </span>
+              </div>
             </div>
           </Link>
 
           {/* Desserts card */}
           <Link
             href={`/${locale}/desserts`}
-            className="group relative aspect-square rounded-[18px] overflow-hidden cursor-pointer"
+            className="group relative aspect-[3/4] rounded-[18px] overflow-hidden cursor-pointer"
           >
             <Image src={dessertsSrc} alt="Desserts" fill className="object-cover scale-[1]" />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(40,20,10,0.2) 0%, transparent 30%)' }} />
             <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(40,20,10,0.55) 0%, transparent 50%)' }} />
+            <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/25" />
             <div className="absolute bottom-0 left-0 right-0 p-8 md:p-10">
-              <span className="text-[10px] font-bold tracking-[0.2em] uppercase block mb-3" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                {t('heroDessertTitle')}
-              </span>
-              <h3 className="text-3xl md:text-[38px] font-bold text-white mb-2 leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.22)' }}>
+              <h3 className="text-3xl md:text-[38px] font-bold text-white mb-1 leading-tight" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.22)' }}>
                 {t('heroDessertHeading')}
               </h3>
-              <p className="text-sm md:text-[15px] mb-6 leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
+              <p className="text-sm md:text-[15px] leading-snug" style={{ color: 'rgba(255,255,255,0.75)' }}>
                 {t('heroDessertSubtitle')}
               </p>
-              <span className="inline-block px-7 py-3 bg-white font-bold text-sm rounded-[10px] group-hover:bg-white/90 transition-colors" style={{ color: '#3B2A2A' }}>
-                {t('heroDessertCta')}
-              </span>
+              <div className="grid grid-rows-[1fr] opacity-100 mt-3 transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] [@media(hover:hover)]:grid-rows-[0fr] [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:mt-0 [@media(hover:hover)]:group-hover:grid-rows-[1fr] [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:mt-3">
+                <span className="flex items-center gap-1.5 min-h-0 overflow-hidden text-sm font-semibold text-white">
+                  {t('heroDessertLink')} →
+                </span>
+              </div>
             </div>
           </Link>
 
         </div>
       </section>
-
-      {/* ── How to order ────────────────────────────────────── */}
-      <HowToOrder />
-
-      {/* ── Popular torten carousel ─────────────────────────── */}
-      <PopularTorten locale={locale} />
 
       {/* ── About strip ─────────────────────────────────────── */}
       <section className="px-4 pt-3.5 pb-10 md:pb-12">

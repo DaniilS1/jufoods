@@ -10,6 +10,14 @@ type RawItem = {
   designId?: string | null
   design_id?: string | null
   quantity?: number
+  productName?: string
+  customImageUrls?: string[]
+  customDesignNote?: string
+}
+
+function isCustomItem(item: RawItem): boolean {
+  const pid = item.productId ?? item.product_id
+  return typeof pid === 'string' && pid.startsWith('custom')
 }
 
 function lineProductId(item: RawItem): string | undefined {
@@ -46,7 +54,9 @@ async function enrichLineItems(
   items: RawItem[],
   locale: OrderLocale
 ): Promise<EnrichedLineItem[]> {
-  const productIds = [...new Set(items.map(lineProductId).filter(Boolean) as string[])]
+  const productIds = [
+    ...new Set(items.filter((i) => !isCustomItem(i)).map(lineProductId).filter(Boolean) as string[]),
+  ]
   const designIds = [...new Set(items.map((i) => lineDesignId(i)).filter(Boolean) as string[])]
 
   const [productsRes, designsRes] = await Promise.all([
@@ -79,6 +89,17 @@ async function enrichLineItems(
   return items.map((item) => {
     const pid = lineProductId(item)
     const did = lineDesignId(item)
+    if (isCustomItem(item)) {
+      const imageUrls = Array.isArray(item.customImageUrls) ? item.customImageUrls : []
+      return {
+        quantity: Math.max(1, item.quantity ?? 1),
+        productName: item.productName?.trim() || (locale === 'uk' ? 'Власний дизайн' : 'Eigenes Design'),
+        designName: did ? designMap.get(did) ?? null : null,
+        customImageCount: imageUrls.length,
+        customImageUrls: imageUrls,
+        customDesignNote: item.customDesignNote?.trim() || undefined,
+      }
+    }
     return {
       quantity: Math.max(1, item.quantity ?? 1),
       productName: pid ? productMap.get(pid) ?? pid.slice(0, 8) : '—',

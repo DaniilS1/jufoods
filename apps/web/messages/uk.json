@@ -76,7 +76,28 @@
       "6to8": "6–8 ос.",
       "10to12": "10–12 ос.",
       "12plus": "12+ ос."
-    }
+    },
+    "customDesignName": "Власний дизайн",
+    "customImageRequired": "Будь ласка, завантажте щонайменше одне зображення вашого дизайну.",
+    "invalidFileType": "Недопустимий тип файлу. Дозволено JPG, PNG, WEBP та GIF.",
+    "fileTooLarge": "Файл завеликий (макс. 10 МБ).",
+    "uploadError": "Не вдалося завантажити. Спробуйте ще раз."
+  },
+  "customTorte": {
+    "cardTitle": "Завантажити власний дизайн",
+    "cardSubtitle": "Завантажте дизайн на свій смак",
+    "cardCta": "Завантажити",
+    "pageTitle": "Завантажити власний дизайн",
+    "pageSubtitle": "Завантажте зображення бажаного дизайну та опишіть свою ідею. Смак, кількість осіб і дату доставки обираєте як зазвичай.",
+    "dropHeadline": "Перетягніть зображення сюди",
+    "dropHint": "або натисніть, щоб обрати зображення",
+    "maxImages": "JPG, PNG, WEBP або GIF · макс. {max} зображень",
+    "maxImagesReached": "Можна завантажити щонайбільше {max} зображень.",
+    "uploadAriaLabel": "Завантажити зображення дизайну",
+    "previewAlt": "Перегляд завантаженого дизайну",
+    "removeImage": "Видалити зображення",
+    "noteLabel": "Опишіть бажаний дизайн",
+    "notePlaceholder": "напр. кольори, мотив, напис, привід …"
   },
   "cart": {
     "title": "Кошик",
@@ -541,6 +562,7 @@
     "orders": {
       "title": "Замовлення",
       "description": "Усі отримані замовлення.",
+      "customBadge": "Custom",
       "loading": "Завантаження замовлень…",
       "empty": "Замовлень ще немає.",
       "noResults": "Нічого не знайдено.",
@@ -618,7 +640,11 @@
         "quantity": "Кількість",
         "loadingItems": "Завантаження позицій…",
         "productFallback": "Зображення товару",
-        "designFallback": "Зображення дизайну"
+        "designFallback": "Зображення дизайну",
+        "customProductFallback": "Власний дизайн",
+        "customImages": "Завантажені дизайни",
+        "customNote": "Опис дизайну",
+        "openImage": "Відкрити зображення у повному розмірі"
       }
     }
   },
@@ -684,14 +710,16 @@
     "heroCakesTag2": "Весілля",
     "heroCakesTag3": "Бенто",
     "heroCakesTag4": "Особливі події",
-    "heroCakesHeading": "Індивідуальні торти",
+    "heroCakesHeading": "Торти",
     "heroCakesSubtitle": "День народження · Весілля · Особливі події",
     "heroCakesCta": "Переглянути торти",
-    "heroDessertHeading": "Солодощі та десерти",
+    "heroCakesLink": "До тортів",
+    "heroDessertHeading": "Десерти",
     "heroDessertSubtitle": "Макарони · Печиво · Зефір · Павлова",
     "heroDessertTitle": "Десерти",
     "heroDessertDesc": "Солодощі – Сіннабони, Тарти, Чізкейки та інше",
     "heroDessertCta": "Переглянути десерти",
+    "heroDessertLink": "До десертів",
     "howTitle": "Як зробити замовлення",
     "step1Title": "Обрати дизайн",
     "step1Desc": "Перегляньте каталог і знайдіть улюблений дизайн",

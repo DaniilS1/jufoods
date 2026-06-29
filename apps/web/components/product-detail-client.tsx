@@ -39,6 +39,10 @@ interface ProductDetailClientProps {
   showFlavourSelector?: boolean
   showFlavourDetails?: boolean
   showProductHeader?: boolean
+  /** Custom torte mode: design images are uploaded by the customer instead of preset */
+  isCustom?: boolean
+  customImageUrls?: string[]
+  customDesignNote?: string
 }
 
 function parseLocalDate(iso: string): Date {
@@ -63,6 +67,9 @@ export function ProductDetailClient({
   showFlavourSelector = true,
   showFlavourDetails = true,
   showProductHeader = true,
+  isCustom = false,
+  customImageUrls = [],
+  customDesignNote,
 }: ProductDetailClientProps) {
   const t = useTranslations('product')
   const tCatalog = useTranslations('catalog')
@@ -105,17 +112,34 @@ export function ProductDetailClient({
       const validCount = !Number.isNaN(parsedCount) && parsedCount >= 1 ? parsedCount : undefined
       if (!deliveryDate || !validCount) return
 
-      addItem({
-        productId: product.id,
-        productSlug: product.slug,
-        productName: product.name,
-        productImageUrl: product.imageUrl,
-        designId: flavour.id,
-        designName: flavour.displayName,
-        designImageUrl: flavour.imageUrl,
-        personCount: validCount,
-        deliveryDate,
-      })
+      if (isCustom) {
+        if (customImageUrls.length < 1) return
+        addItem({
+          productId: `custom-${Date.now()}`,
+          productSlug: 'custom',
+          productName: t('customDesignName'),
+          productImageUrl: customImageUrls[0],
+          designId: flavour.id,
+          designName: flavour.displayName,
+          designImageUrl: flavour.imageUrl,
+          personCount: validCount,
+          deliveryDate,
+          customImageUrls,
+          customDesignNote: customDesignNote?.trim() || undefined,
+        })
+      } else {
+        addItem({
+          productId: product.id,
+          productSlug: product.slug,
+          productName: product.name,
+          productImageUrl: product.imageUrl,
+          designId: flavour.id,
+          designName: flavour.displayName,
+          designImageUrl: flavour.imageUrl,
+          personCount: validCount,
+          deliveryDate,
+        })
+      }
     } else {
       addItem({
         productId: product.id,
@@ -136,6 +160,10 @@ export function ProductDetailClient({
     personCount,
     addItem,
     openCart,
+    isCustom,
+    customImageUrls,
+    customDesignNote,
+    t,
   ])
 
   const shouldShowFlavourSelector = showFlavourSelector && product.isTorten && product.flavours.length > 0
@@ -145,7 +173,8 @@ export function ProductDetailClient({
 
   const parsedCount = parseInt(personCount, 10)
   const isValidCount = !Number.isNaN(parsedCount) && parsedCount >= 1
-  const canAddTorte = !!selectedFlavourId && !!deliveryDate && isValidCount
+  const hasCustomImage = !isCustom || customImageUrls.length >= 1
+  const canAddTorte = !!selectedFlavourId && !!deliveryDate && isValidCount && hasCustomImage
   const canAddNonTorte = !product.isTorten
   const canAddToCart = product.isTorten ? canAddTorte : canAddNonTorte
 
@@ -341,15 +370,22 @@ export function ProductDetailClient({
             <span>{t('priceNote')}</span>
           </div>
         )}
+        {isCustom && !hasCustomImage && (
+          <p className="text-xs text-muted-foreground" role="status">
+            {t('customImageRequired')}
+          </p>
+        )}
         <Button
           onClick={handleAddToCart}
           disabled={!canAddToCart}
           className="w-full min-h-[48px] rounded-xl px-8 text-sm font-semibold shadow-none transition-colors touch-manipulation"
           size="lg"
           aria-label={
-            !canAddToCart && product.isTorten
-              ? t('noFlavourSelected')
-              : undefined
+            isCustom && !hasCustomImage
+              ? t('customImageRequired')
+              : !canAddToCart && product.isTorten
+                ? t('noFlavourSelected')
+                : undefined
           }
         >
           <ShoppingCart className="mr-2 h-5 w-5 shrink-0" aria-hidden />
@@ -365,19 +401,19 @@ export function ProductDetailClient({
             <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent p-0 h-auto gap-4">
               <TabsTrigger
                 value="info"
-                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
               >
                 {t('tabs.info')}
               </TabsTrigger>
               <TabsTrigger
                 value="ingredients"
-                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
               >
                 {t('tabs.ingredients')}
               </TabsTrigger>
               <TabsTrigger
                 value="nutrition"
-                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium data-[state=active]:border-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
               >
                 {t('tabs.nutrition')}
               </TabsTrigger>

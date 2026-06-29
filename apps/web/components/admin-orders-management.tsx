@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { de as deLocale, uk as ukLocale } from 'date-fns/locale'
 import { useTranslations, useLocale } from 'next-intl'
-import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { cn } from '@/lib/utils'
@@ -42,6 +42,31 @@ export type EnrichedOrderLine = {
   designName_uk: string | null
   productImageUrl: string | null
   designImageUrl: string | null
+  isCustom?: boolean
+  customImageUrls?: string[] | null
+  customDesignNote?: string | null
+}
+
+/** Detects a custom-design order from its raw items JSON (used for list/detail badges). */
+function orderHasCustom(items: unknown): boolean {
+  if (!Array.isArray(items)) return false
+  return items.some((it) => {
+    if (!it || typeof it !== 'object') return false
+    const row = it as Record<string, unknown>
+    const pid = (row.productId ?? row.product_id) as string | undefined
+    const imgs = row.customImageUrls
+    return (typeof pid === 'string' && pid.startsWith('custom')) || (Array.isArray(imgs) && imgs.length > 0)
+  })
+}
+
+function CustomBadge() {
+  const t = useTranslations('admin.orders')
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wider text-primary-foreground whitespace-nowrap">
+      <Sparkles className="h-3 w-3" aria-hidden />
+      {t('customBadge')}
+    </span>
+  )
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -118,14 +143,23 @@ function OrderLineCard({ line, locale }: { line: EnrichedOrderLine; locale: stri
   const t = useTranslations('admin.orders.detail')
   const productName = locale === 'uk' ? line.productName_uk || line.productName_de : line.productName_de || line.productName_uk
   const designName  = locale === 'uk' ? line.designName_uk  || line.designName_de  : line.designName_de  || line.designName_uk
+  const customImages = line.isCustom && Array.isArray(line.customImageUrls) ? line.customImageUrls : []
 
   return (
-    <li className="flex gap-3 rounded-lg border border-border/80 bg-muted/20 p-3">
+    <li
+      className={cn(
+        'flex gap-3 rounded-lg border p-3',
+        line.isCustom ? 'border-primary/40 bg-primary/[0.04]' : 'border-border/80 bg-muted/20'
+      )}
+    >
       <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
         <Image src={normalizeSupabaseImageUrl(line.productImageUrl)} alt={productName || t('productFallback')} fill className="object-cover" sizes="56px" />
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <p className="font-medium text-sm leading-tight">{productName || line.productId || '—'}</p>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {line.isCustom && <CustomBadge />}
+          <p className="font-medium text-sm leading-tight">{productName || (line.isCustom ? t('customProductFallback') : line.productId) || '—'}</p>
+        </div>
         {line.designId && (
           <div className="flex items-center gap-2">
             <div className="relative size-9 shrink-0 overflow-hidden rounded border border-border bg-muted">
@@ -134,6 +168,39 @@ function OrderLineCard({ line, locale }: { line: EnrichedOrderLine; locale: stri
             <p className="text-xs text-muted-foreground">{designName || line.designId}</p>
           </div>
         )}
+
+        {/* Custom uploaded design images */}
+        {customImages.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">{t('customImages')}</p>
+            <div className="flex flex-wrap gap-2">
+              {customImages.map((url, idx) => {
+                const full = normalizeSupabaseImageUrl(url)
+                return (
+                  <a
+                    key={`${url}-${idx}`}
+                    href={full}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative size-16 shrink-0 overflow-hidden rounded-md border border-primary/30 bg-muted transition-opacity hover:opacity-80"
+                    title={t('openImage')}
+                  >
+                    <Image src={full} alt={`${t('customImages')} ${idx + 1}`} fill className="object-cover" sizes="64px" />
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Custom design description note */}
+        {line.isCustom && line.customDesignNote && (
+          <div className="flex flex-col gap-0.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">{t('customNote')}</p>
+            <p className="whitespace-pre-wrap text-xs text-foreground/90">{line.customDesignNote}</p>
+          </div>
+        )}
+
         <p className="text-xs text-muted-foreground">{t('quantity')}: <span className="font-medium text-foreground">{line.quantity}</span></p>
       </div>
     </li>
@@ -257,6 +324,7 @@ function OrderMasterCard({ order, isActive, onSelect, onStatusChange, updatingId
             {order.id.slice(0, 8).toUpperCase()}
           </span>
           <div className="flex items-center gap-1.5">
+            {orderHasCustom(order.items) && <CustomBadge />}
             <StatusBadge status={order.status} />
             <span className={cn('lg:hidden', isActive ? 'text-white/60' : 'text-muted-foreground')}>
               {isActive ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -336,6 +404,7 @@ function DetailPanel({ order, enrichedItems, enrichedLoading, adminNote, setAdmi
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[10px] font-bold tracking-wider text-muted-foreground">{order.id.slice(0, 8).toUpperCase()}</span>
           <StatusBadge status={order.status} />
+          {orderHasCustom(order.items) && <CustomBadge />}
         </div>
         <h2 className="text-lg font-bold text-foreground leading-tight">{order.customer_name}</h2>
         <p className="text-xs text-muted-foreground mt-0.5">{order.customer_email} · {shortDate(order.created_at)}</p>

@@ -158,20 +158,19 @@ export default async function CatalogSectionPage({ params, searchParams }: Secti
           </p>
 
           {/* Product grid / empty state */}
-          {products.length > 0 ? (
-            catalogSection.group === 'torten' && tortenView === 'designs' ? (
-              <CatalogTortenClient
-                products={products}
-                locale={locale}
-                subcategory={catalogSection.dbSubCategory ?? null}
-              />
-            ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {products.map((product) => (
-                  <ProductCard key={product.id} {...product} />
-                ))}
-              </div>
-            )
+          {catalogSection.group === 'torten' && tortenView === 'designs' ? (
+            /* Torten designs always render the client so the custom-design card shows first, even when there are no preset designs */
+            <CatalogTortenClient
+              products={products}
+              locale={locale}
+              subcategory={catalogSection.dbSubCategory ?? null}
+            />
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {products.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
+            </div>
           ) : (
             <div className="text-center py-16 text-muted-foreground">
               <p className="text-lg">{t('noProducts', { category: sectionLabel })}</p>

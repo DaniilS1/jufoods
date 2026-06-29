@@ -39,4 +39,10 @@ export interface EnrichedLineItem {
   quantity: number
   productName: string
   designName: string | null
+  /** Custom torte: count of customer-uploaded design images */
+  customImageCount?: number
+  /** Custom torte: customer-uploaded design image URLs */
+  customImageUrls?: string[]
+  /** Custom torte: free-text design description */
+  customDesignNote?: string
 }

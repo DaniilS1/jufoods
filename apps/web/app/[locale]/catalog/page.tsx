@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { SectionCard } from '@/components/catalog/section-card'
+import { CustomSectionCard } from '@/components/catalog/custom-section-card'
 import { tortenSections, dessertSections } from '@/lib/catalogue-sections'
 import type { Locale } from '@/i18n'
 
@@ -75,6 +76,8 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
           <div className="flex-1 h-px bg-border" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+          {/* Custom design card — always first */}
+          <CustomSectionCard locale={locale} />
           {tortenSections.map((section) => (
             <SectionCard
               key={section.id}

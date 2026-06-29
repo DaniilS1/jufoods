@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import {
@@ -8,15 +8,11 @@ import {
   ChevronLeft,
   ChevronRight,
   ShoppingCart,
-  Upload,
-  X,
   Calendar as CalendarIcon,
   Users,
   Palette,
   UtensilsCrossed,
   CalendarDays,
-  ImagePlus,
-  Sparkles,
   ClipboardList,
   Info,
 } from 'lucide-react'
@@ -109,16 +105,11 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
   // Step state
   const [step, setStep] = useState(1)
 
-  // Step 1: Design (preset or custom)
+  // Step 1: Design (preset only)
   const [designs, setDesigns] = useState<TortenDesign[]>([])
   const [designsLoading, setDesignsLoading] = useState(false)
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(initialSubcategory ?? null)
   const [selectedDesign, setSelectedDesign] = useState<TortenDesign | null>(null)
-  const [isCustomDesign, setIsCustomDesign] = useState(false)
-  const [customImage, setCustomImage] = useState<File | null>(null)
-  const [customImagePreview, setCustomImagePreview] = useState<string | null>(null)
-  const [customDescription, setCustomDescription] = useState('')
-  const [customDesignModalOpen, setCustomDesignModalOpen] = useState(false)
 
   // Step 2: Flavour (only from DB)
   const [flavours, setFlavours] = useState<TortenFlavour[]>([])
@@ -130,18 +121,12 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
   const [deliveryDate, setDeliveryDate] = useState<string>('')
   const [remarks, setRemarks] = useState<string>('')
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
   // Reset on open
   useEffect(() => {
     if (open) {
       setStep(1)
       setDesigns([])
       setSelectedDesign(null)
-      setIsCustomDesign(false)
-      setCustomImage(null)
-      setCustomImagePreview(null)
-      setCustomDescription('')
       setFlavours([])
       setSelectedFlavour(null)
       setPersons('')
@@ -244,68 +229,16 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
     }
   }
 
-  async function loadAllFlavours() {
-    setFlavoursLoading(true)
-    setSelectedFlavour(null)
-    try {
-      const { data, error } = await supabase
-        .from('torten_flavours')
-        .select('id, slug, name_de, name_uk, description_de, description_uk, image_url, ingredients_de, ingredients_uk, allergens_de, allergens_uk, nutrition')
-        .order('name_de', { ascending: true })
-
-      if (!error && data) {
-        setFlavours(data.map((f) => ({
-          ...f,
-          ingredients_de: f.ingredients_de ?? null,
-          ingredients_uk: f.ingredients_uk ?? null,
-          allergens_de: f.allergens_de ?? null,
-          allergens_uk: f.allergens_uk ?? null,
-          nutrition: f.nutrition ?? null,
-        })) as TortenFlavour[])
-      }
-    } finally {
-      setFlavoursLoading(false)
-    }
-  }
-
   function handlePresetDesignSelect(design: TortenDesign) {
     setSelectedDesign(design)
-    setIsCustomDesign(false)
     setSelectedFlavour(null)
     setFlavours([])
-  }
-
-  function handleCustomDesignCardClick() {
-    setCustomDesignModalOpen(true)
-  }
-
-  function handleCustomDesignConfirm() {
-    if (!customImagePreview || !customDescription.trim()) return
-    setIsCustomDesign(true)
-    setSelectedDesign(null)
-    setSelectedFlavour(null)
-    setFlavours([])
-    setCustomDesignModalOpen(false)
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setCustomImage(file)
-    const reader = new FileReader()
-    reader.onload = (ev) => setCustomImagePreview(ev.target?.result as string)
-    reader.readAsDataURL(file)
   }
 
   function handleNext() {
     if (step === 1) {
-      if (isCustomDesign) {
-        if (!customImagePreview || !customDescription.trim()) return
-        loadAllFlavours()
-      } else {
-        if (!selectedDesign) return
-        loadFlavoursForDesign(selectedDesign.id, selectedDesign.image_url)
-      }
+      if (!selectedDesign) return
+      loadFlavoursForDesign(selectedDesign.id, selectedDesign.image_url)
       setStep(2)
     } else if (step === 2) {
       if (!selectedFlavour) return
@@ -324,22 +257,14 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
     const parsedPersons = parseInt(persons, 10)
     if (!deliveryDate || isNaN(parsedPersons) || parsedPersons < 1) return
     if (!selectedFlavour) return
+    if (!selectedDesign) return
 
-    const designName = isCustomDesign
-      ? customDescription.trim()
-      : selectedDesign
-      ? locale === 'uk'
-        ? selectedDesign.name_uk
-        : selectedDesign.name_de
-      : t('summaryCustomDesign')
-
-    const productId = isCustomDesign ? 'custom-upload' : selectedDesign!.id
-    const productSlug = isCustomDesign ? 'custom' : selectedDesign!.slug
-    const productImageUrl = isCustomDesign ? customImagePreview : normalizeSupabaseImageUrl(selectedDesign?.image_url)
+    const designName = locale === 'uk' ? selectedDesign.name_uk : selectedDesign.name_de
+    const productImageUrl = normalizeSupabaseImageUrl(selectedDesign.image_url)
 
     addItem({
-      productId,
-      productSlug,
+      productId: selectedDesign.id,
+      productSlug: selectedDesign.slug,
       productName: designName,
       productImageUrl: productImageUrl ?? undefined,
       designId: selectedFlavour.id,
@@ -354,9 +279,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
     onOpenChange(false)
   }
 
-  const step1Complete = isCustomDesign
-    ? !!(customImagePreview && customDescription.trim())
-    : !!selectedDesign
+  const step1Complete = !!selectedDesign
   const step2Complete = !!selectedFlavour
   const step3Complete = !!deliveryDate && !!persons && parseInt(persons, 10) >= 1
   const canAddToCart = step1Complete && step2Complete && step3Complete
@@ -403,7 +326,6 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
     return `${y}-${m}-${d}`
   }
   return (
-    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl w-full h-[90dvh] p-0 gap-0 overflow-hidden flex flex-col">
         <DialogTitle className="sr-only">{t('title')}</DialogTitle>
@@ -432,9 +354,8 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                         (stepNum === 3 && step1Complete && step2Complete) ||
                         (stepNum === 4 && step1Complete && step2Complete && step3Complete)
                       if (canGoTo) {
-                        if (stepNum === 2) {
-                          if (isCustomDesign) loadAllFlavours()
-                          else if (selectedDesign) loadFlavoursForDesign(selectedDesign.id)
+                        if (stepNum === 2 && selectedDesign) {
+                          loadFlavoursForDesign(selectedDesign.id)
                         }
                         setStep(stepNum)
                       }
@@ -516,41 +437,13 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                 </nav>
 
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Custom design card - always first, opens modal */}
-                  <button
-                    onClick={handleCustomDesignCardClick}
-                    className={cn(
-                      'group relative overflow-hidden rounded-2xl text-left transition-all duration-200 border-2 flex flex-col',
-                      isCustomDesign
-                        ? 'border-primary shadow-lg shadow-primary/20 scale-[1.02]'
-                        : 'border-dashed border-primary/40 hover:border-primary/60 hover:bg-primary/5'
-                    )}
-                  >
-                    <div className="aspect-square relative bg-muted/50 overflow-hidden flex items-center justify-center rounded-t-2xl">
-                      <ImagePlus className="h-10 w-10 text-primary/60 group-hover:text-primary transition-colors shrink-0" />
-                      <Sparkles className="absolute top-1.5 right-1.5 h-3.5 w-3.5 text-primary/40" />
-                      {isCustomDesign && (
-                        <>
-                          <div className="absolute inset-0 bg-primary/10" />
-                          <div className="absolute top-1.5 right-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md">
-                            <Check className="h-3 w-3" />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <div className={cn('px-2 py-1.5 min-h-[52px] flex flex-col justify-center rounded-b-2xl', isCustomDesign ? 'bg-primary/10' : 'bg-card')}>
-                      <p className="font-medium text-sm leading-tight line-clamp-1">{t('customDesignCardTitle')}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-tight min-h-[2rem]">{t('customDesignCardDescription')}</p>
-                    </div>
-                  </button>
-
                   {designsLoading ? (
                     <div className="col-span-2 flex items-center justify-center py-12 text-muted-foreground">
                       <span>{t('loading')}</span>
                     </div>
                   ) : (
                     designs.map((design) => {
-                      const isSelected = !isCustomDesign && selectedDesign?.id === design.id
+                      const isSelected = selectedDesign?.id === design.id
                       return (
                         <button
                           key={design.id}
@@ -831,7 +724,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                           <Palette className="h-3.5 w-3.5" />
                           {t('summaryDesign')}
                         </span>
-                        {!isCustomDesign && selectedDesign?.sub_category && (
+                        {selectedDesign?.sub_category && (
                           <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                             {tCatalog(`subcategories.torten.${selectedDesign.sub_category}` as 'subcategories.torten.hochzeit')}
                           </span>
@@ -840,7 +733,7 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                       <div className="flex gap-3">
                         <div className="relative h-20 w-20 rounded-xl overflow-hidden bg-muted shrink-0 ring-2 ring-primary/20">
                           <Image
-                            src={isCustomDesign && customImagePreview ? customImagePreview : normalizeSupabaseImageUrl(selectedDesign?.image_url) ?? '/placeholder-cake.svg'}
+                            src={normalizeSupabaseImageUrl(selectedDesign?.image_url) ?? '/placeholder-cake.svg'}
                             alt=""
                             fill
                             className="object-cover"
@@ -849,15 +742,12 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                         </div>
                         <div className="min-w-0 flex-1 space-y-1">
                           <p className="font-semibold text-sm">
-                            {isCustomDesign ? (customDescription.trim() || t('summaryCustomDesign')) : getDesignDisplayName(selectedDesign!)}
+                            {getDesignDisplayName(selectedDesign!)}
                           </p>
-                          {!isCustomDesign && (locale === 'uk' ? selectedDesign?.description_uk : selectedDesign?.description_de) && (
+                          {(locale === 'uk' ? selectedDesign?.description_uk : selectedDesign?.description_de) && (
                             <p className="text-xs text-muted-foreground line-clamp-3">
                               {locale === 'uk' ? selectedDesign?.description_uk : selectedDesign?.description_de}
                             </p>
-                          )}
-                          {isCustomDesign && customDescription.trim() && (
-                            <p className="text-xs text-muted-foreground line-clamp-3">{customDescription.trim()}</p>
                           )}
                         </div>
                       </div>
@@ -966,11 +856,11 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                     <Palette className="h-3.5 w-3.5" />
                     {t('summaryDesign')}
                   </span>
-                  {selectedDesign || (isCustomDesign && (customImagePreview || customDescription)) ? (
+                  {selectedDesign ? (
                     <div className="flex items-center gap-3">
                       <div className="relative h-14 w-14 rounded-lg overflow-hidden bg-muted shrink-0 ring-2 ring-primary/20">
                         <Image
-                          src={isCustomDesign && customImagePreview ? customImagePreview : normalizeSupabaseImageUrl(selectedDesign?.image_url)}
+                          src={normalizeSupabaseImageUrl(selectedDesign?.image_url)}
                           alt=""
                           fill
                           className="object-cover"
@@ -979,9 +869,8 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-sm leading-tight">
-                          {isCustomDesign ? (customDescription.trim() || t('summaryCustomDesign')) : getDesignDisplayName(selectedDesign!)}
+                          {getDesignDisplayName(selectedDesign!)}
                         </p>
-                        {isCustomDesign && <p className="text-xs text-muted-foreground mt-0.5">{t('summaryCustomDesign')}</p>}
                       </div>
                     </div>
                   ) : (
@@ -1086,64 +975,5 @@ export function TorteBestellenModal({ open, onOpenChange, locale, initialSubcate
         </div>
       </DialogContent>
     </Dialog>
-
-    <Dialog open={customDesignModalOpen} onOpenChange={setCustomDesignModalOpen}>
-      <DialogContent className="max-w-lg">
-        <DialogTitle>{t('customDesignCardTitle')}</DialogTitle>
-        <div className="space-y-4 pt-2">
-          <div>
-            <Label className="text-sm font-medium mb-1.5 block">{t('uploadImage')} *</Label>
-            <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="hidden" />
-            {customImagePreview ? (
-              <div className="relative w-full max-w-[160px] aspect-square rounded-lg overflow-hidden border-2 border-primary/30">
-                <Image src={customImagePreview} alt="Custom" fill className="object-cover" sizes="160px" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCustomImage(null)
-                    setCustomImagePreview(null)
-                  }}
-                  className="absolute top-1 right-1 bg-background/90 rounded-full p-1.5 touch-manipulation shadow-sm"
-                  aria-label="Remove image"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center justify-center w-full max-w-[160px] aspect-square rounded-lg border-2 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/10 active:bg-primary/10 transition-all gap-1.5 text-muted-foreground hover:text-primary active:text-primary touch-manipulation"
-              >
-                <Upload className="h-6 w-6" />
-                <span className="text-xs">{t('uploadImage')}</span>
-              </button>
-            )}
-            <p className="text-xs text-muted-foreground mt-1">{t('uploadImageHint')}</p>
-          </div>
-          <div>
-            <Label htmlFor="custom-desc-modal" className="text-sm font-medium mb-1.5 block">
-              {t('uploadDescription')} *
-            </Label>
-            <Textarea
-              id="custom-desc-modal"
-              value={customDescription}
-              onChange={(e) => setCustomDescription(e.target.value)}
-              placeholder={t('uploadDescriptionPlaceholder')}
-              className="min-h-[100px] resize-none"
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setCustomDesignModalOpen(false)}>
-              {t('back')}
-            </Button>
-            <Button onClick={handleCustomDesignConfirm} disabled={!customImagePreview || !customDescription.trim()}>
-              {t('customDesignConfirm')}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-    </>
   )
 }

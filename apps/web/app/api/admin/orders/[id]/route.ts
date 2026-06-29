@@ -9,6 +9,14 @@ type RawLine = {
   designId?: string | null
   design_id?: string | null
   quantity?: number
+  productName?: string
+  customImageUrls?: string[]
+  customDesignNote?: string
+}
+
+function isCustomLine(line: RawLine): boolean {
+  const pid = line.productId || line.product_id
+  return (typeof pid === 'string' && pid.startsWith('custom')) || (Array.isArray(line.customImageUrls) && line.customImageUrls.length > 0)
 }
 
 function pickImageUrl(row: {
@@ -44,7 +52,14 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
   }
 
   const items = Array.isArray(order.items) ? (order.items as RawLine[]) : []
-  const productIds = [...new Set(items.map((i) => i.productId || i.product_id).filter(Boolean) as string[])]
+  const productIds = [
+    ...new Set(
+      items
+        .filter((i) => !isCustomLine(i))
+        .map((i) => i.productId || i.product_id)
+        .filter(Boolean) as string[]
+    ),
+  ]
   const designIds = [...new Set(items.map((i) => i.designId || i.design_id).filter(Boolean) as string[])]
 
   const [productsRes, designsRes] = await Promise.all([
@@ -74,18 +89,28 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
   const enrichedItems = items.map((line) => {
     const pid = (line.productId || line.product_id) as string | undefined
     const did = (line.designId || line.design_id) as string | null | undefined
-    const product = pid ? productMap.get(pid) : undefined
+    const custom = isCustomLine(line)
+    const product = !custom && pid ? productMap.get(pid) : undefined
     const design = did ? designMap.get(did) : undefined
+    const customImageUrls = Array.isArray(line.customImageUrls) ? line.customImageUrls : []
+    const customName = typeof line.productName === 'string' && line.productName.trim() ? line.productName.trim() : null
     return {
       productId: pid ?? '',
       designId: did ?? null,
       quantity: Math.max(1, line.quantity ?? 1),
-      productName_de: (product?.name_de as string) ?? null,
-      productName_uk: (product?.name_uk as string) ?? null,
+      productName_de: custom ? customName : (product?.name_de as string) ?? null,
+      productName_uk: custom ? customName : (product?.name_uk as string) ?? null,
       designName_de: (design?.name_de as string) ?? null,
       designName_uk: (design?.name_uk as string) ?? null,
-      productImageUrl: product ? pickImageUrl(product as { image_url?: string; images_urls?: string[] }) : null,
+      productImageUrl: custom
+        ? customImageUrls[0] ?? null
+        : product
+          ? pickImageUrl(product as { image_url?: string; images_urls?: string[] })
+          : null,
       designImageUrl: design ? pickImageUrl(design as { image_url?: string; images_urls?: string[] }) : null,
+      isCustom: custom,
+      customImageUrls,
+      customDesignNote: typeof line.customDesignNote === 'string' ? line.customDesignNote : null,
     }
   })
 

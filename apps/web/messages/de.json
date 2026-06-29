@@ -76,7 +76,28 @@
       "6to8": "6–8 Pers.",
       "10to12": "10–12 Pers.",
       "12plus": "12+ Pers."
-    }
+    },
+    "customDesignName": "Eigenes Design",
+    "customImageRequired": "Bitte lade mindestens ein Bild deines Designs hoch.",
+    "invalidFileType": "Ungültiger Dateityp. Erlaubt sind JPG, PNG, WEBP und GIF.",
+    "fileTooLarge": "Die Datei ist zu groß (max. 10 MB).",
+    "uploadError": "Upload fehlgeschlagen. Bitte versuche es erneut."
+  },
+  "customTorte": {
+    "cardTitle": "Eigenen Design hochladen",
+    "cardSubtitle": "Lade dein Wunschdesign hoch",
+    "cardCta": "Hochladen",
+    "pageTitle": "Eigenes Design hochladen",
+    "pageSubtitle": "Lade Bilder deines Wunschdesigns hoch und beschreibe deine Vorstellung. Geschmack, Personenzahl und Lieferdatum wählst du wie gewohnt.",
+    "dropHeadline": "Bilder hierher ziehen",
+    "dropHint": "oder klicken, um Bilder auszuwählen",
+    "maxImages": "JPG, PNG, WEBP oder GIF · max. {max} Bilder",
+    "maxImagesReached": "Es können maximal {max} Bilder hochgeladen werden.",
+    "uploadAriaLabel": "Design-Bilder hochladen",
+    "previewAlt": "Vorschau des hochgeladenen Designs",
+    "removeImage": "Bild entfernen",
+    "noteLabel": "Beschreibe dein Wunschdesign",
+    "notePlaceholder": "z. B. Farben, Motiv, Schriftzug, Anlass …"
   },
   "cart": {
     "title": "Warenkorb",
@@ -541,6 +562,7 @@
     "orders": {
       "title": "Bestellungen",
       "description": "Alle eingegangenen Bestellungen.",
+      "customBadge": "Custom",
       "loading": "Bestellungen werden geladen…",
       "empty": "Noch keine Bestellungen.",
       "noResults": "Keine Treffer für die Suche.",
@@ -618,7 +640,11 @@
         "quantity": "Menge",
         "loadingItems": "Positionen werden geladen…",
         "productFallback": "Produktbild",
-        "designFallback": "Designbild"
+        "designFallback": "Designbild",
+        "customProductFallback": "Eigenes Design",
+        "customImages": "Hochgeladene Designs",
+        "customNote": "Design-Beschreibung",
+        "openImage": "Bild in voller Größe öffnen"
       }
     }
   },
@@ -684,14 +710,16 @@
     "heroCakesTag2": "Hochzeit",
     "heroCakesTag3": "Bento",
     "heroCakesTag4": "Besondere Anlässe",
-    "heroCakesHeading": "Individuelle Torten",
+    "heroCakesHeading": "Torten",
     "heroCakesSubtitle": "Geburtstag · Hochzeit · Besondere Anlässe",
     "heroCakesCta": "Torten entdecken",
-    "heroDessertHeading": "Süßes & Desserts",
+    "heroCakesLink": "Zu den Torten",
+    "heroDessertHeading": "Desserts",
     "heroDessertSubtitle": "Macarons · Cookies · Zephyr · Pavlova",
     "heroDessertTitle": "Desserts",
     "heroDessertDesc": "Süße Kleinigkeiten – Cinabons, Tarts, Cheesecakes & mehr",
     "heroDessertCta": "Desserts entdecken",
+    "heroDessertLink": "Zu den Desserts",
     "howTitle": "So wird bestellt",
     "step1Title": "Design wählen",
     "step1Desc": "Stöbere im Katalog und finde dein Lieblingsdesign",

@@ -5,9 +5,7 @@ import { ChevronRight } from 'lucide-react'
 import { ProductDetailWrapper } from '@/components/product-detail-wrapper'
 import { FlavourDetailWrapper } from '@/components/flavour-detail-wrapper'
 import { ProductCard } from '@/components/product-card'
-import { SubcategoryTabs } from '@/components/subcategory-tabs'
 import { createClient } from '@/lib/supabase/server'
-import { hasSubcategories } from '@/lib/subcategory-config'
 import type { FlavorOption, NutritionFact, DesignOption } from '@/types/product'
 
 interface TortenFlavourRecord {
@@ -362,15 +360,8 @@ export default async function ProductDetailPage({
       const flavourCategoryName = tCatalog('viewFlavours')
 
       return (
-        <>
-          <SubcategoryTabs
-            category="torten"
-            currentSubcategory={null}
-            locale={locale}
-            currentView="flavours"
-          />
-          <div className="container py-6">
-            <FlavourDetailWrapper
+        <div className="container py-6">
+          <FlavourDetailWrapper
               flavour={{
                 id: tortenFlavour.id,
                 slug: tortenFlavour.slug,
@@ -386,8 +377,7 @@ export default async function ProductDetailPage({
               locale={locale}
               categoryName={flavourCategoryName}
             />
-          </div>
-        </>
+        </div>
       )
     }
 
@@ -436,18 +426,8 @@ export default async function ProductDetailPage({
         ? tNav('cakes')
         : tNav('desserts')
 
-  const showSubcategoryTabs = hasSubcategories(category)
-
   return (
-    <>
-      {showSubcategoryTabs && (
-        <SubcategoryTabs
-          category={category}
-          currentSubcategory={subCategory || null}
-          locale={locale}
-        />
-      )}
-      <div className="container py-6">
+    <div className="container py-6">
         <ProductDetailWrapper
           product={{
             id: recordId,
@@ -485,8 +465,7 @@ export default async function ProductDetailPage({
             </div>
           </div>
         )}
-      </div>
-    </>
+    </div>
   )
 }
 

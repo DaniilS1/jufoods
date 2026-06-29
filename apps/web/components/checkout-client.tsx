@@ -305,6 +305,9 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           productId: item.productId,
           designId: item.designId,
           quantity: item.quantity,
+          ...(item.customImageUrls?.length ? { customImageUrls: item.customImageUrls } : {}),
+          ...(item.customDesignNote ? { customDesignNote: item.customDesignNote } : {}),
+          ...(item.productId.startsWith('custom') ? { productName: item.productName } : {}),
         })),
         customer: {
           salutation: data.salutation,

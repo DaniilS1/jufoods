@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { CatalogDesignCard } from './catalog-design-card'
+import { CustomDesignCard } from './custom-design-card'
 import { TorteBestellenModal } from '@/components/torte-bestellen-modal'
 
 interface ProductItem {
@@ -27,6 +28,8 @@ export function CatalogTortenClient({ products, locale, subcategory }: CatalogTo
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
+        {/* Custom design card — always first */}
+        <CustomDesignCard locale={locale} />
         {products.map((p) => (
           <CatalogDesignCard
             key={p.id}
