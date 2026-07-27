@@ -16,13 +16,14 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { mapAuthErrorMessage } from '@/lib/auth/error-messages'
 
 const createRegisterSchema = (t: any) => z.object({
   firstName: z.string().min(1, t('firstName')),
   lastName: z.string().min(1, t('lastName')),
   email: z.string().email(t('invalidEmail') || 'Invalid email address'),
-  password: z.string().min(6, t('passwordMinLength') || 'Password must be at least 6 characters'),
-  confirmPassword: z.string().min(6, t('passwordMinLength') || 'Password must be at least 6 characters'),
+  password: z.string().min(8, t('passwordMinLength') || 'Password must be at least 8 characters'),
+  confirmPassword: z.string().min(8, t('passwordMinLength') || 'Password must be at least 8 characters'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: t('passwordsDoNotMatch') || 'Passwords do not match',
   path: ['confirmPassword'],
@@ -72,7 +73,7 @@ export function RegisterForm() {
       })
 
       if (signUpError) {
-        setError(signUpError.message || t('registerError') || 'Registration failed. Please try again.')
+        setError(mapAuthErrorMessage(t, signUpError.message))
         setIsSubmitting(false)
         return
       }

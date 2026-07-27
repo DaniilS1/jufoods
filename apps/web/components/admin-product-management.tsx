@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -24,7 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Plus, Trash2, Upload, Loader2, Edit, X, Check, AlertCircle, Eye } from 'lucide-react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { DeleteConfirmDialog } from '@/components/admin/delete-confirm-dialog'
+import { Plus, Trash2, Upload, Loader2, Edit, X, Eye } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
@@ -77,13 +80,13 @@ export function AdminProductManagement() {
   const [editingProduct, setEditingProduct] = useState<string | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<'de' | 'uk'>('de')
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const supabase = createClient()
   const router = useRouter()
   const tCatalog = useTranslations('catalog')
   const tAdmin = useTranslations('admin.products')
+  const tCommon = useTranslations('admin.common')
 
   const {
     register,
@@ -121,17 +124,6 @@ export function AdminProductManagement() {
     loadProducts()
   }, [])
 
-  // Auto-hide messages after 5 seconds
-  useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        setError(null)
-        setSuccess(null)
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [error, success])
-
   async function loadProducts() {
     try {
       const { data, error } = await supabase
@@ -143,7 +135,7 @@ export function AdminProductManagement() {
       setProducts(data || [])
     } catch (error: any) {
       console.error('Error loading products:', error)
-      setError(`Fehler beim Laden der Produkte: ${error.message}`)
+      toast.error(`Fehler beim Laden der Produkte: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -177,10 +169,10 @@ export function AdminProductManagement() {
     try {
       const url = await uploadImage(file, 'products')
       setValue('image_url', url)
-      setSuccess('Bild erfolgreich hochgeladen! URL wurde eingefügt.')
+      toast.success('Bild erfolgreich hochgeladen! URL wurde eingefügt.')
     } catch (error: any) {
       console.error('Error uploading image:', error)
-      setError(`Fehler beim Hochladen des Bildes: ${error.message}`)
+      toast.error(`Fehler beim Hochladen des Bildes: ${error.message}`)
     } finally {
       setUploading(false)
       event.target.value = ''
@@ -201,10 +193,10 @@ export function AdminProductManagement() {
       const urls = await Promise.all(uploadPromises)
       const currentImages = watch('images_urls') || []
       setValue('images_urls', [...currentImages, ...urls])
-      setSuccess(`${urls.length} Bild(er) erfolgreich hochgeladen!`)
+      toast.success(`${urls.length} Bild(er) erfolgreich hochgeladen!`)
     } catch (error: any) {
       console.error('Error uploading images:', error)
-      setError(`Fehler beim Hochladen der Bilder: ${error.message}`)
+      toast.error(`Fehler beim Hochladen der Bilder: ${error.message}`)
     } finally {
       setUploading(false)
       event.target.value = ''
@@ -234,9 +226,7 @@ export function AdminProductManagement() {
   function startEdit(product: Product) {
     setEditingProduct(product.id)
     setActiveTab('de')
-    setError(null)
-    setSuccess(null)
-    
+
     setValue('name_uk', product.name_uk)
     setValue('name_de', product.name_de)
     setValue('description_uk', product.description_uk || '')
@@ -258,8 +248,6 @@ export function AdminProductManagement() {
     setEditingProduct(null)
     setActiveTab('de')
     reset()
-    setError(null)
-    setSuccess(null)
   }
 
   function handleViewProduct(product: Product) {
@@ -267,9 +255,6 @@ export function AdminProductManagement() {
   }
 
   async function onSubmit(data: ProductFormData) {
-    setError(null)
-    setSuccess(null)
-    
     try {
       const slug = data.name_de
         .toLowerCase()
@@ -299,7 +284,7 @@ export function AdminProductManagement() {
           throw updateError
         }
 
-        setSuccess('Produkt erfolgreich aktualisiert!')
+        toast.success(tAdmin('updateSuccess'))
       } else {
         const { error: insertError, data: insertedData } = await supabase
           .from('products')
@@ -313,7 +298,7 @@ export function AdminProductManagement() {
         }
 
         console.log('Product created successfully:', insertedData)
-        setSuccess('Produkt erfolgreich erstellt!')
+        toast.success(tAdmin('createSuccess'))
       }
 
       reset()
@@ -321,18 +306,12 @@ export function AdminProductManagement() {
       loadProducts()
     } catch (error: any) {
       console.error('Error saving product:', error)
-      setError(`Fehler beim Speichern des Produkts: ${error.message || 'Unbekannter Fehler'}`)
+      toast.error(`Fehler beim Speichern des Produkts: ${error.message || 'Unbekannter Fehler'}`)
     }
   }
 
   async function handleDelete(productId: string) {
-    if (!confirm('Möchten Sie dieses Produkt wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
-      return
-    }
-
     setDeletingId(productId)
-    setError(null)
-    setSuccess(null)
 
     try {
       const { error: deleteError } = await supabase
@@ -342,13 +321,14 @@ export function AdminProductManagement() {
 
       if (deleteError) throw deleteError
 
-      setSuccess('Produkt erfolgreich gelöscht!')
+      toast.success(tAdmin('deleteSuccess'))
       loadProducts()
     } catch (error: any) {
       console.error('Error deleting product:', error)
-      setError(`Fehler beim Löschen des Produkts: ${error.message || 'Unbekannter Fehler'}`)
+      toast.error(`Fehler beim Löschen des Produkts: ${error.message || 'Unbekannter Fehler'}`)
     } finally {
       setDeletingId(null)
+      setDeleteTargetId(null)
     }
   }
 
@@ -358,39 +338,9 @@ export function AdminProductManagement() {
 
   return (
     <div className="w-full space-y-4">
-      {/* Error/Success Messages */}
-      {error && (
-        <div className="flex items-center gap-2 p-4 rounded-lg bg-destructive/10 text-destructive border border-destructive/20">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <p className="text-sm">{error}</p>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto h-9 w-9 shrink-0"
-            onClick={() => setError(null)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
-      {success && (
-        <div className="flex items-center gap-2 p-4 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
-          <Check className="h-5 w-5 shrink-0" />
-          <p className="text-sm">{success}</p>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto h-9 w-9 shrink-0"
-            onClick={() => setSuccess(null)}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
-
       {/* Products Table */}
       <TooltipProvider>
-        <div className="border rounded-lg overflow-hidden bg-white">
+        <div className="border rounded-lg overflow-hidden bg-card">
           <div className="flex items-center justify-between p-4 border-b bg-transparent">
           <h2 className="text-lg font-semibold">{tAdmin('title')}</h2>
           <Button onClick={openCreateModal}>
@@ -451,7 +401,7 @@ export function AdminProductManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(product.id)}
+                          onClick={() => setDeleteTargetId(product.id)}
                           disabled={deletingId === product.id}
                           aria-label={tAdmin('delete')}
                         >
@@ -469,20 +419,20 @@ export function AdminProductManagement() {
 
               {/* Desktop table */}
               <div className="hidden md:block overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-transparent">
-                      <th className="text-left p-4 font-medium">{tAdmin('image')}</th>
-                      <th className="text-left p-4 font-medium">{tAdmin('nameDe')}</th>
-                      <th className="text-left p-4 font-medium">{tAdmin('nameUk')}</th>
-                      <th className="text-left p-4 font-medium">{tAdmin('category')}</th>
-                      <th className="text-right p-4 font-medium">{tAdmin('actions')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{tAdmin('image')}</TableHead>
+                      <TableHead>{tAdmin('nameDe')}</TableHead>
+                      <TableHead>{tAdmin('nameUk')}</TableHead>
+                      <TableHead>{tAdmin('category')}</TableHead>
+                      <TableHead className="text-right">{tAdmin('actions')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {products.map((product) => (
-                      <tr key={product.id} className="border-b hover:bg-muted/50">
-                        <td className="p-4">
+                      <TableRow key={product.id}>
+                        <TableCell>
                           {product.image_url ? (
                             <div className="relative h-16 w-16 rounded-md overflow-hidden bg-muted">
                               <Image
@@ -498,15 +448,15 @@ export function AdminProductManagement() {
                               {tAdmin('noImage')}
                             </div>
                           )}
-                        </td>
-                        <td className="p-4">{product.name_de}</td>
-                        <td className="p-4">{product.name_uk}</td>
-                        <td className="p-4">
+                        </TableCell>
+                        <TableCell>{product.name_de}</TableCell>
+                        <TableCell>{product.name_uk}</TableCell>
+                        <TableCell>
                           <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-primary/10 text-primary">
                             {product.category}
                           </span>
-                        </td>
-                        <td className="p-4">
+                        </TableCell>
+                        <TableCell>
                           <div className="flex items-center justify-end gap-2">
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -539,7 +489,7 @@ export function AdminProductManagement() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleDelete(product.id)}
+                                  onClick={() => setDeleteTargetId(product.id)}
                                   disabled={deletingId === product.id}
                                   aria-label={tAdmin('delete')}
                                 >
@@ -553,30 +503,43 @@ export function AdminProductManagement() {
                               <TooltipContent>{tAdmin('delete')}</TooltipContent>
                             </Tooltip>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </>
           )}
         </div>
       </TooltipProvider>
 
+      <DeleteConfirmDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title={tCommon('confirmDeleteTitle')}
+        description={tAdmin('deleteConfirmDescription')}
+        confirmLabel={tCommon('confirmDeleteAction')}
+        cancelLabel={tAdmin('cancel')}
+        isPending={deletingId !== null}
+        onConfirm={() => {
+          if (deleteTargetId) void handleDelete(deleteTargetId)
+        }}
+      />
+
       {/* Product Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="flex max-h-[90dvh] w-[min(48rem,calc(100vw-2rem))] max-w-3xl flex-col gap-0 rounded-lg p-0">
-          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-[#735959] sm:text-left">
-            <DialogTitle className="text-base text-[#735959]">
+          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-primary sm:text-left">
+            <DialogTitle className="text-base text-primary">
               {editingProduct ? tAdmin('editProduct') : tAdmin('createProduct')}
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#735959]/90">
+            <DialogDescription className="text-xs text-primary/90">
               {editingProduct ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
-            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959] [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-primary [&_input]:text-base [&_label]:text-primary [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'de' | 'uk')} className="w-full">
                 <AnimatedTabsList value={activeTab} className="grid w-full grid-cols-2 touch-manipulation">
                   <TabsTrigger value="de" className="min-h-11 gap-1.5">
@@ -733,7 +696,7 @@ export function AdminProductManagement() {
                     />
                   </div>
                   {uploading && (
-                    <p className="flex items-center gap-2 text-xs text-[#735959]/80">
+                    <p className="flex items-center gap-2 text-xs text-primary/80">
                       <Loader2 className="h-3 w-3 animate-spin" />
                       {tAdmin('uploading')}
                     </p>

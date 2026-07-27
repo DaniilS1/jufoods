@@ -16,24 +16,26 @@ import { Button } from '@/components/ui/button'
 import type { AccountProfileResponse } from '@/components/account/account-client'
 import type { Locale } from '@/i18n'
 
-const profileSchema = z.object({
-  fullName: z
-    .string()
-    .trim()
-    .min(2, 'Min. 2 characters')
-    .max(120, 'Max. 120 characters'),
-  phone: z
-    .string()
-    .trim()
-    .max(32, 'Max. 32 characters')
-    .optional()
-    .or(z.literal('')),
-  preferredLanguage: z.enum(['de', 'uk']),
-  marketingOptIn: z.boolean(),
-  notificationsEmail: z.boolean(),
-})
+function createProfileSchema(t: (key: string) => string) {
+  return z.object({
+    fullName: z
+      .string()
+      .trim()
+      .min(2, t('nameMinLength'))
+      .max(120, t('nameMaxLength')),
+    phone: z
+      .string()
+      .trim()
+      .max(32, t('phoneMaxLength'))
+      .optional()
+      .or(z.literal('')),
+    preferredLanguage: z.enum(['de', 'uk']),
+    marketingOptIn: z.boolean(),
+    notificationsEmail: z.boolean(),
+  })
+}
 
-type ProfileFormValues = z.infer<typeof profileSchema>
+type ProfileFormValues = z.infer<ReturnType<typeof createProfileSchema>>
 
 interface ProfileFormProps {
   data: AccountProfileResponse
@@ -46,6 +48,8 @@ export function ProfileForm({ data, email, locale }: ProfileFormProps) {
   const tAuth = useTranslations('auth')
   const queryClient = useQueryClient()
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+  const profileSchema = createProfileSchema(t)
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),

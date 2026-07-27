@@ -72,6 +72,17 @@ export function AdminCustomersManagement() {
     load()
   }, [load])
 
+  const formatLastOrder = useCallback(
+    (value: string) => {
+      try {
+        return format(parseISO(value), 'PPp', { locale: dfLocale })
+      } catch {
+        return value
+      }
+    },
+    [dfLocale]
+  )
+
   const columns = useMemo<ColumnDef<AdminCustomerRow>[]>(
     () => [
       {
@@ -175,7 +186,33 @@ export function AdminCustomersManagement() {
           <p className="text-muted-foreground text-sm py-8 text-center">{t('empty')}</p>
         ) : (
           <>
-            <div className="rounded-md border">
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-border rounded-md border">
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => {
+                  const c = row.original
+                  const contact = [c.phone_or_social, c.residence_city].filter(Boolean).join(' · ')
+                  return (
+                    <div key={row.id} className="p-4 space-y-1">
+                      <p className="font-medium text-sm truncate">{c.display_email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{c.full_name}</p>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                        <span>
+                          {t('columns.orders')}: {c.order_count}
+                        </span>
+                        <span>{formatLastOrder(c.last_order_at)}</span>
+                      </div>
+                      {contact && <p className="text-xs text-muted-foreground truncate">{contact}</p>}
+                    </div>
+                  )
+                })
+              ) : (
+                <p className="text-muted-foreground text-sm py-8 text-center">{t('noResults')}</p>
+              )}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block rounded-md border">
               <Table>
                 <TableHeader>
                   {table.getHeaderGroups().map((hg) => (

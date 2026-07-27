@@ -27,5 +27,9 @@ export default async function AdminLayout({ children, params }: AdminLayoutProps
     redirect(`/${params.locale}`)
   }
 
-  return <>{children}</>
+  return (
+    <div className="admin-theme flex flex-1 flex-col min-h-0 bg-background text-foreground font-sans">
+      {children}
+    </div>
+  )
 }

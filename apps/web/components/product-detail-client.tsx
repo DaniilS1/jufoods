@@ -288,7 +288,7 @@ export function ProductDetailClient({
                     'py-2 rounded-lg border text-xs font-medium transition-colors touch-manipulation',
                     personCount === String(val)
                       ? 'bg-primary text-primary-foreground border-primary'
-                      : 'bg-card border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                      : 'bg-card border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary'
                   )}
                 >
                   {t(`personLabels.${key}` as Parameters<typeof t>[0])}
@@ -401,19 +401,19 @@ export function ProductDetailClient({
             <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent p-0 h-auto gap-4">
               <TabsTrigger
                 value="info"
-                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 hover:text-primary data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
               >
                 {t('tabs.info')}
               </TabsTrigger>
               <TabsTrigger
                 value="ingredients"
-                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 hover:text-primary data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
               >
                 {t('tabs.ingredients')}
               </TabsTrigger>
               <TabsTrigger
                 value="nutrition"
-                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
+                className="rounded-none border-b-2 border-transparent px-0 pb-2 text-sm font-medium text-muted-foreground hover:border-primary/30 hover:text-primary data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none data-[state=active]:bg-transparent"
               >
                 {t('tabs.nutrition')}
               </TabsTrigger>

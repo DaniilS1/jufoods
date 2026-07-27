@@ -10,6 +10,8 @@ type RawLine = {
   design_id?: string | null
   quantity?: number
   productName?: string
+  deliveryDate?: string
+  personCount?: number
   customImageUrls?: string[]
   customDesignNote?: string
 }
@@ -111,6 +113,8 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
       isCustom: custom,
       customImageUrls,
       customDesignNote: typeof line.customDesignNote === 'string' ? line.customDesignNote : null,
+      deliveryDate: typeof line.deliveryDate === 'string' ? line.deliveryDate : null,
+      personCount: typeof line.personCount === 'number' ? line.personCount : null,
     }
   })
 

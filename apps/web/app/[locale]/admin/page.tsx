@@ -4,42 +4,39 @@ import { useSearchParams } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import dynamic from 'next/dynamic'
 import { AdminSidebar, AdminMobileHeader } from '@/components/admin-sidebar'
+import { Skeleton } from '@/components/ui/skeleton'
+
+function AdminSectionSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[72px] rounded-xl" />
+        ))}
+      </div>
+      <div className="flex flex-col gap-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 rounded-xl" />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 // Dynamically import admin components to reduce initial bundle size
 const AdminProductManagement = dynamic(
   () => import('@/components/admin-product-management').then((mod) => ({ default: mod.AdminProductManagement })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    ),
-  }
+  { ssr: false, loading: () => <AdminSectionSkeleton /> }
 )
 
 const AdminDesignManagement = dynamic(
   () => import('@/components/admin-design-management').then((mod) => ({ default: mod.AdminDesignManagement })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    ),
-  }
+  { ssr: false, loading: () => <AdminSectionSkeleton /> }
 )
 
 const AdminFlavourManagement = dynamic(
   () => import('@/components/admin-flavour-management').then((mod) => ({ default: mod.AdminFlavourManagement })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    ),
-  }
+  { ssr: false, loading: () => <AdminSectionSkeleton /> }
 )
 
 const AdminCustomersManagement = dynamic(
@@ -47,14 +44,7 @@ const AdminCustomersManagement = dynamic(
     import('@/components/admin-customers-management').then((mod) => ({
       default: mod.AdminCustomersManagement,
     })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    ),
-  }
+  { ssr: false, loading: () => <AdminSectionSkeleton /> }
 )
 
 const AdminOrdersManagement = dynamic(
@@ -62,14 +52,7 @@ const AdminOrdersManagement = dynamic(
     import('@/components/admin-orders-management').then((mod) => ({
       default: mod.AdminOrdersManagement,
     })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    ),
-  }
+  { ssr: false, loading: () => <AdminSectionSkeleton /> }
 )
 
 const AdminCategoryImages = dynamic(
@@ -77,14 +60,7 @@ const AdminCategoryImages = dynamic(
     import('@/components/admin-category-images').then((mod) => ({
       default: mod.AdminCategoryImages,
     })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    ),
-  }
+  { ssr: false, loading: () => <AdminSectionSkeleton /> }
 )
 
 export default function AdminPage() {
@@ -115,4 +91,3 @@ export default function AdminPage() {
     </div>
   )
 }
-

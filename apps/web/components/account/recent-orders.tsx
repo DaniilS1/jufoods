@@ -85,7 +85,7 @@ export function RecentOrders({ locale }: RecentOrdersProps) {
                 'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
                 isActive
                   ? 'bg-foreground text-background border-foreground'
-                  : 'bg-card text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground'
+                  : 'bg-card text-muted-foreground border-border hover:bg-foreground hover:text-background hover:border-foreground'
               )}
             >
               {label}

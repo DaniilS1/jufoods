@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { useRouter, usePathname } from 'next/navigation'
@@ -15,10 +15,11 @@ import { createClient } from '@/lib/supabase/client'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { mapAuthErrorMessage } from '@/lib/auth/error-messages'
 
 const createSchema = (t: any) => z.object({
-  password: z.string().min(6, t('passwordMinLength') || 'Password must be at least 6 characters'),
-  confirmPassword: z.string().min(6, t('passwordMinLength') || 'Password must be at least 6 characters'),
+  password: z.string().min(8, t('passwordMinLength') || 'Password must be at least 8 characters'),
+  confirmPassword: z.string().min(8, t('passwordMinLength') || 'Password must be at least 8 characters'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: t('passwordsDoNotMatch') || 'Passwords do not match',
   path: ['confirmPassword'],
@@ -36,9 +37,20 @@ export function ResetPasswordForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [hasValidSession, setHasValidSession] = useState<boolean | null>(null)
 
   const localePrefix = pathname?.split('/')[1] || locale
   const schema = createSchema(t)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setHasValidSession(Boolean(data.session))
+      if (!data.session) {
+        setError(t('sessionLinkExpired'))
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const {
     register,
@@ -58,7 +70,7 @@ export function ResetPasswordForm() {
       })
 
       if (updateError) {
-        setError(updateError.message)
+        setError(mapAuthErrorMessage(t, updateError.message))
         return
       }
 
@@ -129,7 +141,7 @@ export function ResetPasswordForm() {
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button type="submit" className="w-full" disabled={isSubmitting || !hasValidSession}>
               {isSubmitting ? tCommon('loading') : t('resetPasswordSubmit')}
             </Button>
 

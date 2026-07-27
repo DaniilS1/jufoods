@@ -61,7 +61,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale, currentV
                 className={cn(
                   'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
                   !currentSubcategory
-                    ? 'text-muted-foreground bg-primary/20'
+                    ? 'text-primary bg-primary/20'
                     : 'text-muted-foreground hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/5'
                 )}
               >
@@ -79,7 +79,7 @@ export function SubcategoryTabs({ category, currentSubcategory, locale, currentV
                     className={cn(
                       'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap shrink-0 sm:gap-2 sm:px-4 sm:text-sm',
                       isActive
-                        ? 'text-muted-foreground bg-primary/20'
+                        ? 'text-primary bg-primary/20'
                         : 'text-muted-foreground hover:text-primary hover:bg-primary/5 active:text-primary active:bg-primary/5'
                     )}
                   >

@@ -15,6 +15,7 @@ import { createClient } from '@/lib/supabase/client'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { mapAuthErrorMessage } from '@/lib/auth/error-messages'
 
 const createSchema = (t: any) => z.object({
   email: z.string().email(t('invalidEmail') || 'Invalid email address'),
@@ -53,7 +54,7 @@ export function ForgotPasswordForm() {
       })
 
       if (resetError) {
-        setError(resetError.message)
+        setError(mapAuthErrorMessage(t, resetError.message))
         return
       }
 

@@ -203,7 +203,8 @@
       "remarks": "Bemerkungen",
       "remarksPlaceholder": "Besondere Wünsche, Allergien oder sonstige Hinweise...",
       "deliveryStreet": "Straße und Hausnummer",
-      "deliveryStreetPlaceholder": "z.B. Musterstraße 42"
+      "deliveryStreetPlaceholder": "z.B. Musterstraße 42",
+      "personCountShort": "Pers."
     },
     "review": {
       "checkDetails": "Bitte überprüfen Sie Ihre Angaben vor dem Absenden.",
@@ -226,7 +227,7 @@
     "loginDescription": "Melden Sie sich mit Ihrem Konto an",
     "registerDescription": "Erstellen Sie ein neues Konto",
     "invalidEmail": "Ungültige E-Mail-Adresse",
-    "passwordMinLength": "Passwort muss mindestens 6 Zeichen lang sein",
+    "passwordMinLength": "Passwort muss mindestens 8 Zeichen lang sein",
     "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
     "verifyEmailTitle": "E-Mail bestätigen",
     "verifyEmailDescription": "Wir haben dir einen Bestätigungslink gesendet. Öffne deine Mailbox und klicke auf den Link, um dein Konto zu aktivieren.",
@@ -253,7 +254,14 @@
     "confirmNewPassword": "Neues Passwort bestätigen",
     "resetPasswordSuccess": "Passwort erfolgreich geändert. Du wirst weitergeleitet...",
     "resetPasswordSubmit": "Passwort speichern",
-    "backToLogin": "Zurück zum Login"
+    "backToLogin": "Zurück zum Login",
+    "invalidCredentials": "E-Mail oder Passwort ist falsch",
+    "emailNotConfirmed": "Bitte bestätige zuerst deine E-Mail-Adresse",
+    "userAlreadyRegistered": "Für diese E-Mail-Adresse besteht bereits ein Konto",
+    "genericAuthError": "Etwas ist schiefgelaufen. Bitte versuche es erneut",
+    "tooManyRequests": "Zu viele Versuche. Bitte warte kurz und versuche es erneut",
+    "samePasswordError": "Das neue Passwort muss sich vom alten unterscheiden",
+    "sessionLinkExpired": "Dieser Link ist abgelaufen oder ungültig. Bitte fordere einen neuen an"
   },
   "about": {
     "title": "Über uns",
@@ -348,6 +356,9 @@
     "profileDescription": "Aktualisieren Sie Ihre Kontaktinformationen und bevorzugte Sprache.",
     "nameLabel": "Vollständiger Name",
     "phoneLabel": "Telefonnummer",
+    "nameMinLength": "Mind. 2 Zeichen",
+    "nameMaxLength": "Max. 120 Zeichen",
+    "phoneMaxLength": "Max. 32 Zeichen",
     "languageLabel": "Bevorzugte Sprache",
     "marketingLabel": "Ich möchte Infos zu neuen Produkten und Aktionen erhalten.",
     "notificationsLabel": "E-Mail-Benachrichtigungen zu Bestellungen erhalten.",
@@ -395,11 +406,23 @@
       "completed": "✔️ Abgeschlossen",
       "cancelled": "✖ Storniert"
     },
-    "orderItemCount": "{count, plural, one {# Artikel} other {# Artikel}}"
+    "orderItemCount": "{count, plural, one {# Artikel} other {# Artikel}}",
+    "currentPassword": "Aktuelles Passwort",
+    "currentPasswordPlaceholder": "Aktuelles Passwort eingeben",
+    "currentPasswordIncorrect": "Das aktuelle Passwort ist falsch",
+    "currentPasswordRequired": "Bitte gib dein aktuelles Passwort ein"
   },
   "admin": {
     "title": "Admin Panel",
     "description": "Verwalten Sie Produkte, Designs, Kunden und Bestellungen",
+    "common": {
+      "confirmDeleteTitle": "Wirklich löschen?",
+      "confirmDeleteAction": "Löschen"
+    },
+    "categories": {
+      "title": "Kategoriebilder",
+      "description": "Verwalte die Titelbilder je Kategorie und Unterkategorie."
+    },
     "sidebar": {
       "orders": "Bestellungen",
       "designs": "Designs",
@@ -458,7 +481,11 @@
       "cancel": "Abbrechen",
       "save": "Produkt erstellen",
       "update": "Produkt aktualisieren",
-      "saving": "Speichere…"
+      "saving": "Speichere…",
+      "createSuccess": "Produkt erfolgreich erstellt!",
+      "updateSuccess": "Produkt erfolgreich aktualisiert!",
+      "deleteSuccess": "Produkt erfolgreich gelöscht!",
+      "deleteConfirmDescription": "Möchten Sie dieses Produkt wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "designs": {
       "title": "Torten-Designs",
@@ -487,6 +514,7 @@
       "createSuccess": "Design erfolgreich erstellt!",
       "updateSuccess": "Design erfolgreich aktualisiert!",
       "deleteSuccess": "Design erfolgreich gelöscht!",
+      "deleteConfirmDescription": "Möchten Sie dieses Design wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "actions": "Aktionen",
       "formDescriptionCreate": "Lege ein neues Tortendesign mit Bild und Details an.",
       "formDescriptionEdit": "Passe die Angaben des Tortendesigns an. Änderungen werden direkt veröffentlicht.",
@@ -644,7 +672,9 @@
         "customProductFallback": "Eigenes Design",
         "customImages": "Hochgeladene Designs",
         "customNote": "Design-Beschreibung",
-        "openImage": "Bild in voller Größe öffnen"
+        "openImage": "Bild in voller Größe öffnen",
+        "perItemDeliveryDate": "Liefertermin (Position)",
+        "perItemPersonCount": "Personenzahl (Position)"
       }
     }
   },

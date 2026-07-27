@@ -39,6 +39,10 @@ export interface EnrichedLineItem {
   quantity: number
   productName: string
   designName: string | null
+  /** Per-line delivery date the customer picked on the product page (YYYY-MM-DD). */
+  deliveryDate?: string | null
+  /** Per-line number of persons the customer picked on the product page. */
+  personCount?: number | null
   /** Custom torte: count of customer-uploaded design images */
   customImageCount?: number
   /** Custom torte: customer-uploaded design image URLs */

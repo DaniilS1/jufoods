@@ -45,10 +45,10 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
   return (
     <aside className="hidden lg:flex flex-col w-[228px] shrink-0 bg-secondary text-secondary-foreground sticky top-0 h-screen overflow-y-auto">
       {/* Logo area */}
-      <div className="px-5 py-5 border-b border-white/10">
+      <div className="px-5 py-5 border-b border-secondary-foreground/10">
         <div className="flex items-center gap-2">
           <Logo href={`/${locale}`} size="sm" />
-          <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Admin</span>
+          <span className="text-xs font-semibold text-secondary-foreground/60 uppercase tracking-wider">Admin</span>
         </div>
       </div>
 
@@ -61,8 +61,8 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
             className={cn(
               'flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
               activeTab === id
-                ? 'bg-white/15 text-white'
-                : 'text-white/70 hover:bg-white/10 hover:text-white'
+                ? 'bg-secondary-foreground/15 text-secondary-foreground'
+                : 'text-secondary-foreground/70 hover:bg-secondary-foreground/10 hover:text-secondary-foreground'
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
@@ -72,17 +72,17 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-white/10 flex flex-col gap-0.5">
+      <div className="p-3 border-t border-secondary-foreground/10 flex flex-col gap-0.5">
         <Link
           href={`/${locale}/account`}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary-foreground/70 hover:bg-secondary-foreground/10 hover:text-secondary-foreground transition-colors"
         >
           <Settings className="h-4 w-4 shrink-0" />
           {t('settings')}
         </Link>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors text-left"
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-secondary-foreground/70 hover:bg-secondary-foreground/10 hover:text-secondary-foreground transition-colors text-left"
         >
           <LogOut className="h-4 w-4 shrink-0" />
           {t('logout')}
@@ -111,8 +111,8 @@ export function AdminMobileHeader({ locale }: { locale: string }) {
     <div className="lg:hidden bg-secondary text-secondary-foreground">
       <div className="flex items-center gap-3 px-4 py-3">
         <Logo href={`/${locale}`} size="sm" />
-        <span className="text-sm font-semibold text-white/80">Admin</span>
-        <span className="ml-auto text-xs bg-primary/30 text-white px-2 py-0.5 rounded-full font-semibold">
+        <span className="text-sm font-semibold text-secondary-foreground/80">Admin</span>
+        <span className="ml-auto text-xs bg-primary/30 text-secondary-foreground px-2 py-0.5 rounded-full font-semibold">
           Admin
         </span>
       </div>
@@ -123,10 +123,10 @@ export function AdminMobileHeader({ locale }: { locale: string }) {
             key={tab}
             onClick={() => handleTabChange(tab)}
             className={cn(
-              'shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border',
+              'shrink-0 flex items-center justify-center min-h-[44px] px-3.5 rounded-full text-xs font-medium transition-colors border',
               activeTab === tab
-                ? 'bg-white/20 text-white border-white/30'
-                : 'text-white/60 border-white/15 hover:bg-white/10 hover:text-white'
+                ? 'bg-secondary-foreground/20 text-secondary-foreground border-secondary-foreground/30'
+                : 'text-secondary-foreground/60 border-secondary-foreground/15 hover:bg-secondary-foreground/10 hover:text-secondary-foreground'
             )}
           >
             {t(tab)}

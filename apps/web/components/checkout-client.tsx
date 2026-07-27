@@ -305,6 +305,8 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
           productId: item.productId,
           designId: item.designId,
           quantity: item.quantity,
+          ...(item.deliveryDate ? { deliveryDate: item.deliveryDate } : {}),
+          ...(item.personCount != null ? { personCount: item.personCount } : {}),
           ...(item.customImageUrls?.length ? { customImageUrls: item.customImageUrls } : {}),
           ...(item.customDesignNote ? { customDesignNote: item.customDesignNote } : {}),
           ...(item.productId.startsWith('custom') ? { productName: item.productName } : {}),
@@ -1087,7 +1089,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
             <div className="space-y-4">
               {items.map((item) => (
                 <div
-                  key={`${item.productId}-${item.designId}`}
+                  key={item.lineKey}
                   className="space-y-3 pb-4 border-b last:border-b-0 last:pb-0"
                 >
                   <div className="flex gap-3">
@@ -1126,6 +1128,13 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                             <p className="text-xs text-muted-foreground">{item.designName}</p>
                           </div>
                         </div>
+                      )}
+                      {(item.deliveryDate || item.personCount != null) && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {item.deliveryDate && format(new Date(`${item.deliveryDate}T12:00:00`), 'dd.MM.yyyy')}
+                          {item.deliveryDate && item.personCount != null && ' · '}
+                          {item.personCount != null && `${item.personCount} ${t('fields.personCountShort')}`}
+                        </p>
                       )}
                     </div>
                     <div className="text-right">

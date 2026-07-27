@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,11 +16,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { DeleteConfirmDialog } from '@/components/admin/delete-confirm-dialog'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { useTranslations } from 'next-intl'
-import { AlertCircle, Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
+import { Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import { Tabs, TabsContent, TabsList, TabsTrigger, AnimatedTabsList } from '@/components/ui/tabs-animated'
@@ -77,15 +80,15 @@ const slugify = (value: string) =>
 export function AdminFlavourManagement() {
   const supabase = useMemo(() => createClient(), [])
   const tAdmin = useTranslations('admin.flavours')
+  const tCommon = useTranslations('admin.common')
 
   const [flavours, setFlavours] = useState<FlavourRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [editingFlavour, setEditingFlavour] = useState<FlavourRecord | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'de' | 'uk'>('de')
 
   const {
@@ -165,7 +168,7 @@ export function AdminFlavourManagement() {
       setFlavours((data as FlavourRecord[]) || [])
     } catch (err: any) {
       console.error('Error loading flavours:', err)
-      setError(`Fehler beim Laden der Geschmacksrichtungen: ${err.message}`)
+      toast.error(`Fehler beim Laden der Geschmacksrichtungen: ${err.message}`)
     } finally {
       setLoading(false)
     }
@@ -174,16 +177,6 @@ export function AdminFlavourManagement() {
   useEffect(() => {
     loadFlavours()
   }, [loadFlavours])
-
-  useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        setError(null)
-        setSuccess(null)
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [error, success])
 
   async function uploadImage(file: File, folder: string = 'torten-flavours'): Promise<string> {
     const formData = new FormData()
@@ -212,10 +205,10 @@ export function AdminFlavourManagement() {
     try {
       const url = await uploadImage(file)
       setValue('image_url', url)
-      setSuccess('Bild erfolgreich hochgeladen! URL wurde eingefügt.')
+      toast.success('Bild erfolgreich hochgeladen! URL wurde eingefügt.')
     } catch (err: any) {
       console.error('Error uploading image:', err)
-      setError(`Fehler beim Hochladen des Bildes: ${err.message}`)
+      toast.error(`Fehler beim Hochladen des Bildes: ${err.message}`)
     } finally {
       setUploading(false)
       event.target.value = ''
@@ -280,9 +273,6 @@ export function AdminFlavourManagement() {
   }
 
   async function onSubmit(data: FlavourFormData) {
-    setError(null)
-    setSuccess(null)
-
     try {
       const slug = editingFlavour ? editingFlavour.slug : slugify(data.name_de)
       const text_de = data.nutrition_text_de?.trim() || null
@@ -336,7 +326,7 @@ export function AdminFlavourManagement() {
         }
       }
 
-      setSuccess(editingFlavour ? tAdmin('updateSuccess') : tAdmin('createSuccess'))
+      toast.success(editingFlavour ? tAdmin('updateSuccess') : tAdmin('createSuccess'))
       closeModal()
       await loadFlavours()
     } catch (err: any) {
@@ -345,49 +335,31 @@ export function AdminFlavourManagement() {
         err?.code === '23505'
           ? 'Diese Nummer wird bereits verwendet. Bitte eine andere Nummer wählen.'
           : `Fehler beim Speichern: ${err.message || 'Unbekannter Fehler'}`
-      setError(msg)
+      toast.error(msg)
     }
   }
 
   async function handleDelete(flavourId: string) {
-    if (!confirm(tAdmin('confirmDelete'))) {
-      return
-    }
     setDeletingId(flavourId)
-    setError(null)
-    setSuccess(null)
 
     try {
       const { error: deleteError } = await supabase.from('torten_flavours').delete().eq('id', flavourId)
       if (deleteError) throw deleteError
-      setSuccess(tAdmin('deleteSuccess'))
+      toast.success(tAdmin('deleteSuccess'))
       await loadFlavours()
     } catch (err: any) {
       console.error('Error deleting flavour:', err)
-      setError(`Fehler beim Löschen: ${err.message || 'Unbekannter Fehler'}`)
+      toast.error(`Fehler beim Löschen: ${err.message || 'Unbekannter Fehler'}`)
     } finally {
       setDeletingId(null)
+      setDeleteTargetId(null)
     }
   }
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {success && (
-        <div className="flex items-center gap-2 rounded-md bg-emerald-100 p-3 text-emerald-700">
-          <Check className="h-4 w-4" />
-          <span>{success}</span>
-        </div>
-      )}
-
       <TooltipProvider>
-        <div className="rounded-lg border bg-white overflow-hidden">
+        <div className="rounded-lg border bg-card overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-4">
           <div>
             <h2 className="text-xl font-semibold text-foreground">{tAdmin('title')}</h2>
@@ -459,7 +431,7 @@ export function AdminFlavourManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(flavour.id)}
+                          onClick={() => setDeleteTargetId(flavour.id)}
                           disabled={deletingId === flavour.id}
                           aria-label={tAdmin('delete')}
                         >
@@ -478,27 +450,27 @@ export function AdminFlavourManagement() {
 
             {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-border text-sm bg-white">
-                <thead className="text-muted-foreground">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('flavourNumber')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('ingredientsDe')}</th>
-                    <th className="px-4 py-3 text-left font-semibold">{tAdmin('allergensDe')}</th>
-                    <th className="px-4 py-3 text-right font-semibold">{tAdmin('actions')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/70 bg-white">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{tAdmin('flavourNumber')}</TableHead>
+                    <TableHead>{tAdmin('image')}</TableHead>
+                    <TableHead>{tAdmin('nameDe')}</TableHead>
+                    <TableHead>{tAdmin('nameUk')}</TableHead>
+                    <TableHead>{tAdmin('ingredientsDe')}</TableHead>
+                    <TableHead>{tAdmin('allergensDe')}</TableHead>
+                    <TableHead className="text-right">{tAdmin('actions')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {flavours.map((flavour) => {
                     const ingredientsPreview = (flavour.ingredients_de || []).join(', ')
                     const allergensPreview = (flavour.allergens_de || []).join(', ')
 
                     return (
-                      <tr key={flavour.id} className="align-top">
-                        <td className="px-4 py-3 font-medium text-foreground">{flavour.flavour_number}</td>
-                        <td className="px-4 py-3">
+                      <TableRow key={flavour.id} className="align-top">
+                        <TableCell className="font-medium text-foreground">{flavour.flavour_number}</TableCell>
+                        <TableCell>
                           <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
                             {flavour.image_url ? (
                               <Image
@@ -514,24 +486,24 @@ export function AdminFlavourManagement() {
                               </div>
                             )}
                           </div>
-                        </td>
-                        <td className="px-4 py-3 font-medium text-foreground">{flavour.name_de}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{flavour.name_uk}</td>
-                        <td className="px-4 py-3 text-muted-foreground">
+                        </TableCell>
+                        <TableCell className="font-medium text-foreground">{flavour.name_de}</TableCell>
+                        <TableCell className="text-muted-foreground">{flavour.name_uk}</TableCell>
+                        <TableCell className="text-muted-foreground">
                           {ingredientsPreview ? (
                             <p className="line-clamp-3">{ingredientsPreview}</p>
                           ) : (
                             <span className="text-xs italic text-muted-foreground/70">—</span>
                           )}
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
                           {allergensPreview ? (
                             <p className="line-clamp-2">{allergensPreview}</p>
                           ) : (
                             <span className="text-xs italic text-muted-foreground/70">—</span>
                           )}
-                        </td>
-                        <td className="px-4 py-3">
+                        </TableCell>
+                        <TableCell>
                           <div className="flex items-center justify-end gap-2">
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -551,7 +523,7 @@ export function AdminFlavourManagement() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleDelete(flavour.id)}
+                                  onClick={() => setDeleteTargetId(flavour.id)}
                                   disabled={deletingId === flavour.id}
                                   aria-label={tAdmin('delete')}
                                 >
@@ -565,31 +537,44 @@ export function AdminFlavourManagement() {
                               <TooltipContent>{tAdmin('delete')}</TooltipContent>
                             </Tooltip>
                           </div>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     )
                   })}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </>
         )}
         </div>
       </TooltipProvider>
 
+      <DeleteConfirmDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title={tCommon('confirmDeleteTitle')}
+        description={tAdmin('confirmDelete')}
+        confirmLabel={tCommon('confirmDeleteAction')}
+        cancelLabel={tAdmin('cancel')}
+        isPending={deletingId !== null}
+        onConfirm={() => {
+          if (deleteTargetId) void handleDelete(deleteTargetId)
+        }}
+      />
+
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="flex max-h-[90dvh] w-[min(48rem,calc(100vw-2rem))] max-w-3xl flex-col gap-0 rounded-lg p-0">
-          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-[#735959] sm:text-left">
-            <DialogTitle className="text-base text-[#735959]">
+          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-primary sm:text-left">
+            <DialogTitle className="text-base text-primary">
               {editingFlavour ? tAdmin('editFlavour') : tAdmin('createFlavour')}
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#735959]/90">
+            <DialogDescription className="text-xs text-primary/90">
               {editingFlavour ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
-            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959] [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-primary [&_input]:text-base [&_label]:text-primary [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
               <div className="flex flex-col gap-1">
                 <Label className="text-xs" htmlFor="flavour_number">
                   {activeTab === 'de' ? LABELS_DE.flavourNumber : LABELS_UK.flavourNumber}
@@ -756,7 +741,7 @@ export function AdminFlavourManagement() {
                   />
                 </div>
                 {uploading && (
-                  <p className="flex items-center gap-2 text-xs text-[#735959]/80">
+                  <p className="flex items-center gap-2 text-xs text-primary/80">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     {tAdmin('uploading')}
                   </p>

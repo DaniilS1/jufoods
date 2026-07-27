@@ -17,6 +17,7 @@ export interface AccountProfileResponse {
   profile: {
     fullName: string | null
     phone: string | null
+    email: string
   }
   settings: {
     preferredLanguage: string | null
@@ -141,7 +142,7 @@ function AccountContent({ userId, email, locale, memberSince }: AccountClientPro
               'flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors min-h-11 touch-manipulation',
               activeSection === id
                 ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                : 'text-muted-foreground hover:bg-accent hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             ].join(' ')}
           >
             <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -185,13 +186,13 @@ function AccountContent({ userId, email, locale, memberSince }: AccountClientPro
                 'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-left min-h-11 touch-manipulation',
                 activeSection === id
                   ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  : 'text-muted-foreground hover:bg-accent hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               ].join(' ')}
             >
               <Icon
                 className={[
                   'h-4 w-4 shrink-0 transition-colors',
-                  activeSection === id ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
+                  activeSection === id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary',
                 ].join(' ')}
                 aria-hidden="true"
               />

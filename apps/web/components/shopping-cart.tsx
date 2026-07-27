@@ -22,6 +22,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 
 interface CartItemDisplay {
+  lineKey: string
   productId: string
   productSlug: string
   productName: string
@@ -105,7 +106,7 @@ export function ShoppingCart() {
           ) : (
             <div className="space-y-3">
               {items.map((item: CartItemDisplay) => {
-                const itemKey = `${item.productId}-${item.designId}`
+                const itemKey = item.lineKey
                 const isExpanded = expandedItems.has(itemKey)
                 const hasDesign = !!item.designName
 
@@ -170,7 +171,7 @@ export function ShoppingCart() {
                               variant="ghost"
                               size="icon"
                               className="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10 active:bg-destructive/10"
-                              onClick={() => removeItem(item.productId, item.designId)}
+                              onClick={() => removeItem(item.lineKey)}
                             >
                               <Trash2 className="h-4 w-4" />
                               <span className="sr-only">Remove item</span>
@@ -185,7 +186,7 @@ export function ShoppingCart() {
                             variant="outline"
                             size="icon"
                               className="h-11 w-11 rounded-lg touch-manipulation"
-                              onClick={() => updateQuantity(item.productId, item.designId, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.lineKey, item.quantity - 1)}
                           >
                               <Minus className="h-4 w-4" />
                               <span className="sr-only">Decrease quantity</span>
@@ -195,7 +196,7 @@ export function ShoppingCart() {
                             variant="outline"
                             size="icon"
                               className="h-11 w-11 rounded-lg touch-manipulation"
-                              onClick={() => updateQuantity(item.productId, item.designId, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.lineKey, item.quantity + 1)}
                           >
                               <Plus className="h-4 w-4" />
                               <span className="sr-only">Increase quantity</span>

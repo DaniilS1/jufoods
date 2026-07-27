@@ -4,11 +4,35 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { de as deLocale, uk as ukLocale } from 'date-fns/locale'
 import { useTranslations, useLocale } from 'next-intl'
-import { ChevronDown, ChevronUp, Loader2, Sparkles } from 'lucide-react'
+import { ChevronRight, Loader2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+import { AdminStatusBadge } from '@/components/admin/admin-status-badge'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
+
+type OrderStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
+
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : true
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    const handler = () => setIsDesktop(mq.matches)
+    mq.addEventListener?.('change', handler)
+    mq.addListener?.(handler)
+    return () => {
+      mq.removeEventListener?.('change', handler)
+      mq.removeListener?.(handler)
+    }
+  }, [])
+
+  return isDesktop
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -45,6 +69,8 @@ export type EnrichedOrderLine = {
   isCustom?: boolean
   customImageUrls?: string[] | null
   customDesignNote?: string | null
+  deliveryDate?: string | null
+  personCount?: number | null
 }
 
 /** Detects a custom-design order from its raw items JSON (used for list/detail badges). */
@@ -118,25 +144,6 @@ const STATUS_OPTIONS = [
   { value: 'cancelled', label: '✖ Storniert' },
 ]
 
-const STATUS_BADGE: Record<string, { bg: string; text: string }> = {
-  pending:   { bg: 'bg-amber-100',  text: 'text-amber-800' },
-  confirmed: { bg: 'bg-green-100',  text: 'text-green-800' },
-  completed: { bg: 'bg-gray-100',   text: 'text-gray-600' },
-  cancelled: { bg: 'bg-red-100',    text: 'text-red-700' },
-}
-
-// ─── StatusBadge ─────────────────────────────────────────────────────────────
-
-function StatusBadge({ status }: { status: string }) {
-  const tStatus = useTranslations('account.orderStatus')
-  const cfg = STATUS_BADGE[status] ?? STATUS_BADGE.pending
-  return (
-    <span className={cn('inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold leading-none whitespace-nowrap', cfg.bg, cfg.text)}>
-      {tStatus(status as 'pending' | 'confirmed' | 'completed' | 'cancelled')}
-    </span>
-  )
-}
-
 // ─── OrderLineCard (preserved) ────────────────────────────────────────────────
 
 function OrderLineCard({ line, locale }: { line: EnrichedOrderLine; locale: string }) {
@@ -202,6 +209,21 @@ function OrderLineCard({ line, locale }: { line: EnrichedOrderLine; locale: stri
         )}
 
         <p className="text-xs text-muted-foreground">{t('quantity')}: <span className="font-medium text-foreground">{line.quantity}</span></p>
+        {(line.deliveryDate || line.personCount != null) && (
+          <p className="text-xs text-muted-foreground">
+            {line.deliveryDate && (
+              <>
+                {t('perItemDeliveryDate')}: <span className="font-medium text-foreground">{formatDetailDate(line.deliveryDate, locale)}</span>
+              </>
+            )}
+            {line.deliveryDate && line.personCount != null && ' · '}
+            {line.personCount != null && (
+              <>
+                {t('perItemPersonCount')}: <span className="font-medium text-foreground">{line.personCount}</span>
+              </>
+            )}
+          </p>
+        )}
       </div>
     </li>
   )
@@ -292,49 +314,24 @@ function OrderMasterCard({ order, isActive, onSelect, onStatusChange, updatingId
   onStatusChange: (status: string) => void
   updatingId: string | null
 }) {
-  const t = useTranslations('admin.orders')
-  const [localNote, setLocalNote] = useState(order.notes ?? '')
-  const [savingNote, setSavingNote] = useState(false)
-
-  useEffect(() => { setLocalNote(order.notes ?? '') }, [order.notes])
-
-  const checkout = (order.checkout_details && typeof order.checkout_details === 'object' ? order.checkout_details : {}) as CheckoutShape
-  const contact = checkout.contact
-  const phone = typeof contact?.phone === 'string' && contact.phone ? contact.phone : null
-
-  async function handleSaveNote() {
-    setSavingNote(true)
-    try {
-      await fetch(`/api/admin/orders/${order.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: localNote }),
-      })
-    } finally {
-      setSavingNote(false)
-    }
-  }
-
   return (
     <div className={cn('rounded-xl border overflow-hidden transition-colors', isActive ? 'border-secondary bg-secondary' : 'border-border bg-card hover:border-secondary/40')}>
-      {/* Summary row — always visible, click to select/toggle */}
+      {/* Summary row — always visible, click to select (desktop: split-pane, mobile: opens Sheet) */}
       <div className="p-3 cursor-pointer select-none" onClick={onSelect}>
         <div className="flex items-center justify-between mb-1.5">
-          <span className={cn('text-[10px] font-bold tracking-wider', isActive ? 'text-white/50' : 'text-muted-foreground')}>
+          <span className={cn('text-[10px] font-bold tracking-wider', isActive ? 'text-secondary-foreground/50' : 'text-muted-foreground')}>
             {order.id.slice(0, 8).toUpperCase()}
           </span>
           <div className="flex items-center gap-1.5">
             {orderHasCustom(order.items) && <CustomBadge />}
-            <StatusBadge status={order.status} />
-            <span className={cn('lg:hidden', isActive ? 'text-white/60' : 'text-muted-foreground')}>
-              {isActive ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            </span>
+            <AdminStatusBadge status={order.status as OrderStatus} />
+            <ChevronRight className={cn('h-3.5 w-3.5 lg:hidden', isActive ? 'text-secondary-foreground/60' : 'text-muted-foreground')} />
           </div>
         </div>
-        <p className={cn('text-sm font-semibold leading-snug', isActive ? 'text-white' : 'text-foreground')}>
+        <p className={cn('text-sm font-semibold leading-snug', isActive ? 'text-secondary-foreground' : 'text-foreground')}>
           {order.customer_name}
         </p>
-        <p className={cn('text-xs mt-0.5', isActive ? 'text-white/55' : 'text-muted-foreground')}>
+        <p className={cn('text-xs mt-0.5', isActive ? 'text-secondary-foreground/55' : 'text-muted-foreground')}>
           {shortDate(order.created_at)}
         </p>
       </div>
@@ -352,31 +349,6 @@ function OrderMasterCard({ order, isActive, onSelect, onStatusChange, updatingId
           ))}
         </select>
       </div>
-
-      {/* Mobile expanded: customer data + notes */}
-      {isActive && (
-        <div className="lg:hidden border-t border-border bg-background text-foreground px-3 py-3 flex flex-col gap-2.5">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t('customerSection')}</p>
-          {phone && <a href={`tel:${phone}`} className="text-xs text-primary font-medium">📞 {phone}</a>}
-          {order.customer_email && <p className="text-xs text-foreground">{order.customer_email}</p>}
-          <div className="mt-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">{t('actions.note')}</p>
-            <textarea
-              className="w-full text-xs border border-border rounded-lg px-2.5 py-1.5 bg-card resize-none h-[52px] outline-none"
-              placeholder={t('actions.notePlaceholder')}
-              value={localNote}
-              onChange={(e) => setLocalNote(e.target.value)}
-            />
-            <button
-              className="mt-1 text-[11px] font-semibold px-3 py-1 bg-secondary text-white rounded-lg disabled:opacity-60"
-              onClick={handleSaveNote}
-              disabled={savingNote}
-            >
-              {savingNote ? '…' : t('actions.save')}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -403,7 +375,7 @@ function DetailPanel({ order, enrichedItems, enrichedLoading, adminNote, setAdmi
       <div className="px-6 py-4 border-b border-border shrink-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[10px] font-bold tracking-wider text-muted-foreground">{order.id.slice(0, 8).toUpperCase()}</span>
-          <StatusBadge status={order.status} />
+          <AdminStatusBadge status={order.status as OrderStatus} />
           {orderHasCustom(order.items) && <CustomBadge />}
         </div>
         <h2 className="text-lg font-bold text-foreground leading-tight">{order.customer_name}</h2>
@@ -457,10 +429,12 @@ function DetailPanel({ order, enrichedItems, enrichedLoading, adminNote, setAdmi
 
 function StatTile({ label, value, valueClass }: { label: string; value: number; valueClass?: string }) {
   return (
-    <div className="bg-card border border-border rounded-xl px-4 py-3 flex flex-col gap-1">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className={cn('text-2xl font-bold text-foreground', valueClass)}>{value}</p>
-    </div>
+    <Card>
+      <CardContent className="flex flex-col gap-1 px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className={cn('text-2xl font-bold text-foreground', valueClass)}>{value}</p>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -469,6 +443,7 @@ function StatTile({ label, value, valueClass }: { label: string; value: number; 
 export function AdminOrdersManagement() {
   const t = useTranslations('admin.orders')
   const locale = useLocale()
+  const isDesktop = useIsDesktop()
 
   const [data, setData] = useState<AdminOrderRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -482,6 +457,7 @@ export function AdminOrdersManagement() {
   const [savingNote, setSavingNote] = useState(false)
 
   const activeOrder = useMemo(() => data.find((o) => o.id === activeOrderId) ?? null, [data, activeOrderId])
+  const mobileSheetOpen = !isDesktop && activeOrderId !== null
 
   // Load all orders
   const load = useCallback(async () => {
@@ -586,9 +562,9 @@ export function AdminOrdersManagement() {
     <div className="flex flex-col gap-4">
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatTile label={t('stats.open')}    value={stats.open}    valueClass="text-amber-700" />
+        <StatTile label={t('stats.open')}    value={stats.open}    valueClass="text-warning-text" />
         <StatTile label={t('stats.pending')} value={stats.waiting} valueClass="text-primary" />
-        <StatTile label={t('stats.week')}    value={stats.week}    valueClass="text-green-700" />
+        <StatTile label={t('stats.week')}    value={stats.week}    valueClass="text-success" />
         <StatTile label={t('stats.total')}   value={stats.total} />
       </div>
 
@@ -601,8 +577,8 @@ export function AdminOrdersManagement() {
             className={cn(
               'shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors',
               statusFilter === f.value
-                ? 'bg-secondary text-white'
-                : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
+                ? 'bg-secondary text-secondary-foreground'
+                : 'bg-secondary/10 text-secondary hover:bg-secondary hover:text-secondary-foreground'
             )}
           >
             {f.label}
@@ -662,6 +638,29 @@ export function AdminOrdersManagement() {
           </div>
         </div>
       )}
+
+      {/* Mobile order detail — Sheet reuses the same DetailPanel as desktop */}
+      <Sheet open={mobileSheetOpen} onOpenChange={(open) => !open && setActiveOrderId(null)}>
+        <SheetContent side="bottom" className="flex h-[88dvh] flex-col gap-0 p-0">
+          <SheetTitle className="sr-only">{t('detailTitle')}</SheetTitle>
+          <div className="min-h-0 flex-1">
+            {activeOrder && (
+              <DetailPanel
+                order={activeOrder}
+                enrichedItems={enrichedItems}
+                enrichedLoading={enrichedLoading}
+                adminNote={adminNote}
+                setAdminNote={setAdminNote}
+                onStatusChange={(status) => updateStatus(activeOrder.id, status)}
+                onSaveNote={handleSaveNote}
+                savingNote={savingNote}
+                updatingId={updatingId}
+                locale={locale}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/admin'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request)
+    const allowed = await checkRateLimit(`custom-designs:ip:${clientIp}`, 20, 10 * 60)
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many uploads, please try again later' }, { status: 429 })
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File
     const productId = formData.get('productId') as string
@@ -30,15 +37,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const admin = createServiceRoleClient()
+    if (!admin) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY or URL missing')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
 
-    // Sanitize filename
+    // Sanitize filename and the (client-supplied) productId path segment
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\s+/g, '_')
+    const sanitizedProductId = productId.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 100)
     const fileName = `${Date.now()}_${sanitizedName}`
-    const filePath = `custom-designs/${productId}/${fileName}`
+    const filePath = `custom-designs/${sanitizedProductId}/${fileName}`
 
-    // Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage.from('bilder').upload(filePath, file, {
+    // Upload to Supabase Storage (service-role: this endpoint is intentionally
+    // reachable by anonymous guests, so the bucket itself has no public write policy)
+    const { error: uploadError } = await admin.storage.from('bilder').upload(filePath, file, {
       cacheControl: '3600',
       upsert: false,
     })
@@ -51,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Get public URL
     const {
       data: { publicUrl },
-    } = supabase.storage.from('bilder').getPublicUrl(filePath)
+    } = admin.storage.from('bilder').getPublicUrl(filePath)
 
     // Normalize URL (similar to admin-product-management.tsx)
     const publicUrlPattern = /\/storage\/v1\/object\/public\//

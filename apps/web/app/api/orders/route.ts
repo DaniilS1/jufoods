@@ -1,34 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceRoleClient } from '@/lib/supabase/admin'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { orderRequestSchema, type OrderRequestBody } from '@/lib/orders/order-schema'
 import type { CheckoutPayload, EnrichedLineItem, OrderLocale } from '@/lib/orders/order-types'
 import { sendOrderCreatedWebhook } from '@/lib/orders/order-webhook'
 
-type RawItem = {
-  productId?: string
-  product_id?: string
-  designId?: string | null
-  design_id?: string | null
-  quantity?: number
-  productName?: string
-  customImageUrls?: string[]
-  customDesignNote?: string
-}
+type OrderLineInput = OrderRequestBody['items'][number]
 
-function isCustomItem(item: RawItem): boolean {
-  const pid = item.productId ?? item.product_id
-  return typeof pid === 'string' && pid.startsWith('custom')
-}
-
-function lineProductId(item: RawItem): string | undefined {
-  const v = item.productId ?? item.product_id
-  return typeof v === 'string' && v.trim() ? v.trim() : undefined
-}
-
-function lineDesignId(item: RawItem): string | null | undefined {
-  const v = item.designId ?? item.design_id
-  if (v === null || v === undefined) return v
-  return typeof v === 'string' && v.trim() ? v.trim() : null
+function isCustomItem(item: OrderLineInput): boolean {
+  return (
+    item.productId.startsWith('custom') ||
+    (Array.isArray(item.customImageUrls) && item.customImageUrls.length > 0)
+  )
 }
 
 function normalizeEmail(email: string): string {
@@ -51,13 +35,13 @@ function buildCustomerAddress(
 
 async function enrichLineItems(
   admin: NonNullable<ReturnType<typeof createServiceRoleClient>>,
-  items: RawItem[],
+  items: OrderLineInput[],
   locale: OrderLocale
 ): Promise<EnrichedLineItem[]> {
   const productIds = [
-    ...new Set(items.filter((i) => !isCustomItem(i)).map(lineProductId).filter(Boolean) as string[]),
+    ...new Set(items.filter((i) => !isCustomItem(i)).map((i) => i.productId)),
   ]
-  const designIds = [...new Set(items.map((i) => lineDesignId(i)).filter(Boolean) as string[])]
+  const designIds = [...new Set(items.map((i) => i.designId).filter(Boolean) as string[])]
 
   const [productsRes, designsRes] = await Promise.all([
     productIds.length
@@ -87,48 +71,67 @@ async function enrichLineItems(
   }
 
   return items.map((item) => {
-    const pid = lineProductId(item)
-    const did = lineDesignId(item)
+    const pid = item.productId
+    const did = item.designId ?? null
+    const base = {
+      quantity: item.quantity,
+      designName: did ? designMap.get(did) ?? null : null,
+      deliveryDate: item.deliveryDate ?? null,
+      personCount: item.personCount ?? null,
+    }
     if (isCustomItem(item)) {
-      const imageUrls = Array.isArray(item.customImageUrls) ? item.customImageUrls : []
+      const imageUrls = item.customImageUrls ?? []
       return {
-        quantity: Math.max(1, item.quantity ?? 1),
+        ...base,
         productName: item.productName?.trim() || (locale === 'uk' ? 'Власний дизайн' : 'Eigenes Design'),
-        designName: did ? designMap.get(did) ?? null : null,
         customImageCount: imageUrls.length,
         customImageUrls: imageUrls,
         customDesignNote: item.customDesignNote?.trim() || undefined,
       }
     }
     return {
-      quantity: Math.max(1, item.quantity ?? 1),
-      productName: pid ? productMap.get(pid) ?? pid.slice(0, 8) : '—',
-      designName: did ? designMap.get(did) ?? null : null,
+      ...base,
+      productName: productMap.get(pid) ?? pid.slice(0, 8),
     }
   })
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { items, customer, orderDetails, delivery, customDesignId, locale: localeRaw } = body
+    const clientIp = getClientIp(request)
+    const ipAllowed = await checkRateLimit(`orders:ip:${clientIp}`, 10, 10 * 60)
+    if (!ipAllowed) {
+      return NextResponse.json({ error: 'Too many requests, please try again later' }, { status: 429 })
+    }
+
+    const rawBody = await request.json()
+    const parsed = orderRequestSchema.safeParse(rawBody)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid order payload', details: parsed.error.flatten() },
+        { status: 400 }
+      )
+    }
+    const { items, customer, orderDetails, delivery, customDesignId, locale: localeRaw } = parsed.data
 
     const locale: OrderLocale = localeRaw === 'uk' ? 'uk' : 'de'
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json({ error: 'Items are required' }, { status: 400 })
+    const emailRaw = customer.email.trim()
+    const emailNormalized = normalizeEmail(emailRaw)
+
+    const emailAllowed = await checkRateLimit(`orders:email:${emailNormalized}`, 5, 10 * 60)
+    if (!emailAllowed) {
+      return NextResponse.json({ error: 'Too many requests, please try again later' }, { status: 429 })
     }
 
-    const emailRaw = typeof customer?.email === 'string' ? customer.email.trim() : ''
-    const firstName = typeof customer?.firstName === 'string' ? customer.firstName.trim() : ''
-    const lastName = typeof customer?.lastName === 'string' ? customer.lastName.trim() : ''
-    let fullName =
-      typeof customer?.fullName === 'string' ? customer.fullName.trim() : `${firstName} ${lastName}`.trim()
+    const firstName = customer.firstName?.trim() || ''
+    const lastName = customer.lastName?.trim() || ''
+    let fullName = customer.fullName?.trim() || `${firstName} ${lastName}`.trim()
     if (!fullName && (firstName || lastName)) {
       fullName = `${firstName} ${lastName}`.trim()
     }
-    if (!emailRaw || !fullName) {
-      return NextResponse.json({ error: 'Name and email are required' }, { status: 400 })
+    if (!fullName) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 })
     }
 
     const admin = createServiceRoleClient()
@@ -142,27 +145,21 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabaseUser.auth.getUser()
 
-    const emailNormalized = normalizeEmail(emailRaw)
     const displayEmail = emailRaw
     const residenceCity = customer.residenceCity?.trim() || null
-    const phone =
-      (typeof customer?.phone === 'string' ? customer.phone.trim() : '') ||
-      (typeof customer?.phoneOrSocial === 'string' ? customer.phoneOrSocial.trim() : '') ||
-      null
+    const phone = customer.phone?.trim() || customer.phoneOrSocial?.trim() || null
 
-    const salutation: 'mr' | 'mrs' = customer?.salutation === 'mrs' ? 'mrs' : 'mr'
-    const consentWhatsapp = Boolean(customer?.consentWhatsapp)
-    const consentTelegram = Boolean(customer?.consentTelegram)
+    const salutation: 'mr' | 'mrs' = customer.salutation === 'mrs' ? 'mrs' : 'mr'
+    const consentWhatsapp = Boolean(customer.consentWhatsapp)
+    const consentTelegram = Boolean(customer.consentTelegram)
     const hasMessengerConsent = consentWhatsapp || consentTelegram
-    const messengerPhoneRaw =
-      typeof customer?.messengerPhone === 'string' ? customer.messengerPhone.trim() : ''
+    const messengerPhoneRaw = customer.messengerPhone?.trim() ?? ''
     const messengerPhone = hasMessengerConsent && messengerPhoneRaw ? messengerPhoneRaw : null
     const messengerSameAsPhone = !hasMessengerConsent || !messengerPhoneRaw
 
     const nameParts = fullName.split(/\s+/).filter(Boolean)
     const resolvedFirst = firstName || nameParts[0] || fullName
-    const resolvedLast =
-      lastName || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '')
+    const resolvedLast = lastName || (nameParts.length > 1 ? nameParts.slice(1).join(' ') : '')
 
     const contactPayload = {
       salutation,
@@ -183,112 +180,73 @@ export async function POST(request: NextRequest) {
       residenceCity: residenceCity || undefined,
     }
 
-    const remarksText =
-      typeof orderDetails?.remarks === 'string' && orderDetails.remarks.trim()
-        ? orderDetails.remarks.trim()
-        : null
-
-    const { data: existingCustomer, error: findErr } = await admin
-      .from('customers')
-      .select('id, order_count, user_id')
-      .eq('email_normalized', emailNormalized)
-      .maybeSingle()
-
-    if (findErr) {
-      console.error('Customer lookup error:', findErr)
-      return NextResponse.json({ error: 'Failed to process customer' }, { status: 500 })
-    }
-
-    const now = new Date().toISOString()
-    const linkedUserId = user?.id ?? null
-    let customerId: string
-
-    if (!existingCustomer) {
-      const { data: inserted, error: insErr } = await admin
-        .from('customers')
-        .insert({
-          email_normalized: emailNormalized,
-          display_email: displayEmail,
-          full_name: fullName,
-          phone_or_social: phone,
-          residence_city: residenceCity,
-          user_id: linkedUserId,
-          first_order_at: now,
-          last_order_at: now,
-          order_count: 1,
-        })
-        .select('id')
-        .single()
-
-      if (insErr || !inserted) {
-        console.error('Customer insert error:', insErr)
-        return NextResponse.json({ error: 'Failed to create customer' }, { status: 500 })
-      }
-      customerId = inserted.id
-    } else {
-      const nextUserId = existingCustomer.user_id ?? linkedUserId
-      const { error: upErr } = await admin
-        .from('customers')
-        .update({
-          display_email: displayEmail,
-          full_name: fullName,
-          phone_or_social: phone,
-          residence_city: residenceCity,
-          user_id: nextUserId,
-          last_order_at: now,
-          order_count: existingCustomer.order_count + 1,
-        })
-        .eq('id', existingCustomer.id)
-
-      if (upErr) {
-        console.error('Customer update error:', upErr)
-        return NextResponse.json({ error: 'Failed to update customer' }, { status: 500 })
-      }
-      customerId = existingCustomer.id
-    }
-
+    const remarksText = orderDetails?.remarks?.trim() || null
     const customerAddress = buildCustomerAddress(delivery, residenceCity)
 
-    const { data: order, error: dbError } = await admin
-      .from('orders')
-      .insert({
-        user_id: user?.id || null,
-        customer_id: customerId,
-        customer_name: fullName,
-        customer_email: displayEmail,
-        customer_phone: phone,
-        customer_address: customerAddress,
-        notes: remarksText,
-        checkout_details: checkoutDetails,
-        items: items,
-        status: 'pending',
-        custom_design_id: customDesignId || null,
+    const { data: rpcData, error: rpcError } = await admin
+      .rpc('create_order_with_customer', {
+        p_email_normalized: emailNormalized,
+        p_display_email: displayEmail,
+        p_full_name: fullName,
+        p_phone: phone,
+        p_residence_city: residenceCity,
+        p_user_id: user?.id ?? null,
+        p_customer_address: customerAddress,
+        p_notes: remarksText,
+        p_checkout_details: checkoutDetails,
+        p_items: items,
+        p_custom_design_id: customDesignId || null,
       })
-      .select()
       .single()
 
-    if (dbError || !order) {
-      console.error('Database error:', dbError)
+    if (rpcError || !rpcData) {
+      console.error('create_order_with_customer error:', rpcError)
       return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
     }
 
-    const enrichedLines = await enrichLineItems(admin, items as RawItem[], locale)
+    const { order_id: orderId, customer_id: customerId } = rpcData as {
+      order_id: string
+      customer_id: string
+    }
+
+    const { data: order, error: fetchError } = await admin
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single()
+
+    if (fetchError || !order) {
+      console.error('Order fetch-after-create error:', fetchError)
+      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+    }
+
+    const enrichedLines = await enrichLineItems(admin, items, locale)
 
     if (!process.env.ORDER_WEBHOOK_URL?.trim()) {
       console.warn(
         '[orders] ORDER_WEBHOOK_URL is not set; order was saved but no notification webhook was sent (configure n8n URL).'
       )
-    }
-    void sendOrderCreatedWebhook({
-      event: 'order.created',
-      version: 1,
-      order: order as Record<string, unknown>,
-      customerId,
-      enrichedLines,
-      locale,
-    })
+    } else {
+      const result = await sendOrderCreatedWebhook({
+        event: 'order.created',
+        version: 1,
+        order: order as Record<string, unknown>,
+        customerId,
+        enrichedLines,
+        locale,
+      })
 
-    return NextResponse.json({ success: true, orderId: order.id }, { status: 201 })
+      await admin
+        .from('orders')
+        .update(
+          result.delivered
+            ? { webhook_delivered_at: new Date().toISOString(), webhook_last_error: null }
+            : { webhook_last_error: result.error }
+        )
+        .eq('id', orderId)
+    }
+
+    return NextResponse.json({ success: true, orderId }, { status: 201 })
   } catch (error) {
     console.error('Order submission error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

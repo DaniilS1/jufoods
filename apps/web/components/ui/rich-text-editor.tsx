@@ -39,7 +39,7 @@ function ToolbarButton({
         'flex size-7 items-center justify-center rounded transition-colors',
         active
           ? 'bg-primary/20 text-primary'
-          : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+          : 'text-muted-foreground hover:bg-primary/20 hover:text-primary',
         disabled && 'cursor-not-allowed opacity-40'
       )}
     >

@@ -10,28 +10,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { mapAuthErrorMessage } from '@/lib/auth/error-messages'
 
-const passwordSchema = z
-  .object({
-    newPassword: z.string().min(8, 'Min. 8 characters'),
-    confirmPassword: z.string().min(8, 'Min. 8 characters'),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  })
+function createPasswordSchema(t: (key: string) => string, tAccount: (key: string) => string) {
+  return z
+    .object({
+      currentPassword: z.string().min(1, tAccount('currentPasswordRequired')),
+      newPassword: z.string().min(8, t('passwordMinLength')),
+      confirmPassword: z.string().min(8, t('passwordMinLength')),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: t('passwordsDoNotMatch'),
+      path: ['confirmPassword'],
+    })
+}
 
-type PasswordFormValues = z.infer<typeof passwordSchema>
+type PasswordFormValues = z.infer<ReturnType<typeof createPasswordSchema>>
 
 export function PasswordForm() {
   const t = useTranslations('account')
   const tAuth = useTranslations('auth')
   const tCommon = useTranslations('common')
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const passwordSchema = createPasswordSchema(tAuth, t)
 
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
+      currentPassword: '',
       newPassword: '',
       confirmPassword: '',
     },
@@ -39,24 +47,35 @@ export function PasswordForm() {
 
   const onSubmit = async (values: PasswordFormValues) => {
     setStatus('idle')
+    setErrorMessage(null)
     try {
       const response = await fetch('/api/account/password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ newPassword: values.newPassword }),
+        body: JSON.stringify({
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        }),
       })
 
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}))
-        throw new Error(payload.error || 'Unable to update password')
+        if (payload.error === 'invalid_current_password') {
+          setErrorMessage(t('currentPasswordIncorrect'))
+        } else {
+          setErrorMessage(mapAuthErrorMessage(tAuth, payload.error))
+        }
+        setStatus('error')
+        return
       }
 
       form.reset()
       setStatus('success')
     } catch (error) {
       console.error(error)
+      setErrorMessage(t('passwordError'))
       setStatus('error')
     }
   }
@@ -70,8 +89,22 @@ export function PasswordForm() {
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
+            <Label htmlFor="currentPassword">{t('currentPassword')}</Label>
+            <Input
+              id="currentPassword"
+              type="password"
+              autoComplete="current-password"
+              placeholder={t('currentPasswordPlaceholder')}
+              {...form.register('currentPassword')}
+            />
+            {form.formState.errors.currentPassword && (
+              <p className="text-sm text-destructive">{form.formState.errors.currentPassword.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="newPassword">{t('newPassword')}</Label>
-            <Input id="newPassword" type="password" {...form.register('newPassword')} />
+            <Input id="newPassword" type="password" autoComplete="new-password" {...form.register('newPassword')} />
             {form.formState.errors.newPassword && (
               <p className="text-sm text-destructive">{form.formState.errors.newPassword.message}</p>
             )}
@@ -79,14 +112,14 @@ export function PasswordForm() {
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">{t('confirmPassword') || tAuth('confirmPassword')}</Label>
-            <Input id="confirmPassword" type="password" {...form.register('confirmPassword')} />
+            <Input id="confirmPassword" type="password" autoComplete="new-password" {...form.register('confirmPassword')} />
             {form.formState.errors.confirmPassword && (
               <p className="text-sm text-destructive">{form.formState.errors.confirmPassword.message}</p>
             )}
           </div>
 
           {status === 'success' && <StatusBanner type="success" message={t('passwordSuccess')} />}
-          {status === 'error' && <StatusBanner type="error" message={t('passwordError')} />}
+          {status === 'error' && <StatusBanner type="error" message={errorMessage || t('passwordError')} />}
 
           <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? tCommon('loading') : t('passwordSave')}
@@ -111,6 +144,3 @@ function StatusBanner({ type, message }: { type: 'success' | 'error'; message: s
     </div>
   )
 }
-
-
-

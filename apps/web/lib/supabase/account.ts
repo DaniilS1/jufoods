@@ -1,4 +1,5 @@
 import type { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
+import { createServiceRoleClient } from '@/lib/supabase/admin'
 
 export interface UserProfileRecord {
   id: string
@@ -43,12 +44,23 @@ type Supabase = SupabaseClient<any, 'public', any>
 export async function ensureUserProfile(
   supabase: Supabase,
   userId: string,
-  fullName?: string | null
+  fullName?: string | null,
+  email?: string | null,
+  linkGuestOrders = false
 ): Promise<UserProfileRecord> {
   const { data, error } = await supabase.from('users').select('*').eq('id', userId).single()
 
   if (error && !isMissingRowError(error)) {
     throw new Error(error.message)
+  }
+
+  // Fire-and-forget: links any guest order history placed under this email
+  // before the account existed. Never blocks/fails profile loading. Only
+  // triggered from actual login events (auth callback, /api/auth/me) —
+  // not from every account-page profile fetch, since the RPC does a row
+  // lock on `customers` and is otherwise a no-op after the first link.
+  if (email && linkGuestOrders) {
+    void linkGuestOrdersToUser(userId, email)
   }
 
   if (data) {
@@ -130,6 +142,29 @@ export async function updateUserSettings(
   }
 
   return data as UserSettingsRecord
+}
+
+/**
+ * Links a pre-existing guest `customers` row (and, via a DB trigger, its
+ * historical orders) to this now-known account, matched by normalized email.
+ * Safe to call on every login/session-check — it's a no-op if no matching
+ * guest customer exists, or if that email already belongs to someone else.
+ */
+export async function linkGuestOrdersToUser(userId: string, email: string | null | undefined): Promise<void> {
+  const emailNormalized = email?.trim().toLowerCase()
+  if (!emailNormalized) return
+
+  const admin = createServiceRoleClient()
+  if (!admin) return
+
+  const { error } = await admin.rpc('link_guest_customer_to_user', {
+    p_user_id: userId,
+    p_email_normalized: emailNormalized,
+  })
+
+  if (error) {
+    console.error('linkGuestOrdersToUser error:', error.message)
+  }
 }
 
 function isMissingRowError(error: PostgrestError | null): boolean {

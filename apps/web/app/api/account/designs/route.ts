@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { insertCustomDesign, listCustomDesigns } from '@/lib/supabase/account'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
 const MAX_SIZE = 10 * 1024 * 1024
+const MAX_NOTES_LENGTH = 300
 
 export async function GET() {
   try {
@@ -43,6 +45,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Bounds storage cost/abuse from a single account — mirrors the limit already
+    // applied to the guest-facing /api/custom-designs upload route.
+    const allowed = await checkRateLimit(`account:designs:${user.id}`, 15, 60 * 60)
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many uploads, please try again later' }, { status: 429 })
+    }
+
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const notes = formData.get('notes')?.toString() ?? null
@@ -57,6 +66,10 @@ export async function POST(request: NextRequest) {
 
     if (file.size > MAX_SIZE) {
       return NextResponse.json({ error: 'File is too large (max 10MB)' }, { status: 400 })
+    }
+
+    if (notes && notes.length > MAX_NOTES_LENGTH) {
+      return NextResponse.json({ error: `Notes must be ${MAX_NOTES_LENGTH} characters or fewer` }, { status: 400 })
     }
 
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')

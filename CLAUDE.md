@@ -29,6 +29,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
 ORDER_WEBHOOK_URL          # optional — webhook for order notifications
 ORDER_WEBHOOK_TIMEOUT_MS   # optional — 2000–30000 ms, default 8000
+ORDER_WEBHOOK_SECRET       # optional — HMAC-signs the webhook payload (X-Jufoods-Signature)
 ```
 
 Supabase is **remote only** — do not run `supabase start` or assume a local instance.

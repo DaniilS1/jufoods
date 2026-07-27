@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -16,10 +16,14 @@ import { AlertCircle, CheckCircle2, Zap, Lock, Mail } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { mapAuthErrorMessage } from '@/lib/auth/error-messages'
 
 const createLoginSchema = (t: any) => z.object({
   email: z.string().email(t('invalidEmail') || 'Invalid email address'),
-  password: z.string().min(6, t('passwordMinLength') || 'Password must be at least 6 characters'),
+  // Only "required" here — the actual credential check happens server-side;
+  // enforcing today's min-length would lock out accounts created under an
+  // older, shorter minimum.
+  password: z.string().min(1, t('invalidCredentials') || 'Password is required'),
 })
 
 const createMagicLinkSchema = (t: any) => z.object({
@@ -35,11 +39,19 @@ export function LoginForm() {
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<'password' | 'magic'>('password')
   const [showMagicDialog, setShowMagicDialog] = useState(false)
+
+  useEffect(() => {
+    if (searchParams?.get('authError')) {
+      setError(t('sessionLinkExpired'))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const localePrefix = pathname?.split('/')[1] || locale
   const loginSchema = createLoginSchema(t)
@@ -73,7 +85,7 @@ export function LoginForm() {
       })
 
       if (signInError) {
-        setError(signInError.message)
+        setError(mapAuthErrorMessage(t, signInError.message))
         return
       }
 
@@ -99,7 +111,7 @@ export function LoginForm() {
       })
 
       if (otpError) {
-        setError(otpError.message)
+        setError(mapAuthErrorMessage(t, otpError.message))
         return
       }
 

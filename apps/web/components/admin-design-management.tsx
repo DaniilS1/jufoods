@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,11 +27,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { DeleteConfirmDialog } from '@/components/admin/delete-confirm-dialog'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { useTranslations } from 'next-intl'
-import { AlertCircle, Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
+import { Check, Edit, Loader2, Plus, Trash2, Upload, X } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const designSchema = z.object({
@@ -82,6 +85,7 @@ const slugify = (value: string) =>
 export function AdminDesignManagement() {
   const supabase = createClient()
   const tAdmin = useTranslations('admin.designs')
+  const tCommon = useTranslations('admin.common')
   const tTortenSubcategories = useTranslations('catalog.subcategories.torten')
 
   const [designs, setDesigns] = useState<DesignRecord[]>([])
@@ -89,9 +93,8 @@ export function AdminDesignManagement() {
   const [uploading, setUploading] = useState(false)
   const [editingDesign, setEditingDesign] = useState<DesignRecord | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null)
   const [flavours, setFlavours] = useState<FlavourSummary[]>([])
   const [flavoursLoading, setFlavoursLoading] = useState(false)
   const [selectedFlavourIds, setSelectedFlavourIds] = useState<string[]>([])
@@ -136,16 +139,6 @@ export function AdminDesignManagement() {
     loadFlavours()
   }, [])
 
-  useEffect(() => {
-    if (error || success) {
-      const timer = setTimeout(() => {
-        setError(null)
-        setSuccess(null)
-      }, 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [error, success])
-
   async function loadDesigns() {
     try {
       setLoadingDesigns(true)
@@ -172,7 +165,7 @@ export function AdminDesignManagement() {
       setDesigns((data as DesignRecord[]) || [])
     } catch (err: any) {
       console.error('Error loading designs:', err)
-      setError(`Fehler beim Laden der Designs: ${err.message}`)
+      toast.error(`Fehler beim Laden der Designs: ${err.message}`)
     } finally {
       setLoadingDesigns(false)
     }
@@ -190,7 +183,7 @@ export function AdminDesignManagement() {
       setFlavours((data as FlavourSummary[]) || [])
     } catch (err: any) {
       console.error('Error loading flavours:', err)
-      setError(`Fehler beim Laden der Geschmäcker: ${err.message}`)
+      toast.error(`Fehler beim Laden der Geschmäcker: ${err.message}`)
     } finally {
       setFlavoursLoading(false)
     }
@@ -208,7 +201,7 @@ export function AdminDesignManagement() {
       setSelectedFlavourIds((data || []).map((record) => record.flavour_id))
     } catch (err: any) {
       console.error('Error loading design flavours:', err)
-      setError(`Fehler beim Laden der Geschmackszuordnungen: ${err.message}`)
+      toast.error(`Fehler beim Laden der Geschmackszuordnungen: ${err.message}`)
     }
   }
 
@@ -248,10 +241,10 @@ export function AdminDesignManagement() {
     try {
       const url = await uploadImage(file)
       setValue('image_url', url)
-      setSuccess('Bild erfolgreich hochgeladen! URL wurde eingefügt.')
+      toast.success('Bild erfolgreich hochgeladen! URL wurde eingefügt.')
     } catch (err: any) {
       console.error('Error uploading image:', err)
-      setError(`Fehler beim Hochladen des Bildes: ${err.message}`)
+      toast.error(`Fehler beim Hochladen des Bildes: ${err.message}`)
     } finally {
       setUploading(false)
       event.target.value = ''
@@ -267,10 +260,10 @@ export function AdminDesignManagement() {
       const urls = await Promise.all(Array.from(files).map((f) => uploadImage(f)))
       const current = watch('images_urls') || []
       setValue('images_urls', [...current, ...urls])
-      setSuccess(`${urls.length} weiteres Bild(er) erfolgreich hochgeladen!`)
+      toast.success(`${urls.length} weiteres Bild(er) erfolgreich hochgeladen!`)
     } catch (err: any) {
       console.error('Error uploading additional images:', err)
-      setError(`Fehler beim Hochladen der Bilder: ${err.message}`)
+      toast.error(`Fehler beim Hochladen der Bilder: ${err.message}`)
     } finally {
       setUploading(false)
       event.target.value = ''
@@ -320,9 +313,6 @@ export function AdminDesignManagement() {
   }
 
   async function onSubmit(data: DesignFormData) {
-    setError(null)
-    setSuccess(null)
-
     try {
       const slug = editingDesign ? editingDesign.slug : slugify(data.name_de)
       const payload = {
@@ -375,33 +365,29 @@ export function AdminDesignManagement() {
         }
       }
 
-      setSuccess(editingDesign ? tAdmin('updateSuccess') : tAdmin('createSuccess'))
+      toast.success(editingDesign ? tAdmin('updateSuccess') : tAdmin('createSuccess'))
       closeModal()
       await loadDesigns()
     } catch (err: any) {
       console.error('Error saving design:', err)
-      setError(`Fehler beim Speichern des Designs: ${err.message || 'Unbekannter Fehler'}`)
+      toast.error(`Fehler beim Speichern des Designs: ${err.message || 'Unbekannter Fehler'}`)
     }
   }
 
   async function handleDelete(designId: string) {
-    if (!confirm('Möchten Sie dieses Design wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
-      return
-    }
     setDeletingId(designId)
-    setError(null)
-    setSuccess(null)
 
     try {
       const { error: deleteError } = await supabase.from('torten_designs').delete().eq('id', designId)
       if (deleteError) throw deleteError
-      setSuccess(tAdmin('deleteSuccess'))
+      toast.success(tAdmin('deleteSuccess'))
       await loadDesigns()
     } catch (err: any) {
       console.error('Error deleting design:', err)
-      setError(`Fehler beim Löschen des Designs: ${err.message || 'Unbekannter Fehler'}`)
+      toast.error(`Fehler beim Löschen des Designs: ${err.message || 'Unbekannter Fehler'}`)
     } finally {
       setDeletingId(null)
+      setDeleteTargetId(null)
     }
   }
 
@@ -409,22 +395,8 @@ export function AdminDesignManagement() {
 
   return (
     <div className="space-y-6">
-      {error && (
-        <div className="flex items-center gap-2 rounded-md bg-destructive/10 p-3 text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {success && (
-        <div className="flex items-center gap-2 rounded-md bg-emerald-100 p-3 text-emerald-700">
-          <Check className="h-4 w-4" />
-          <span>{success}</span>
-        </div>
-      )}
-
       <TooltipProvider>
-        <div className="rounded-lg border bg-white overflow-hidden">
+        <div className="rounded-lg border bg-card overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-4">
             <div>
               <h2 className="text-xl font-semibold text-foreground">{tAdmin('title')}</h2>
@@ -487,7 +459,7 @@ export function AdminDesignManagement() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleDelete(design.id)}
+                            onClick={() => setDeleteTargetId(design.id)}
                             disabled={deletingId === design.id}
                             aria-label={tAdmin('delete')}
                           >
@@ -507,25 +479,25 @@ export function AdminDesignManagement() {
               {/* Desktop table */}
               <div className="hidden md:block max-h-[calc(100vh-300px)] overflow-y-auto">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-border text-sm bg-white">
-                    <thead className="text-muted-foreground sticky top-0 bg-white z-10">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('image')}</th>
-                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameDe')}</th>
-                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('nameUk')}</th>
-                        <th className="px-4 py-3 text-left font-semibold">{tAdmin('subCategory')}</th>
-                        <th className="px-4 py-3 text-right font-semibold">{tAdmin('actions')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/70 bg-white">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-card z-10">
+                      <TableRow>
+                        <TableHead>{tAdmin('image')}</TableHead>
+                        <TableHead>{tAdmin('nameDe')}</TableHead>
+                        <TableHead>{tAdmin('nameUk')}</TableHead>
+                        <TableHead>{tAdmin('subCategory')}</TableHead>
+                        <TableHead className="text-right">{tAdmin('actions')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {designs.map((design) => {
                         const subCategoryLabel = design.sub_category
                           ? tTortenSubcategories(design.sub_category)
                           : tAdmin('noSubCategory')
 
                         return (
-                          <tr key={design.id} className="align-top">
-                            <td className="px-4 py-3">
+                          <TableRow key={design.id} className="align-top">
+                            <TableCell>
                               <div className="h-16 w-16 overflow-hidden rounded-md bg-muted">
                                 {design.image_url ? (
                                   <Image
@@ -541,15 +513,15 @@ export function AdminDesignManagement() {
                                   </div>
                                 )}
                               </div>
-                            </td>
-                            <td className="px-4 py-3 font-medium text-foreground">{design.name_de}</td>
-                            <td className="px-4 py-3 text-muted-foreground">{design.name_uk}</td>
-                            <td className="px-4 py-3">
+                            </TableCell>
+                            <TableCell className="font-medium text-foreground">{design.name_de}</TableCell>
+                            <TableCell className="text-muted-foreground">{design.name_uk}</TableCell>
+                            <TableCell>
                               <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
                                 {subCategoryLabel}
                               </span>
-                            </td>
-                            <td className="px-4 py-3">
+                            </TableCell>
+                            <TableCell>
                               <div className="flex items-center justify-end gap-2">
                                 <Tooltip>
                                   <TooltipTrigger asChild>
@@ -569,7 +541,7 @@ export function AdminDesignManagement() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      onClick={() => handleDelete(design.id)}
+                                      onClick={() => setDeleteTargetId(design.id)}
                                       disabled={deletingId === design.id}
                                       aria-label={tAdmin('delete')}
                                     >
@@ -583,12 +555,12 @@ export function AdminDesignManagement() {
                                   <TooltipContent>{tAdmin('delete')}</TooltipContent>
                                 </Tooltip>
                               </div>
-                            </td>
-                          </tr>
+                            </TableCell>
+                          </TableRow>
                         )
                       })}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             </>
@@ -596,19 +568,32 @@ export function AdminDesignManagement() {
         </div>
       </TooltipProvider>
 
+      <DeleteConfirmDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+        title={tCommon('confirmDeleteTitle')}
+        description={tAdmin('deleteConfirmDescription')}
+        confirmLabel={tCommon('confirmDeleteAction')}
+        cancelLabel={tAdmin('cancel')}
+        isPending={deletingId !== null}
+        onConfirm={() => {
+          if (deleteTargetId) void handleDelete(deleteTargetId)
+        }}
+      />
+
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="flex max-h-[90dvh] w-[min(48rem,calc(100vw-2rem))] max-w-3xl flex-col gap-0 rounded-lg p-0">
-          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-[#735959] sm:text-left">
-            <DialogTitle className="text-base text-[#735959]">
+          <DialogHeader className="flex flex-col gap-1.5 border-b px-4 pb-3 pt-4 text-center text-primary sm:text-left">
+            <DialogTitle className="text-base text-primary">
               {editingDesign ? tAdmin('editDesign') : tAdmin('createDesign')}
             </DialogTitle>
-            <DialogDescription className="text-xs text-[#735959]/90">
+            <DialogDescription className="text-xs text-primary/90">
               {editingDesign ? tAdmin('formDescriptionEdit') : tAdmin('formDescriptionCreate')}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
-            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-[#735959] [&_input]:text-base [&_label]:text-[#735959] [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-3 text-primary [&_input]:text-base [&_label]:text-primary [&_input:not([type=file])]:bg-card [&_textarea]:bg-card">
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <div className="flex flex-col gap-1">
@@ -688,7 +673,7 @@ export function AdminDesignManagement() {
                 />
               </div>
               {uploading && (
-                <p className="flex items-center gap-2 text-xs text-[#735959]/80">
+                <p className="flex items-center gap-2 text-xs text-primary/80">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   {tAdmin('uploading')}
                 </p>
@@ -760,7 +745,7 @@ export function AdminDesignManagement() {
                 />
               </div>
               {classicValue && (
-                <p className="text-xs text-[#735959]/80">{tAdmin('classicDescription')}</p>
+                <p className="text-xs text-primary/80">{tAdmin('classicDescription')}</p>
               )}
             </div>
 
@@ -777,23 +762,23 @@ export function AdminDesignManagement() {
                 className="w-28"
                 {...register('popularity_rank')}
               />
-              <p className="text-xs text-[#735959]/80">{tAdmin('popularityRankHelp')}</p>
+              <p className="text-xs text-primary/80">{tAdmin('popularityRankHelp')}</p>
             </div>
 
             {!classicValue && (
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs">{tAdmin('flavourAssignmentsTitle')}</Label>
-                  <p className="text-xs text-[#735959]/80">{tAdmin('flavourAssignmentsDescription')}</p>
+                  <p className="text-xs text-primary/80">{tAdmin('flavourAssignmentsDescription')}</p>
                 </div>
                 <div className="rounded-md border">
                   {flavoursLoading ? (
-                    <div className="flex items-center gap-2 p-3 text-xs text-[#735959]/80">
+                    <div className="flex items-center gap-2 p-3 text-xs text-primary/80">
                       <Loader2 className="h-3 w-3 animate-spin" />
                       {tAdmin('flavourAssignmentsLoading')}
                     </div>
                   ) : flavours.length === 0 ? (
-                    <p className="p-3 text-xs text-[#735959]/80">{tAdmin('flavourAssignmentsEmpty')}</p>
+                    <p className="p-3 text-xs text-primary/80">{tAdmin('flavourAssignmentsEmpty')}</p>
                   ) : (
                     <>
                       <label className="flex items-center gap-2 p-2 border-b cursor-pointer hover:bg-muted/50">
@@ -807,7 +792,7 @@ export function AdminDesignManagement() {
                             }
                           }}
                         />
-                        <span className="text-sm font-medium text-[#735959]">{tAdmin('flavourAssignmentsSelectAll')}</span>
+                        <span className="text-sm font-medium text-primary">{tAdmin('flavourAssignmentsSelectAll')}</span>
                       </label>
                       <div className="max-h-48 overflow-y-auto divide-y">
                         {flavours.map((flavour) => {
@@ -822,8 +807,8 @@ export function AdminDesignManagement() {
                               onCheckedChange={(value) => toggleFlavourSelection(flavour.id, value === true)}
                             />
                             <div>
-                              <p className="text-sm font-medium leading-tight text-[#735959]">{flavour.name_de}</p>
-                              <p className="text-xs text-[#735959]/75">{flavour.name_uk}</p>
+                              <p className="text-sm font-medium leading-tight text-primary">{flavour.name_de}</p>
+                              <p className="text-xs text-primary/75">{flavour.name_uk}</p>
                             </div>
                           </label>
                         )

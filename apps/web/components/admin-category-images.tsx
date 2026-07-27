@@ -2,9 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 import { Upload, ImageIcon } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { catalogueSections } from '@/lib/catalogue-sections'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const MAIN_CATEGORIES = [
   { id: 'main-torten', labelDe: 'Torten (Startseite)', group: 'Startseite' },
@@ -14,6 +17,7 @@ const MAIN_CATEGORIES = [
 type ImageMap = Record<string, string>
 
 export function AdminCategoryImages() {
+  const t = useTranslations('admin.categories')
   const [imageMap, setImageMap] = useState<ImageMap>({})
   const [uploading, setUploading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -79,10 +83,8 @@ export function AdminCategoryImages() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold mb-1">Kategoriebilder</h2>
-        <p className="text-sm text-muted-foreground">
-          Bilder für Kategorie-Karten im Katalog und auf der Startseite verwalten.
-        </p>
+        <h2 className="text-xl font-bold text-foreground mb-1">{t('title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('description')}</p>
       </div>
 
       {error && (
@@ -184,7 +186,7 @@ function CategoryImageCard({
   onUpload,
 }: CategoryImageCardProps) {
   return (
-    <div className="rounded-xl overflow-hidden border border-border bg-card">
+    <Card className="overflow-hidden">
       {/* Preview */}
       <div
         className="relative h-28 w-full"
@@ -194,26 +196,28 @@ function CategoryImageCard({
           <Image src={imageUrl} alt={label} fill className="object-cover" sizes="200px" />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <ImageIcon className="h-8 w-8 text-white/50" />
+            <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
           </div>
         )}
       </div>
 
       {/* Info + upload */}
-      <div className="p-2.5">
+      <CardContent className="p-2.5">
         <p className="text-xs font-medium truncate">{label}</p>
         {sublabel && (
           <p className="text-[10px] text-muted-foreground truncate mb-2">{sublabel}</p>
         )}
-        <button
+        <Button
           onClick={() => onUpload(sectionId)}
           disabled={uploading}
-          className="mt-1.5 w-full flex items-center justify-center gap-1.5 text-xs font-medium px-2 py-1.5 rounded-md border border-border bg-background text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+          variant="outline"
+          size="sm"
+          className="mt-1.5 w-full gap-1.5 text-xs"
         >
           <Upload className="h-3 w-3" />
           {uploading ? 'Lädt…' : 'Bild hochladen'}
-        </button>
-      </div>
-    </div>
+        </Button>
+      </CardContent>
+    </Card>
   )
 }

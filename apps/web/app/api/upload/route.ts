@@ -42,16 +42,30 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData()
     const file = formData.get('file') as File
-    const folder = (formData.get('folder') as string) || 'products'
+    const folderRaw = (formData.get('folder') as string) || 'products'
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.' },
+        { status: 400 }
+      )
+    }
+
+    const maxSize = 10 * 1024 * 1024 // 10MB
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 })
+    }
+
     const supabase = createAdminClient()
 
-    // Sanitize filename
+    // Sanitize filename and folder (client-supplied) to prevent path traversal
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\s+/g, '_')
+    const folder = folderRaw.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 100) || 'products'
     const fileName = `${Date.now()}_${sanitizedName}`
     const filePath = `${folder}/${fileName}`
 

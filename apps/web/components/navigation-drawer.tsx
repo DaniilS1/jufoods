@@ -116,8 +116,8 @@ export function NavigationDrawer() {
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('catalog')
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
+                  ? 'bg-primary/10 text-primary shadow-sm'
+                  : 'text-muted-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/10 active:text-primary'
               )}
               onClick={handleLinkClick}
             >
@@ -129,8 +129,8 @@ export function NavigationDrawer() {
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('favorites')
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
+                  ? 'bg-primary/10 text-primary shadow-sm'
+                  : 'text-muted-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/10 active:text-primary'
               )}
               onClick={handleLinkClick}
             >
@@ -142,8 +142,8 @@ export function NavigationDrawer() {
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('about')
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
+                  ? 'bg-primary/10 text-primary shadow-sm'
+                  : 'text-muted-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/10 active:text-primary'
               )}
               onClick={handleLinkClick}
             >
@@ -155,8 +155,8 @@ export function NavigationDrawer() {
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                 isActive('contact')
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
+                  ? 'bg-primary/10 text-primary shadow-sm'
+                  : 'text-muted-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/10 active:text-primary'
               )}
               onClick={handleLinkClick}
             >
@@ -169,8 +169,8 @@ export function NavigationDrawer() {
                 className={cn(
                   'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all w-full',
                   isActive('admin')
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground'
+                    ? 'bg-primary/10 text-primary shadow-sm'
+                    : 'text-muted-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/10 active:text-primary'
                 )}
                 onClick={handleLinkClick}
               >

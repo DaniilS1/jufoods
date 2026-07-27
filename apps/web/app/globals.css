@@ -1,5 +1,3 @@
-/* Admin design/flavour modals: copy color #735959 (print ref CMYK 46.61% / 63.51% / 53.25% / 62%) */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -74,7 +72,7 @@
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
     --accent: 32 50% 95%;
-    --accent-foreground: 25 25% 50%;
+    --accent-foreground: 25 30% 30%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
@@ -103,6 +101,42 @@
     --input: 0 23% 88%;
     --ring: 0 23% 70%;
     --radius: 0.75rem;
+  }
+
+  /* Admin dashboard theme — deliberately distinct from the storefront's warm
+     .theme-neutral (neutral/functional vs. editorial), scoped independently
+     so it doesn't shift if the storefront theme changes. --primary is the
+     admin accent brown (#735959) that was previously hardcoded per-component. */
+  .admin-theme {
+    --background: 30 20% 97%;
+    --foreground: 20 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 10% 15%;
+    --primary: 0 13% 40%;
+    --primary-foreground: 30 20% 98%;
+    --secondary: 20 10% 20%;
+    --secondary-foreground: 30 15% 96%;
+    --muted: 30 15% 93%;
+    --muted-foreground: 20 8% 45%;
+    --accent: 0 13% 92%;
+    --accent-foreground: 0 13% 25%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 46% 33%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 26 45% 15%;
+    /* Darker amber for standalone text on light surfaces (e.g. stat values) —
+       --warning itself is tuned as a Badge background (paired with
+       --warning-foreground at 6.88:1) and only reaches 2.14:1 against white
+       as text, well under the 3:1 minimum for large bold text. */
+    --warning-text: 38 92% 32%;
+    --border: 30 15% 88%;
+    --input: 30 15% 88%;
+    --ring: 0 13% 40%;
+    --radius: 0.5rem;
   }
 }
 

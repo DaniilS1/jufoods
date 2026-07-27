@@ -13,7 +13,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const profile = await ensureUserProfile(supabase, user.id)
+    const profile = await ensureUserProfile(supabase, user.id, null, user.email, true)
 
     return NextResponse.json({ role: profile.role })
   } catch {

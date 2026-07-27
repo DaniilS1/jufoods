@@ -203,7 +203,8 @@
       "remarks": "Примітки",
       "remarksPlaceholder": "Особливі побажання, алергії або інші коментарі...",
       "deliveryStreet": "Вулиця та номер будинку",
-      "deliveryStreetPlaceholder": "напр. вул. Зразкова 42"
+      "deliveryStreetPlaceholder": "напр. вул. Зразкова 42",
+      "personCountShort": "ос."
     },
     "review": {
       "checkDetails": "Будь ласка, перевірте ваші дані перед відправкою.",
@@ -226,7 +227,7 @@
     "loginDescription": "Увійдіть у свій акаунт",
     "registerDescription": "Створіть новий акаунт",
     "invalidEmail": "Невірна адреса електронної пошти",
-    "passwordMinLength": "Пароль повинен містити мінімум 6 символів",
+    "passwordMinLength": "Пароль повинен містити мінімум 8 символів",
     "passwordsDoNotMatch": "Паролі не збігаються",
     "verifyEmailTitle": "Підтвердити електронну пошту",
     "verifyEmailDescription": "Ми надіслали вам посилання для підтвердження. Відкрийте свою поштову скриньку та натисніть на посилання, щоб активувати акаунт.",
@@ -253,7 +254,14 @@
     "confirmNewPassword": "Підтвердити новий пароль",
     "resetPasswordSuccess": "Пароль успішно змінено. Вас буде перенаправлено...",
     "resetPasswordSubmit": "Зберегти пароль",
-    "backToLogin": "Повернутися до входу"
+    "backToLogin": "Повернутися до входу",
+    "invalidCredentials": "Невірна електронна пошта або пароль",
+    "emailNotConfirmed": "Будь ласка, спочатку підтвердьте свою електронну адресу",
+    "userAlreadyRegistered": "Акаунт із такою електронною адресою вже існує",
+    "genericAuthError": "Щось пішло не так. Спробуйте ще раз",
+    "tooManyRequests": "Забагато спроб. Зачекайте трохи і спробуйте ще раз",
+    "samePasswordError": "Новий пароль повинен відрізнятися від старого",
+    "sessionLinkExpired": "Це посилання застаріло або недійсне. Запросіть нове"
   },
   "about": {
     "title": "Про нас",
@@ -348,6 +356,9 @@
     "profileDescription": "Оновіть свою контактну інформацію та мову.",
     "nameLabel": "Повне ім'я",
     "phoneLabel": "Номер телефону",
+    "nameMinLength": "Мінімум 2 символи",
+    "nameMaxLength": "Максимум 120 символів",
+    "phoneMaxLength": "Максимум 32 символи",
     "languageLabel": "Мова",
     "marketingLabel": "Я хочу отримувати інформацію про нові товари та акції.",
     "notificationsLabel": "Отримувати електронні сповіщення про замовлення.",
@@ -395,11 +406,23 @@
     "profileTab": "Профіль",
     "passwordTab": "Пароль",
     "designsTab": "Дизайни",
-    "ordersTab": "Замовлення"
+    "ordersTab": "Замовлення",
+    "currentPassword": "Поточний пароль",
+    "currentPasswordPlaceholder": "Введіть поточний пароль",
+    "currentPasswordIncorrect": "Поточний пароль невірний",
+    "currentPasswordRequired": "Будь ласка, введіть поточний пароль"
   },
   "admin": {
     "title": "Панель адміністратора",
     "description": "Керуйте товарами, дизайнами, клієнтами та замовленнями",
+    "common": {
+      "confirmDeleteTitle": "Дійсно видалити?",
+      "confirmDeleteAction": "Видалити"
+    },
+    "categories": {
+      "title": "Зображення категорій",
+      "description": "Керуйте титульними зображеннями для кожної категорії та підкатегорії."
+    },
     "sidebar": {
       "orders": "Замовлення",
       "designs": "Дизайни",
@@ -458,7 +481,11 @@
       "cancel": "Скасувати",
       "save": "Створити товар",
       "update": "Оновити товар",
-      "saving": "Збереження…"
+      "saving": "Збереження…",
+      "createSuccess": "Товар успішно створено!",
+      "updateSuccess": "Товар успішно оновлено!",
+      "deleteSuccess": "Товар успішно видалено!",
+      "deleteConfirmDescription": "Ви дійсно хочете видалити цей товар? Цю дію не можна скасувати."
     },
     "designs": {
       "title": "Дизайни тортів",
@@ -487,6 +514,7 @@
       "createSuccess": "Дизайн успішно створено!",
       "updateSuccess": "Дизайн успішно оновлено!",
       "deleteSuccess": "Дизайн успішно видалено!",
+      "deleteConfirmDescription": "Ви дійсно хочете видалити цей дизайн? Цю дію не можна скасувати.",
       "actions": "Дії",
       "formDescriptionCreate": "Створіть новий дизайн торта з зображенням та деталями.",
       "formDescriptionEdit": "Налаштуйте інформацію про дизайн торта. Зміни будуть опубліковані одразу.",
@@ -644,7 +672,9 @@
         "customProductFallback": "Власний дизайн",
         "customImages": "Завантажені дизайни",
         "customNote": "Опис дизайну",
-        "openImage": "Відкрити зображення у повному розмірі"
+        "openImage": "Відкрити зображення у повному розмірі",
+        "perItemDeliveryDate": "Дата доставки (позиція)",
+        "perItemPersonCount": "Кількість осіб (позиція)"
       }
     }
   },

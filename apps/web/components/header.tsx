@@ -132,8 +132,8 @@ export function Header() {
                 className={cn(
                   'px-3 py-1 rounded-md text-xs font-medium transition-colors',
                   isNavActive(link.href)
-                    ? 'text-foreground bg-accent'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:bg-primary/10 hover:text-primary'
                 )}
               >
                 {link.label}

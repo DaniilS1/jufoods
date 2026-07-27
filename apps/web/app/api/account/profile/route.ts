@@ -30,7 +30,7 @@ export async function GET() {
     }
 
     const [profile, settings] = await Promise.all([
-      ensureUserProfile(supabase, user.id),
+      ensureUserProfile(supabase, user.id, null, user.email),
       ensureUserSettings(supabase, user.id),
     ])
 
@@ -60,7 +60,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const payload = parsed.data
-    let profile = await ensureUserProfile(supabase, user.id)
+    let profile = await ensureUserProfile(supabase, user.id, null, user.email)
     let settings = await ensureUserSettings(supabase, user.id)
 
     const profilePatch: Record<string, unknown> = {}
