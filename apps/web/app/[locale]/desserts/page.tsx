@@ -12,20 +12,13 @@ export default async function DessertsPage({ params }: DessertsPageProps) {
   const { locale } = params
   const [t, supabase] = await Promise.all([getTranslations('catalog'), createClient()])
 
-  const { data: dessertProducts } = await supabase
-    .from('products')
-    .select('category')
-    .in('category', ['desserts', 'cheesecakes', 'macarons', 'cookies'])
+  const { data: categoryImages } = await supabase
+    .from('category_images')
+    .select('section_id, image_url')
 
-  const dessertCountMap: Record<string, number> = {}
-  for (const p of dessertProducts ?? []) {
-    if (p.category) {
-      dessertCountMap[p.category] = (dessertCountMap[p.category] ?? 0) + 1
-    }
-  }
-
-  function getDessertCount(section: (typeof dessertSections)[number]): number | undefined {
-    return dessertCountMap[section.dbCategory] || undefined
+  const imageMap: Record<string, string> = {}
+  for (const row of categoryImages ?? []) {
+    imageMap[row.section_id] = row.image_url
   }
 
   return (
@@ -35,7 +28,7 @@ export default async function DessertsPage({ params }: DessertsPageProps) {
         <p className="text-muted-foreground mt-1.5 text-sm md:text-base">{t('dessertsPageSubtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {dessertSections.map((section) => (
           <SectionCard
             key={section.id}
@@ -43,8 +36,7 @@ export default async function DessertsPage({ params }: DessertsPageProps) {
             label={t(`sections.${section.id}` as Parameters<typeof t>[0])}
             locale={locale}
             desc={locale === 'uk' ? section.descUk : section.descDe}
-            count={getDessertCount(section)}
-            variant="dessert"
+            imageUrl={imageMap[section.id]}
           />
         ))}
       </div>

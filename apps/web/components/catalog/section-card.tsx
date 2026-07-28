@@ -7,67 +7,40 @@ interface SectionCardProps {
   label: string
   locale: string
   desc?: string
-  count?: number
-  variant?: 'torten' | 'dessert'
   imageUrl?: string
 }
 
-export function SectionCard({
-  section,
-  label,
-  locale,
-  desc,
-  count,
-  variant = 'torten',
-  imageUrl,
-}: SectionCardProps) {
-  const heightClass =
-    variant === 'torten'
-      ? 'h-[116px] md:h-[190px]'
-      : 'h-[116px] md:h-[160px]'
-
+export function SectionCard({ section, label, locale, desc, imageUrl }: SectionCardProps) {
   return (
     <Link
       href={`/${locale}/catalog/${section.id}`}
-      className={`group relative overflow-hidden rounded-2xl flex flex-col justify-end cursor-pointer transition-transform active:scale-[0.97] hover:scale-[1.02] ${heightClass}`}
-      style={imageUrl ? undefined : {
-        background: `linear-gradient(135deg, ${section.accent} 0%, ${section.accent}bb 100%)`,
-      }}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98]"
     >
-      {/* Background image */}
-      {imageUrl && (
-        <Image
-          src={imageUrl}
-          alt={label}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 33vw"
-        />
-      )}
-
-      {/* Double gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-
-      {/* Top-right: count badge + arrow */}
-      <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
-        {count !== undefined && (
-          <span className="text-[11px] font-semibold text-white/90 bg-white/20 backdrop-blur-sm rounded-full px-2 py-0.5 leading-none">
-            {count}
-          </span>
+      <div
+        className="relative aspect-[4/5] w-full overflow-hidden bg-muted"
+        style={
+          imageUrl
+            ? undefined
+            : { background: `linear-gradient(135deg, ${section.accent} 0%, ${section.accent}bb 100%)` }
+        }
+      >
+        {imageUrl && (
+          <Image
+            src={imageUrl}
+            alt={label}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, 33vw"
+          />
         )}
-        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-bold leading-none group-hover:bg-white/30 transition-colors">
-          →
-        </span>
       </div>
 
-      {/* Bottom content */}
-      <div className="relative z-10 p-3 md:p-4">
-        <p className="font-semibold text-white text-sm md:text-base leading-tight drop-shadow-sm">
+      <div className="flex flex-col p-3 md:p-4">
+        <p className="font-semibold text-foreground text-sm md:text-base leading-tight">
           {label}
         </p>
         {desc && (
-          <p className="text-white/70 text-[11px] md:text-xs mt-0.5 leading-tight truncate">
+          <p className="text-muted-foreground text-xs md:text-[13px] mt-0.5 leading-tight line-clamp-1">
             {desc}
           </p>
         )}

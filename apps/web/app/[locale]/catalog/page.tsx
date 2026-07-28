@@ -13,51 +13,13 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
   const { locale } = params
   const [t, supabase] = await Promise.all([getTranslations('catalog'), createClient()])
 
-  const [{ data: tortenDesigns }, { data: dessertProducts }, { data: categoryImages }] =
-    await Promise.all([
-      supabase
-        .from('torten_designs')
-        .select('sub_category, classic')
-        .eq('category', 'torten'),
-      supabase
-        .from('products')
-        .select('category')
-        .in('category', ['desserts', 'cheesecakes', 'macarons', 'cookies']),
-      supabase.from('category_images').select('section_id, image_url'),
-    ])
+  const { data: categoryImages } = await supabase
+    .from('category_images')
+    .select('section_id, image_url')
 
   const imageMap: Record<string, string> = {}
   for (const row of categoryImages ?? []) {
     imageMap[row.section_id] = row.image_url
-  }
-
-  // Build torten count map
-  const tortenCountMap: Record<string, number> = {}
-  let klassischeCount = 0
-  for (const d of tortenDesigns ?? []) {
-    if (d.classic) {
-      klassischeCount++
-    } else if (d.sub_category) {
-      tortenCountMap[d.sub_category] = (tortenCountMap[d.sub_category] ?? 0) + 1
-    }
-  }
-
-  // Build dessert count map
-  const dessertCountMap: Record<string, number> = {}
-  for (const p of dessertProducts ?? []) {
-    if (p.category) {
-      dessertCountMap[p.category] = (dessertCountMap[p.category] ?? 0) + 1
-    }
-  }
-
-  function getTortenCount(section: (typeof tortenSections)[number]): number | undefined {
-    if (section.classic) return klassischeCount || undefined
-    if (section.dbSubCategory) return tortenCountMap[section.dbSubCategory] || undefined
-    return undefined
-  }
-
-  function getDessertCount(section: (typeof dessertSections)[number]): number | undefined {
-    return dessertCountMap[section.dbCategory] || undefined
   }
 
   return (
@@ -75,7 +37,7 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
           </span>
           <div className="flex-1 h-px bg-border" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {/* Custom design card — always first */}
           <CustomSectionCard locale={locale} />
           {tortenSections.map((section) => (
@@ -85,8 +47,6 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
               label={t(`sections.${section.id}` as Parameters<typeof t>[0])}
               locale={locale}
               desc={locale === 'uk' ? section.descUk : section.descDe}
-              count={getTortenCount(section)}
-              variant="torten"
               imageUrl={imageMap[section.id]}
             />
           ))}
@@ -101,7 +61,7 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
           </span>
           <div className="flex-1 h-px bg-border" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {dessertSections.map((section) => (
             <SectionCard
               key={section.id}
@@ -109,8 +69,6 @@ export default async function CatalogOverviewPage({ params }: CatalogOverviewPro
               label={t(`sections.${section.id}` as Parameters<typeof t>[0])}
               locale={locale}
               desc={locale === 'uk' ? section.descUk : section.descDe}
-              count={getDessertCount(section)}
-              variant="dessert"
               imageUrl={imageMap[section.id]}
             />
           ))}

@@ -13,25 +13,13 @@ export default async function TortenPage({ params }: TortenPageProps) {
   const { locale } = params
   const [t, supabase] = await Promise.all([getTranslations('catalog'), createClient()])
 
-  const { data: tortenDesigns } = await supabase
-    .from('torten_designs')
-    .select('sub_category, classic')
-    .eq('category', 'torten')
+  const { data: categoryImages } = await supabase
+    .from('category_images')
+    .select('section_id, image_url')
 
-  const tortenCountMap: Record<string, number> = {}
-  let klassischeCount = 0
-  for (const d of tortenDesigns ?? []) {
-    if (d.classic) {
-      klassischeCount++
-    } else if (d.sub_category) {
-      tortenCountMap[d.sub_category] = (tortenCountMap[d.sub_category] ?? 0) + 1
-    }
-  }
-
-  function getTortenCount(section: (typeof tortenSections)[number]): number | undefined {
-    if (section.classic) return klassischeCount || undefined
-    if (section.dbSubCategory) return tortenCountMap[section.dbSubCategory] || undefined
-    return undefined
+  const imageMap: Record<string, string> = {}
+  for (const row of categoryImages ?? []) {
+    imageMap[row.section_id] = row.image_url
   }
 
   return (
@@ -41,7 +29,7 @@ export default async function TortenPage({ params }: TortenPageProps) {
         <p className="text-muted-foreground mt-1.5 text-sm md:text-base">{t('tortenPageSubtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {/* Custom design card — always first */}
         <CustomSectionCard locale={locale} />
         {tortenSections.map((section) => (
@@ -51,8 +39,7 @@ export default async function TortenPage({ params }: TortenPageProps) {
             label={t(`sections.${section.id}` as Parameters<typeof t>[0])}
             locale={locale}
             desc={locale === 'uk' ? section.descUk : section.descDe}
-            count={getTortenCount(section)}
-            variant="torten"
+            imageUrl={imageMap[section.id]}
           />
         ))}
       </div>
