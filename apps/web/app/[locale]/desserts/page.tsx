@@ -24,7 +24,7 @@ export default async function DessertsPage({ params }: DessertsPageProps) {
   return (
     <main className="container py-8 md:py-12">
       <div className="mb-8 md:mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold">{t('sectionGroupDesserts')}</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-bold">{t('sectionGroupDesserts')}</h1>
         <p className="text-muted-foreground mt-1.5 text-sm md:text-base">{t('dessertsPageSubtitle')}</p>
       </div>
 

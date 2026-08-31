@@ -21,6 +21,7 @@ import {
   FileTextIcon,
   TruckIcon,
   Info,
+  AlertCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,6 +34,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Stepper, StepperNav, StepperItem, StepperIndicator, StepperSeparator, StepperTitle } from '@/components/ui/stepper'
 import { useCartStore } from '@/stores/cart-store'
 import { normalizeSupabaseImageUrl } from '@/lib/image-utils'
 import { cn } from '@/lib/utils'
@@ -126,13 +128,30 @@ interface UserProfile {
   email: string
 }
 
-const STEPS = [
-  { id: 1, name: 'customerInfo', title: 'Customer Information' },
-  { id: 2, name: 'orderDetails', title: 'Order Details' },
-  { id: 3, name: 'deliveryInfo', title: 'Delivery Information' },
-  { id: 4, name: 'additionalInfo', title: 'Additional Information' },
-  { id: 5, name: 'review', title: 'Review & Submit' },
-] as const
+const TOTAL_INTERACTIVE_STEPS = 2
+
+const ANGABEN_FIELDS: (keyof OrderFormData)[] = [
+  'salutation',
+  'firstName',
+  'lastName',
+  'email',
+  'eventDate',
+  'eventTime',
+  'celebrationDate',
+  'timeNeeded',
+  'pickupOrDelivery',
+  'residenceCity',
+  'deliveryStreet',
+  'deliveryPostalCode',
+  'deliveryCity',
+  'phoneDialCode',
+  'phoneLocal',
+  'consentWhatsapp',
+  'consentTelegram',
+  'messengerPhoneDialCode',
+  'messengerPhoneLocal',
+  'referralSource',
+]
 
 const REFERRAL_LABEL_MAP: Record<string, string> = {
   'social-media': 'socialMedia',
@@ -154,8 +173,18 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
   const { items, clearCart } = useCartStore()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showValidationSummary, setShowValidationSummary] = useState(false)
 
   const orderSchema = useMemo(() => buildOrderSchema((key) => t(key as never)), [t])
+
+  const stepperSteps = useMemo(
+    () => [
+      { id: 'angaben', title: t('steps.groupInfo') },
+      { id: 'uebersicht', title: t('steps.groupReview') },
+      { id: 'bestaetigt', title: t('steps.groupConfirmed') },
+    ],
+    [t]
+  )
 
   const defaultFormValues = useMemo(
     (): Partial<OrderFormData> => ({
@@ -238,45 +267,53 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
   }, [showMessengerAlternateField, phoneDialCodeW, getValues, setValue, locale])
 
   const nextStep = async () => {
-    const fieldsToValidate = getFieldsForStep(currentStep)
-    const isValid = await trigger(fieldsToValidate as (keyof OrderFormData)[])
-    if (isValid && currentStep < STEPS.length) {
+    const isValid = await trigger(currentStep === 1 ? ANGABEN_FIELDS : [])
+    setShowValidationSummary(!isValid)
+    if (isValid && currentStep < TOTAL_INTERACTIVE_STEPS) {
       setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const fieldErrorLabel = (key: keyof OrderFormData): string => {
+    switch (key) {
+      case 'firstName':
+        return t('fields.firstName')
+      case 'lastName':
+        return t('fields.lastName')
+      case 'email':
+        return t('fields.email')
+      case 'salutation':
+        return t('fields.salutation')
+      case 'eventDate':
+      case 'eventTime':
+        return t('fields.eventDateTime')
+      case 'celebrationDate':
+      case 'timeNeeded':
+        return t('fields.celebrationDateTime')
+      case 'pickupOrDelivery':
+        return t('fields.pickupOrDelivery')
+      case 'residenceCity':
+        return t('fields.cityOfResidence')
+      case 'deliveryStreet':
+        return t('fields.deliveryStreet')
+      case 'deliveryPostalCode':
+        return t('fields.deliveryPostalCode')
+      case 'deliveryCity':
+        return t('fields.deliveryCity')
+      case 'phoneDialCode':
+      case 'phoneLocal':
+        return t('fields.phone')
+      case 'messengerPhoneDialCode':
+      case 'messengerPhoneLocal':
+        return t('contactConsent.messengerAlternateLabel')
+      default:
+        return key
     }
   }
 
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
-    }
-  }
-
-  const getFieldsForStep = (step: number): (keyof OrderFormData)[] => {
-    switch (step) {
-      case 1:
-        return ['salutation', 'firstName', 'lastName', 'email']
-      case 2:
-        return ['eventDate', 'eventTime', 'celebrationDate', 'timeNeeded']
-      case 3:
-        return [
-          'pickupOrDelivery',
-          'residenceCity',
-          'deliveryStreet',
-          'deliveryPostalCode',
-          'deliveryCity',
-        ]
-      case 4:
-        return [
-          'phoneDialCode',
-          'phoneLocal',
-          'consentWhatsapp',
-          'consentTelegram',
-          'messengerPhoneDialCode',
-          'messengerPhoneLocal',
-          'referralSource',
-        ]
-      default:
-        return []
     }
   }
 
@@ -355,6 +392,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
       }
 
       clearCart()
+      setCurrentStep(3)
       const localePrefix = pathname?.split('/')[1] || locale
       router.push(`/${localePrefix}/order-success`)
     } catch (error) {
@@ -380,46 +418,55 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
       {/* Form Section */}
       <div className="lg:col-span-2 space-y-6">
         {/* Step Indicator */}
-        <div className="flex items-center justify-between">
-          {STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div
-                  className={cn(
-                    'flex items-center justify-center size-8 sm:size-10 rounded-full border-2 transition-colors shrink-0',
-                    currentStep > step.id
-                      ? 'bg-primary border-primary text-primary-foreground'
-                      : currentStep === step.id
-                        ? 'border-primary text-primary bg-primary/10'
-                        : 'border-muted text-muted-foreground'
-                  )}
-                >
-                  {currentStep > step.id ? (
-                    <Check className="h-5 w-5" />
-                  ) : (
-                    <span className="text-sm font-semibold">{step.id}</span>
-                  )}
+        <Stepper
+          steps={stepperSteps}
+          value={currentStep === 1 ? 'angaben' : currentStep === 2 ? 'uebersicht' : 'bestaetigt'}
+          indicators={{ completed: <Check className="h-4 w-4" /> }}
+        >
+          <StepperNav>
+            {stepperSteps.map((step, index) => (
+              <StepperItem key={step.id} stepId={step.id} className="relative flex-1">
+                <div className="flex flex-col items-center gap-2">
+                  <StepperIndicator className="size-8 sm:size-10 rounded-full">
+                    {index + 1}
+                  </StepperIndicator>
+                  <StepperTitle className="text-xs font-medium text-center hidden sm:block">
+                    {step.title}
+                  </StepperTitle>
                 </div>
-                <span className="mt-2 text-xs font-medium text-center hidden sm:block">
-                  {t(`steps.${step.name}`)}
-                </span>
-              </div>
-              {index < STEPS.length - 1 && (
-                <div
-                  className={cn(
-                    'h-0.5 flex-1 mx-2 transition-colors',
-                    currentStep > step.id ? 'bg-primary' : 'bg-muted'
-                  )}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+                {index < stepperSteps.length - 1 && (
+                  <StepperSeparator className="absolute inset-x-0 top-4 sm:top-5 right-[calc(-50%+20px)] left-[calc(50%+20px)]" />
+                )}
+              </StepperItem>
+            ))}
+          </StepperNav>
+        </Stepper>
 
-        {/* Prevent native form submission on Enter so step 5 is never skipped */}
+        {showValidationSummary && Object.keys(errors).length > 0 && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="flex items-start gap-2.5 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <div>
+              <p className="font-medium">{t('validation.summaryTitle')}</p>
+              <ul className="mt-1 list-disc pl-4">
+                {[...new Set(Object.keys(errors).map((key) => fieldErrorLabel(key as keyof OrderFormData)))].map(
+                  (label) => (
+                    <li key={label}>{label}</li>
+                  )
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        {/* Prevent native form submission on Enter so the review step is never skipped */}
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-          {/* Step 1: Customer Information */}
+          {/* Step 1: Angaben — Kundendaten, Bestelldetails, Lieferung, Zusatzinfo als gestapelte Karten */}
           {currentStep === 1 && (
+            <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="font-display">{t('steps.customerInfo')}</CardTitle>
@@ -465,6 +512,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                     </Label>
                     <Input
                       id="firstName"
+                      autoComplete="given-name"
                       {...register('firstName')}
                       placeholder={t('fields.firstNamePlaceholder')}
                     />
@@ -478,6 +526,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                     </Label>
                     <Input
                       id="lastName"
+                      autoComplete="family-name"
                       {...register('lastName')}
                       placeholder={t('fields.lastNamePlaceholder')}
                     />
@@ -494,6 +543,8 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                   <Input
                     id="email"
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
                     {...register('email')}
                     placeholder={t('fields.emailPlaceholder')}
                   />
@@ -503,10 +554,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                 </div>
               </CardContent>
             </Card>
-          )}
 
-          {/* Step 2: Order Details */}
-          {currentStep === 2 && (
             <Card>
               <CardHeader>
                 <CardTitle className="font-display">{t('steps.orderDetails')}</CardTitle>
@@ -626,10 +674,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                 </div>
               </CardContent>
             </Card>
-          )}
 
-          {/* Step 3: Delivery Information */}
-          {currentStep === 3 && (
             <Card>
               <CardHeader>
                 <CardTitle className="font-display">{t('steps.deliveryInfo')}</CardTitle>
@@ -669,6 +714,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                   </Label>
                   <Input
                     id="residenceCity"
+                    autoComplete="address-level2"
                     {...register('residenceCity')}
                     placeholder={t('fields.cityOfResidencePlaceholder')}
                   />
@@ -685,6 +731,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                       </Label>
                       <Input
                         id="deliveryStreet"
+                        autoComplete="street-address"
                         {...register('deliveryStreet')}
                         placeholder={t('fields.deliveryStreetPlaceholder')}
                       />
@@ -701,6 +748,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                         </Label>
                         <Input
                           id="deliveryPostalCode"
+                          autoComplete="postal-code"
                           {...register('deliveryPostalCode')}
                           placeholder={t('fields.deliveryPostalCodePlaceholder')}
                         />
@@ -717,6 +765,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                         </Label>
                         <Input
                           id="deliveryCity"
+                          autoComplete="address-level2"
                           {...register('deliveryCity')}
                           placeholder={t('fields.deliveryCityPlaceholder')}
                         />
@@ -729,10 +778,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                 )}
               </CardContent>
             </Card>
-          )}
 
-          {/* Step 4: Additional Information */}
-          {currentStep === 4 && (
             <Card>
               <CardHeader>
                 <CardTitle className="font-display">{t('steps.additionalInfo')}</CardTitle>
@@ -875,13 +921,14 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                 </div>
               </CardContent>
             </Card>
+            </div>
           )}
 
-          {/* Step 5: Review & Submit — order-summary-04 layout */}
-          {currentStep === 5 && (
+          {/* Step 2: Übersicht — Review & Submit, order-summary-04 layout */}
+          {currentStep === 2 && (
             <Card className="w-full">
               <CardHeader>
-                <CardTitle className="text-2xl">{t('steps.review')}</CardTitle>
+                <CardTitle className="font-display text-2xl">{t('steps.review')}</CardTitle>
               </CardHeader>
 
               <CardContent className="grid gap-12 py-6 md:grid-cols-2 lg:grid-cols-2">
@@ -1061,7 +1108,7 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
               {tCommon('back') || 'Back'}
             </Button>
 
-            {currentStep < STEPS.length ? (
+            {currentStep < TOTAL_INTERACTIVE_STEPS ? (
               <Button type="button" onClick={nextStep}>
                 {tCommon('next') || 'Next'}
                 <ChevronRight className="h-4 w-4 ml-2" />
@@ -1143,6 +1190,39 @@ export function CheckoutClient({ userProfile }: { userProfile?: UserProfile | nu
                   </div>
                 </div>
               ))}
+
+              {(watchedValues.celebrationDate || watchedValues.pickupOrDelivery) && (
+                <>
+                  <Separator className="my-4" />
+                  <div className="space-y-2.5">
+                    {watchedValues.celebrationDate && watchedValues.timeNeeded && (
+                      <div className="flex items-center justify-between gap-3 text-sm">
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <CalendarDaysIcon className="size-4 shrink-0" />
+                          {t('summary.deliveryDate')}
+                        </span>
+                        <span className="font-medium text-right">
+                          {format(watchedValues.celebrationDate, 'dd.MM.yyyy')} · {watchedValues.timeNeeded}
+                        </span>
+                      </div>
+                    )}
+                    {watchedValues.pickupOrDelivery && (
+                      <div className="flex items-center justify-between gap-3 text-sm">
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <TruckIcon className="size-4 shrink-0" />
+                          {t('summary.pickupOrDelivery')}
+                        </span>
+                        <span className="font-medium text-right">
+                          {watchedValues.pickupOrDelivery === 'pickup'
+                            ? t('fields.pickup')
+                            : t('fields.delivery')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
               <Separator className="my-4" />
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold">{tCart('total')}</span>

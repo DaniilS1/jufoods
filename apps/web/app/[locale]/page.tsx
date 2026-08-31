@@ -47,7 +47,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 {t('heroLabel')}
               </span>
               <h1
-                className="text-[34px] md:text-[52px] font-bold text-white mb-3 leading-tight max-w-[300px] md:max-w-[520px]"
+                className="font-display text-[34px] md:text-[52px] font-bold text-white mb-3 leading-tight max-w-[300px] md:max-w-[520px]"
                 style={{ textShadow: '0 2px 12px rgba(0,0,0,0.25)' }}
               >
                 {t('title')}

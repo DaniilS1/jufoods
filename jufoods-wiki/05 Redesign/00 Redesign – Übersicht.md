@@ -1,6 +1,6 @@
 # 00 Redesign – Übersicht
 
-> **Status:** Planung abgeschlossen · Umsetzung ausstehend
+> **Status:** Planung abgeschlossen · Phase 1 großteils umgesetzt (Katalog-Routen, Startseite, Playfair Display, Admin Dark-Sidebar + Master-Detail, Checkout, Konto-Status-Badges) · Rest sind gezielte Einzelpunkte, siehe Verifikations-Checklisten je Notiz — **Stand 2026-08-31, geprüft gegen den Code**
 > **Mockups:** `Jufoods-2 2/Jufoods Desktop Mockup.dc.html` (5 Screens, 1280 px) · `Jufoods-2 2/Jufoods Design Mockup.dc.html` (10 Screens, 375 px)
 
 ---

@@ -193,8 +193,8 @@ das S/M/L-Mockup nach, **ohne Schema-Änderung**.
 ## Offene Punkte
 
 - [x] Für generische `products` (Desserts etc.): Tabs `Zutaten` / `KBZHU` nur anzeigen wenn Daten vorhanden.
-- [ ] Breadcrumb: muss die aktuelle Section-ID kennen → aus `torten_designs.sub_category` ableitbar.
-- [ ] Ähnliche Produkte: Sektion am Ende (3–4 ProductCards aus gleicher Section).
+- [x] Breadcrumb: muss die aktuelle Section-ID kennen → aus `torten_designs.sub_category` ableitbar. **Umgesetzt:** neuer Helper `getSectionForProduct()` in `lib/catalogue-sections.ts` löst Section aus `category`/`subCategory`/`classic` auf. Alle drei Wrapper (`product-detail-wrapper.tsx`, `flavour-detail-wrapper.tsx`, `custom-torte-wrapper.tsx`) migriert von der alten `/${locale}?category=...`-Route auf echte Routen: `product-detail-wrapper.tsx` zeigt jetzt Home › Katalog › Gruppe › Section (deep link `/catalog/[section]`) › Produktname; `flavour-detail-wrapper.tsx` und `custom-torte-wrapper.tsx` bleiben auf Gruppen-Ebene (`/catalog`, `/torten`), da eine Geschmacksrichtung/Custom-Design keiner einzelnen Section eindeutig zuordenbar ist. Verifiziert per curl gegen `pnpm dev` für Torten-, Dessert-, Flavour- und Custom-Seite.
+- [x] Ähnliche Produkte: Sektion am Ende (3–4 ProductCards aus gleicher Section). **Korrektur einer früheren Falschaussage:** existiert bereits — in `app/[locale]/products/[slug]/page.tsx:449-467` (Prop `similarProducts`, nicht im Wrapper selbst, daher beim ersten Check übersehen). Für Dessert-Produkte korrekt nach `category` (≈ Section) gefiltert; für Torten-Designs aber **nicht** nach `sub_category` gefiltert — holt irrtümlich alle `torten_designs` mit `category='torten'` unabhängig von der Section (`page.tsx:272-276`). Kleiner Folge-Fix wert: `.eq('sub_category', tortenDesign.sub_category)` ergänzen (bzw. `classic`-Fall gesondert behandeln).
 - [x] Mockup verwendet Emojis für Tabs — im Code durch Lucide-Icons ersetzen (⚗️ → `FlaskConical`, ⚠️ → `AlertTriangle`). → Umgesetzt mit Lucide-Icons.
 
 ---

@@ -16,7 +16,7 @@ interface CustomTorteWrapperProps {
 
 export function CustomTorteWrapper({ flavours, locale, categoryName }: CustomTorteWrapperProps) {
   const t = useTranslations('customTorte')
-  const tNav = useTranslations('nav')
+  const tCatalog = useTranslations('catalog')
 
   const [imageUrls, setImageUrls] = useState<string[]>([])
   const [designNote, setDesignNote] = useState('')
@@ -41,7 +41,11 @@ export function CustomTorteWrapper({ flavours, locale, categoryName }: CustomTor
       {/* Breadcrumbs */}
       <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground" aria-label="Breadcrumb">
         <Link href={`/${locale}`} className="hover:text-primary transition-colors">
-          {tNav('catalog')}
+          Home
+        </Link>
+        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+        <Link href={`/${locale}/catalog`} className="hover:text-primary transition-colors">
+          {tCatalog('title')}
         </Link>
         <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
         <Link href={`/${locale}/torten`} className="hover:text-primary transition-colors">

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { ChevronRight } from 'lucide-react'
 import { ProductImageSlider } from './product-image-slider'
 import { ProductDetailClient } from './product-detail-client'
+import { getSectionForProduct } from '@/lib/catalogue-sections'
 import type { FlavorOption } from '@/types/product'
 
 interface ProductDetailWrapperProps {
@@ -45,7 +46,17 @@ export function ProductDetailWrapper({ product, locale, categoryName, children }
       ? product.flavours.find((flavor) => flavor.id === selectedFlavorId) ?? product.flavours[0] ?? null
       : null
 
-  const tNav = useTranslations('nav')
+  const tCatalog = useTranslations('catalog')
+
+  const section = useMemo(
+    () =>
+      getSectionForProduct({
+        category: product.category,
+        subCategory: product.subCategory,
+        classic: product.isClassic,
+      }),
+    [product.category, product.subCategory, product.isClassic]
+  )
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-2">
@@ -55,15 +66,27 @@ export function ProductDetailWrapper({ product, locale, categoryName, children }
         aria-label="Breadcrumb"
       >
         <Link href={`/${locale}`} className="hover:text-primary transition-colors">
-          {tNav('catalog')}
+          Home
         </Link>
         <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
-        <Link
-          href={`/${locale}?category=${product.category}`}
-          className="hover:text-primary transition-colors"
-        >
+        <Link href={`/${locale}/catalog`} className="hover:text-primary transition-colors">
+          {tCatalog('title')}
+        </Link>
+        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+        <Link href={`/${locale}/catalog`} className="hover:text-primary transition-colors">
           {categoryName}
         </Link>
+        {section && (
+          <>
+            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+            <Link
+              href={`/${locale}/catalog/${section.id}`}
+              className="hover:text-primary transition-colors"
+            >
+              {tCatalog(`sections.${section.id}` as Parameters<typeof tCatalog>[0])}
+            </Link>
+          </>
+        )}
         <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
         <span className="text-foreground truncate min-w-0">{product.name}</span>
       </nav>

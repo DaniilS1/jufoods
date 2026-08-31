@@ -120,7 +120,14 @@
       "orderDetails": "Bestelldetails",
       "deliveryInfo": "Lieferung",
       "additionalInfo": "Zusätzlich",
-      "review": "Überprüfung"
+      "review": "Überprüfung",
+      "groupInfo": "Angaben",
+      "groupReview": "Übersicht",
+      "groupConfirmed": "Bestätigt"
+    },
+    "summary": {
+      "deliveryDate": "Termin",
+      "pickupOrDelivery": "Abholung/Lieferung"
     },
     "customerInfo": "Kundeninformationen",
     "name": "Name",
@@ -135,7 +142,8 @@
     "validation": {
       "required": "Pflichtfeld",
       "invalidEmail": "Ungültige E-Mail-Adresse",
-      "phoneTooShort": "Bitte geben Sie eine gültige Telefonnummer ein (mindestens 6 Ziffern)."
+      "phoneTooShort": "Bitte geben Sie eine gültige Telefonnummer ein (mindestens 6 Ziffern).",
+      "summaryTitle": "Bitte korrigieren Sie folgende Angaben:"
     },
     "contactConsent": {
       "infoTitle": "Kontakt über Messenger",
@@ -289,6 +297,7 @@
     "backToCatalog": "Zurück zum Katalog",
     "designsAvailable": "{count} Designs verfügbar",
     "flavoursAvailable": "{count} Geschmäcker verfügbar",
+    "sectionCount": "{count} verfügbar",
     "orderCta": "Bestellen",
     "klassischeDesc": "Zeitlose Torten ohne Motivdesign",
     "sections": {

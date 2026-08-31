@@ -7,9 +7,22 @@
 
 ## Ziel
 
-Den bestehenden **5-Schritt-Checkout-Wizard** (`checkout-client.tsx`) komplett restylen:
+Den bestehenden Checkout-Wizard (`checkout-client.tsx`) komplett restylen:
 mobilfreundlich, Schritt-Fortschrittsanzeige, 44 px Touch-Targets, semantische Keyboards.
 **Alle Felder und die Validierungslogik bleiben unverändert.**
+
+> **Update (2026-09-01):** Auf Wunsch von **3 auf 5 Schritten umgebaut** (nicht umgekehrt, siehe unten) —
+> die ursprünglichen 5 Einzelschritte 1–4 (Kundendaten/Bestelldetails/Lieferung/Zusatzinfo) wurden zu
+> **4 gestapelten Karten innerhalb eines einzigen Schritts „Angaben"** zusammengelegt; Schritt 5 (Review)
+> wurde zu „Übersicht"; ein dritter, rein visueller Schritt „Bestätigt" repräsentiert die Weiterleitung zu
+> `/order-success`. Auslöser war ein Design-Referenz-Screenshot vom shadcnstudio.com-Block
+> **`checkout-page-05`** (3-Schritt „Enter Info / Pay / Confirmation"-Stepper, Reise-Buchungs-Demo).
+> Der Block selbst war inhaltlich nicht wiederverwendbar (Fake-Kreditkarten-Feld, Promo-Codes, Konfetti,
+> Traveler-Alter/Geschlecht — nichts davon passt zu Jufoods), aber die **Stepper-UI-Primitive**
+> (`components/ui/stepper.tsx`, gebaut auf `@stepperize/react@6.1.0`) ist rein Theme-Token-basiert
+> (`bg-primary`/`bg-muted` etc.) und wurde 1:1 real installiert — keine Nachbau-Näherung, echter Code.
+> Alle Formularfelder und die Zod-Validierung sind unverändert erhalten geblieben, nur gemeinsam
+> validiert (Klick auf „Weiter" prüft jetzt alle Felder aller 4 Karten auf einmal statt nacheinander).
 
 ---
 
@@ -24,15 +37,16 @@ mobilfreundlich, Schritt-Fortschrittsanzeige, 44 px Touch-Targets, semantische K
 
 ---
 
-## 5 Schritte (unverändert)
+## 3 Schritte, 4+1 Karten (Stand 2026-09-01)
 
-| Schritt | Felder |
+| Stepper-Schritt | Inhalt |
 |---|---|
-| 1 Kundendaten | Anrede (Herr/Frau), Vorname, Nachname, E-Mail |
-| 2 Bestelldetails | Abholdatum + Uhrzeit (`eventDate` + `eventTime`), Wunschdatum Feier + `timeNeeded`, Bemerkungen |
-| 3 Lieferung | Abholung / Lieferung Radio, Wohnort; bei Lieferung: Straße + PLZ + Stadt |
-| 4 Kontakt | Telefon (Länderwahl + Nummer), WhatsApp/Telegram Einwilligung + ggf. 2. Nummer, Woher kennen Sie uns |
-| 5 Überprüfung | Zusammenfassung aller Angaben + Artikel, Absenden |
+| 1 Angaben | 4 gestapelte Karten auf einer Seite, gemeinsam validiert: **Kunde** (Anrede, Vorname, Nachname, E-Mail) · **Bestelldetails** (`eventDate`+`eventTime`, `celebrationDate`+`timeNeeded`, Bemerkungen) · **Lieferung** (Abholung/Lieferung Radio, Wohnort, bei Lieferung Straße+PLZ+Stadt) · **Zusätzlich** (Telefon, WhatsApp/Telegram-Consent + ggf. 2. Nummer, Woher kennen Sie uns) |
+| 2 Übersicht | Zusammenfassung aller Angaben + Artikel, Absenden (bisheriger Review-Schritt, inhaltlich unverändert) |
+| 3 Bestätigt | Kein eigener Panel-Inhalt auf `/checkout` — repräsentiert nur den Zielzustand nach erfolgreichem Absenden, bevor auf `/order-success` weitergeleitet wird |
+
+Alte 5-Schritt-Feldgruppierung (Kundendaten/Bestelldetails/Lieferung/Kontakt/Überprüfung) bleibt als
+interne Struktur der Karten bestehen — nur die Navigation wurde von 5 Einzel-Klicks auf 1 zusammengelegt.
 
 ---
 
@@ -47,9 +61,11 @@ mobilfreundlich, Schritt-Fortschrittsanzeige, 44 px Touch-Targets, semantische K
 │  Formular (flex-1, max-w-2xl) │  Bestellübersicht   │
 │                               │  (Sidebar ~380px)   │
 │  ──── Schritt-Fortschritt ─── │  Artikel-Liste      │
-│  [1]──[2]──[3]──[4]──[5]     │  (kein Preis Phase1)│
-│                               │                     │
-│  Schritt-Inhalt (Felder)      │                     │
+│  ①Angaben─②Übersicht─③Bestätigt│  + Live-Zeilen      │
+│                               │  (Termin, Abholung/ │
+│  Schritt-Inhalt (4 Karten     │  Lieferung — sobald │
+│  bei Schritt 1, 1 Karte bei   │  ausgefüllt)        │
+│  Schritt 2)                   │  kein Preis (Phase1)│
 │                               │                     │
 │  [← Zurück]  [Weiter →]      │                     │
 └───────────────────────────────┴─────────────────────┘
@@ -82,9 +98,14 @@ Schritt 1 von 5
 
 ### `checkout-client.tsx` — Styling-Änderungen
 
-1. **Schritt-Fortschrittsanzeige:**
-   - Zahlen-Bubbles (`1`–`5`) mit State: `completed` / `active` / `upcoming`.
-   - Verbindungslinien zwischen Bubbles.
+1. **Schritt-Fortschrittsanzeige — umgesetzt mit echter `Stepper`-Primitive:**
+   - `components/ui/stepper.tsx` (neu, real installiert aus shadcnstudio.com `checkout-page-05`,
+     Style-Familie `radix-*` — Komponente selbst ist aber Theme-Token-basiert und braucht keinen
+     Umbau für `new-york`). Abhängigkeit: `@stepperize/react@6.1.0` (Version gepinnt, passend zum
+     Block).
+   - 3 Zahlen-Bubbles (`1`–`3`) über `StepperIndicator`, State `completed`/`active`/`inactive`
+     automatisch aus `value`-Prop (`currentStep` → `'angaben' | 'uebersicht' | 'bestaetigt'`).
+   - Verbindungslinien über `StepperSeparator`.
 
 2. **Feldgestaltung:**
    - Alle `<Input>`, `<Select>`, `<Textarea>`: `min-h-[44px]` für Touch-Targets.
@@ -107,8 +128,12 @@ Schritt 1 von 5
    - Kundendaten-Zusammenfassung.
    - Kein Preis.
 
-6. **Sidebar (Desktop):**
-   - Artikel-Liste mit Thumbnails.
+6. **Sidebar (Desktop) — umgesetzt:**
+   - Artikel-Liste mit Thumbnails (unverändert).
+   - **Neu:** Live-Key-Value-Zeilen für Feiertermin (`celebrationDate`+`timeNeeded`) und
+     Abholung/Lieferung — erscheinen sobald im Formular ausgefüllt, aktualisieren sich live über
+     `watch()`. Kein Personen-Zähler auf Gesamtbestellungsebene (Personenzahl ist pro Artikel, wird
+     bereits pro Artikel-Zeile angezeigt).
    - Kein Preis (Phase 1).
 
 ### `date-time-picker.tsx` — visuell anpassen
@@ -123,21 +148,20 @@ Schritt 1 von 5
 
 ## i18n-Keys
 
-Die meisten Keys existieren bereits unter `order.*`. Neue Keys:
+Die meisten Keys existierten bereits unter `order.*` (Kartentitel: `steps.customerInfo/orderDetails/
+deliveryInfo/additionalInfo/review`, unverändert). Neu ergänzt (in `de.json` **und** `uk.json`):
 
 ```jsonc
 "order": {
-  "stepIndicator": "Schritt {current} von {total}",
   "steps": {
-    "customerData":   "Kundendaten",
-    "orderDetails":   "Bestelldetails",
-    "delivery":       "Lieferung",
-    "contact":        "Kontakt",
-    "review":         "Überprüfung"
+    "groupInfo":      "Angaben",       // Stepper-Label Schritt 1
+    "groupReview":    "Übersicht",     // Stepper-Label Schritt 2
+    "groupConfirmed": "Bestätigt"      // Stepper-Label Schritt 3
   },
-  "backButton":    "← Zurück",
-  "nextButton":    "Weiter →",
-  "submitButton":  "Bestellung absenden"
+  "summary": {
+    "deliveryDate":     "Termin",              // Sidebar-Zeile
+    "pickupOrDelivery": "Abholung/Lieferung"   // Sidebar-Zeile
+  }
 }
 ```
 
@@ -146,17 +170,24 @@ Die meisten Keys existieren bereits unter `order.*`. Neue Keys:
 ## Offene Punkte
 
 - [ ] Review-Schritt (5): Artikel-Darstellung aus Warenkorb klären — gleich wie ShoppingCart-Karten?
-- [ ] Auto-Fill: `autoComplete`-Attribute auf allen Felder ergänzen.
-- [ ] Fehler-Zusammenfassung bei Submit-Versuch (aria-live="polite" für Barrierefreiheit).
+- [x] Auto-Fill: `autoComplete`-Attribute ergänzt (2026-09-01) — `given-name`/`family-name`/`email`/
+      `street-address`/`postal-code`/`address-level2` auf allen Text-Feldern; `<PhoneInput>` hatte
+      `tel-national` bereits.
+- [x] Fehler-Zusammenfassung bei Submit-Versuch (2026-09-01) — Banner mit `role="alert"`
+      `aria-live="polite"` direkt unter dem Stepper, listet betroffene Feldlabels bei fehlgeschlagener
+      Validierung von Schritt 1 (per Playwright verifiziert). Ausgelöst durch `/e-commerce`-Skill-Review
+      gegen Checkout-Best-Practices.
 - [ ] Minimal-Header auf Checkout-Seite: nur Logo + ggf. Warenkorb-Icon (kein volles Nav).
 
 ---
 
 ## Abnahme/Verifikation
 
-- [x] Schritt-Indikator (1–5) sichtbar, aktiver Schritt hervorgehoben
+- [x] Schritt-Indikator (1–3, echte `Stepper`-Primitive) sichtbar, aktiver Schritt hervorgehoben
 - [x] Mobil (375 px): Alle Felder min. 44px Höhe, kein horizontaler Scroll
-- [x] Alle 5 Schritte navigierbar (Weiter / Zurück)
+- [x] Beide Schritte navigierbar (Weiter / Zurück); Schritt 1 validiert alle 4 Karten gemeinsam
+      (per Playwright verifiziert: leeres Absenden zeigt „Pflichtfeld" auf allen 4 Karten gleichzeitig)
+- [x] Sidebar-Zeilen „Termin"/„Abholung-Lieferung" aktualisieren live beim Ausfüllen (verifiziert)
 - [x] Zod-Validierung funktioniert; Fehler unter dem jeweiligen Feld
 - [x] E-Mail-Feld zeigt E-Mail-Keyboard auf iOS
 - [x] Telefon-Feld zeigt Telefon-Keyboard (via `<PhoneInput>`)

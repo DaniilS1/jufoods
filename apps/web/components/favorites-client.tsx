@@ -199,7 +199,7 @@ export function FavoritesClient() {
             <Heart className="h-10 w-10 text-primary/60" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-bold">{t('emptyTitle')}</h2>
+            <h2 className="font-display text-xl font-bold">{t('emptyTitle')}</h2>
             <p className="text-muted-foreground max-w-sm text-sm">{t('emptyDesc')}</p>
           </div>
           <a
@@ -221,7 +221,7 @@ export function FavoritesClient() {
             <Heart className="h-10 w-10 text-primary/60" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-bold">{t('emptyTitle')}</h2>
+            <h2 className="font-display text-xl font-bold">{t('emptyTitle')}</h2>
             {error ? (
               <p className="text-destructive max-w-sm text-sm">{error}</p>
             ) : (

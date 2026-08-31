@@ -146,7 +146,7 @@ export default async function CatalogSectionPage({ params, searchParams }: Secti
 
           {/* Title row */}
           <div className="flex flex-wrap items-start justify-between gap-3 mb-1.5">
-            <h1 className="text-2xl md:text-3xl font-bold">{sectionLabel}</h1>
+            <h1 className="font-display text-2xl md:text-3xl font-bold">{sectionLabel}</h1>
             {catalogSection.group === 'torten' && (
               <TortenViewToggle currentView={tortenView} />
             )}

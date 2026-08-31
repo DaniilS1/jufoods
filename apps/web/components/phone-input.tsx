@@ -28,7 +28,8 @@ type PhoneInputProps<T extends FieldValues> = {
 
 /**
  * Compound phone control: country calling code (Select) + national number (Input).
- * Matches shadcn heights (h-9), uses gap layout and focus-within ring (Web Interface Guidelines).
+ * Matches the shared h-11 form-control height (Input/Select), uses gap layout and
+ * focus-within ring (Web Interface Guidelines).
  */
 export function PhoneInput<T extends FieldValues>({
   control,
@@ -64,7 +65,7 @@ export function PhoneInput<T extends FieldValues>({
         <SelectTrigger
           id={dialId}
           aria-label={dialSelectAriaLabel}
-          className="h-9 w-[min(11.5rem,46vw)] shrink-0 gap-1 rounded-none rounded-l-md border-0 border-r border-input bg-transparent px-2.5 shadow-none focus:z-10 focus:ring-0 focus:ring-offset-0 data-[placeholder]:text-muted-foreground sm:w-44"
+          className="h-11 w-[min(11.5rem,46vw)] shrink-0 gap-1 rounded-none rounded-l-md border-0 border-r border-input bg-transparent px-2.5 shadow-none focus:z-10 focus:ring-0 focus:ring-offset-0 data-[placeholder]:text-muted-foreground sm:w-44"
         >
           <SelectValue />
         </SelectTrigger>
@@ -85,7 +86,7 @@ export function PhoneInput<T extends FieldValues>({
         autoComplete="tel-national"
         spellCheck={false}
         aria-invalid={nationalInvalid}
-        className="h-9 min-w-0 flex-1 rounded-none rounded-r-md border-0 shadow-none focus-visible:z-10 focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="h-11 min-w-0 flex-1 rounded-none rounded-r-md border-0 shadow-none focus-visible:z-10 focus-visible:ring-0 focus-visible:ring-offset-0"
         placeholder={nationalPlaceholder}
         value={nat.field.value ?? ''}
         onChange={nat.field.onChange}

@@ -226,10 +226,10 @@ Bestehende `admin.*`-Keys anpassen + ergänzen:
 
 ## Offene Punkte
 
-- [ ] Stats-Werte (Anzahl offen etc.): Server-seitiger Count-Query oder Client-Fetch?
-- [ ] Master-Detail: Mobile zeigt keine zweite Spalte → Detail als neuer Screen oder Modal?
-- [ ] Badge im Sidebar (Anzahl offener Bestellungen) braucht Echtzeit-Count → `api/admin/orders?status=pending&count=true`.
-- [ ] Preis-Feld und Anzahlungs-Checkbox: im Code kommentieren als `// Phase 2` und ausblenden, nicht löschen.
+- [ ] Stats-Werte (Anzahl offen etc.): Server-seitiger Count-Query oder Client-Fetch? — noch offen, `admin-sidebar.tsx` hat aktuell keinerlei Data-Fetching.
+- [x] Master-Detail: Mobile zeigt keine zweite Spalte → **entschieden & umgesetzt**: Detail öffnet als `<Sheet side="bottom">`, wiederverwendet dieselbe `DetailPanel`-Komponente wie Desktop (`admin-orders-management.tsx:643`).
+- [ ] Badge im Sidebar (Anzahl offener Bestellungen) braucht Echtzeit-Count → `api/admin/orders?status=pending&count=true`. — noch offen, bestätigt nicht implementiert.
+- [ ] Preis-Feld und Anzahlungs-Checkbox: im Code kommentieren als `// Phase 2` und ausblenden, nicht löschen. — **derzeit nicht anwendbar**: es existiert im Code noch gar kein Preis-/Anzahlungs-Feld, also nichts zu kommentieren. Punkt erst relevant, wenn Phase 2 startet.
 
 ---
 
@@ -238,8 +238,8 @@ Bestehende `admin.*`-Keys anpassen + ergänzen:
 - [x] Desktop: Dunkle Sidebar 228px mit 5 Nav-Punkten, aktiver Tab hervorgehoben
 - [x] Mobil: Dark-Header + 4 Tab-Pills + Stats-Zeile
 - [x] Bestellungen: Filter-Chips funktionieren; nur 4 bestehende Status
-- [ ] Bestellkarte (Desktop): Master-Klick öffnet Detail-Panel rechts
-- [ ] Bestellkarte (Mobil): aufklappbar; Quick-Actions (Status-Select + Notiz) sichtbar
+- [x] Bestellkarte (Desktop): Master-Klick öffnet Detail-Panel rechts — umgesetzt (Split-Pane in `admin-orders-management.tsx`)
+- [x] Bestellkarte (Mobil): aufklappbar; Quick-Actions (Status-Select + Notiz) sichtbar — umgesetzt via `Sheet` Bottom-Drawer
 - [x] **Kein Preis-Feld, keine Anzahlungs-Checkbox** im UI
 - [x] Status-Änderung zu `confirmed`/`completed`/`cancelled` funktioniert via API
 - [x] Design-Management: Karten mit Toggle + Bearbeiten + Löschen

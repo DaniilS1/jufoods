@@ -209,8 +209,8 @@ neu:  /de/catalog/feier?view=designs
 
 - [x] `?view=designs|flavours` als URL-Param für Torten-Sections: Deep-Linking gewünscht? → Ja, umgesetzt.
 - [x] `notFound()` wenn Section-ID unbekannt. → Umgesetzt.
-- [ ] Produktzähler (Anzahl Designs) — Count-Query beim Seitenaufruf oder vorab in Config?
-- [ ] `subcategory-tabs.tsx` nach Migration: deprecated oder löschen?
+- [x] Produktzähler (Anzahl Designs) — Umgesetzt via `designsAvailable`/`flavoursAvailable` i18n-Key mit `products.length` in `catalog/[section]/page.tsx`.
+- [x] `subcategory-tabs.tsx` nach Migration: **ungenutzt** (keine Referenzen mehr im Code außer sich selbst) → kann gelöscht werden.
 - [x] TorteBestellenModal: `initialSubcategory` muss dem neuen Section-`sub_category`-Wert entsprechen. → Umgesetzt.
 
 ---
@@ -225,5 +225,5 @@ neu:  /de/catalog/feier?view=designs
 - [x] FAB öffnet TorteBestellenModal (nur für Torten-Sections)
 - [ ] Subcategory-Pills filtern Grid (für Dessert-Sections)
 - [x] `notFound()` bei ungültiger Section-ID
-- [ ] Breadcrumb: Home › Katalog › [Section-Name]
+- [x] Breadcrumb: Home › Katalog › [Gruppe] › [Section-Name] — umgesetzt (Desktop-only, `catalog/[section]/page.tsx:113`)
 - [x] `pnpm lint` + `pnpm build` ohne Fehler

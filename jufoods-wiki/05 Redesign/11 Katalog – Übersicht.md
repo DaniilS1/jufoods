@@ -202,9 +202,9 @@ Die bisherige Kategorien-Nav-Unterzeile wird entfernt (→ [[02 Navigation, AppS
 
 ## Offene Punkte
 
-- [ ] Produkt-Anzahl pro Section anzeigen (erfordert serverseitigen Count-Query je Section — optional für v1).
+- [x] Produkt-Anzahl pro Section anzeigen → umgesetzt: 9 parallele `{count:'exact', head:true}`-Queries in `catalog/page.tsx`, gerendert als weißes Pill-Badge oben rechts im Kartenbild (nur Zahl, volle Beschreibung als `title`-Attribut). Badge wird bei Count 0 ausgeblendet.
 - [ ] Suchfeld auf Übersicht — nur visuell oder funktional? → v1: visuell, klick öffnet `<SearchBar>`.
-- [ ] Breadcrumb-Komponente: aus shadcn `breadcrumb` nehmen.
+- [x] Breadcrumb-Komponente: aus shadcn `breadcrumb` nehmen → **Entscheidung revidiert**: shadcn-`breadcrumb.tsx` wird im gesamten Code nirgends importiert (dead code). Stattdessen wie bei `catalog/[section]/page.tsx` das bestehende handgerollte `<nav aria-label="Breadcrumb">`-Pattern übernommen, für Konsistenz mit Produktdetail/Kategorie-Detail.
 - [ ] Welches Hintergrundbild für Section-Karten? Vorerst einfarbiger Hintergrund; später echte Produktfotos.
 
 ---
@@ -213,8 +213,8 @@ Die bisherige Kategorien-Nav-Unterzeile wird entfernt (→ [[02 Navigation, AppS
 
 - [x] `/[locale]/catalog` lädt und zeigt 9 Karten in 2 Gruppen
 - [x] Karten navigieren zu `/[locale]/catalog/[section-id]`
-- [ ] Breadcrumb: Home › Katalog
+- [x] Breadcrumb: Home › Katalog — umgesetzt (Desktop-only, `catalog/page.tsx`; zeigt `t('title')` = „Unser Sortiment" als zweites Element, konsistent mit `catalog/[section]/page.tsx`)
 - [x] Torten-Gruppe: 5 Karten (feier, hochzeit, bento, zum-tee, klassische)
 - [x] Desserts-Gruppe: 4 Karten (desserts, cookies, macarons, cheesecakes)
-- [ ] Mobil: alle Karten als vertikale Liste, 116 px Höhe, 12 px seitlicher Abstand
+- [x] Mobil: **abweichend vom ursprünglichen Mockup umgesetzt** — statt einer 116px-hohen horizontalen Listenzeile zeigt `catalog/page.tsx` auf allen Breakpoints ein `grid-cols-2`-Kartenraster (Bild oben, Text unten), ab `sm:` `grid-cols-3`. Bereits live im Code, keine offene Aufgabe mehr — falls die 116px-Listenoptik gewünscht ist, ist das ein bewusster Redesign-Entscheid, kein Bug.
 - [x] `pnpm lint` + `pnpm build` ohne Fehler

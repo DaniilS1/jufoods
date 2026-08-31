@@ -120,7 +120,14 @@
       "orderDetails": "Деталі замовлення",
       "deliveryInfo": "Доставка",
       "additionalInfo": "Додатково",
-      "review": "Перевірка"
+      "review": "Перевірка",
+      "groupInfo": "Дані",
+      "groupReview": "Огляд",
+      "groupConfirmed": "Підтверджено"
+    },
+    "summary": {
+      "deliveryDate": "Термін",
+      "pickupOrDelivery": "Самовивіз/Доставка"
     },
     "customerInfo": "Інформація про клієнта",
     "name": "Ім'я",
@@ -135,7 +142,8 @@
     "validation": {
       "required": "Обов'язкове поле",
       "invalidEmail": "Некоректна адреса електронної пошти",
-      "phoneTooShort": "Введіть коректний номер телефону (щонайменше 6 цифр)."
+      "phoneTooShort": "Введіть коректний номер телефону (щонайменше 6 цифр).",
+      "summaryTitle": "Будь ласка, виправте наступні поля:"
     },
     "contactConsent": {
       "infoTitle": "Зв'язок через месенджери",
@@ -289,6 +297,7 @@
     "backToCatalog": "Назад до каталогу",
     "designsAvailable": "{count} дизайнів доступно",
     "flavoursAvailable": "{count} смаків доступно",
+    "sectionCount": "{count} доступно",
     "orderCta": "Замовити",
     "klassischeDesc": "Класичні торти без тематичного дизайну",
     "sections": {

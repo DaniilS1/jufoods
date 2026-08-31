@@ -53,7 +53,7 @@ export function PopularTortenCarousel({ items, locale }: PopularTortenCarouselPr
           <span className="text-[9px] font-bold tracking-[0.14em] uppercase block mb-1" style={{ color: '#C4A0A0' }}>
             {t('popularLabel')}
           </span>
-          <h2 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
+          <h2 className="font-display text-xl md:text-2xl font-bold text-foreground leading-tight">
             {t('popularTitle')}
           </h2>
         </div>

@@ -8,9 +8,11 @@ interface SectionCardProps {
   locale: string
   desc?: string
   imageUrl?: string
+  count?: number
+  countLabel?: string
 }
 
-export function SectionCard({ section, label, locale, desc, imageUrl }: SectionCardProps) {
+export function SectionCard({ section, label, locale, desc, imageUrl, count, countLabel }: SectionCardProps) {
   return (
     <Link
       href={`/${locale}/catalog/${section.id}`}
@@ -32,6 +34,15 @@ export function SectionCard({ section, label, locale, desc, imageUrl }: SectionC
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, 33vw"
           />
+        )}
+
+        {!!count && (
+          <span
+            title={countLabel}
+            className="absolute top-2 right-2 z-10 rounded-full bg-white/90 backdrop-blur-sm px-2 py-0.5 text-xs font-semibold text-foreground shadow-sm"
+          >
+            {count}
+          </span>
         )}
       </div>
 

@@ -102,7 +102,7 @@ export function ProfileForm({ data, email, locale }: ProfileFormProps) {
   return (
     <Card className="border border-primary/10 shadow-sm">
       <CardHeader>
-        <CardTitle>{t('profileHeading')}</CardTitle>
+        <CardTitle className="font-display">{t('profileHeading')}</CardTitle>
         <CardDescription>{t('profileDescription')}</CardDescription>
       </CardHeader>
       <CardContent>

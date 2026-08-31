@@ -20,8 +20,8 @@ const config = {
   	extend: {
   		fontFamily: {
   			sans: ['var(--font-sans)', 'Inter', 'sans-serif'],
-  			serif: ['var(--font-display)', 'Playfair Display', 'serif'],
-  			display: ['var(--font-display)', 'Playfair Display', 'serif'],
+  			serif: ['var(--font-display)', 'Lora', 'serif'],
+  			display: ['var(--font-display)', 'Lora', 'serif'],
   		},
   		colors: {
   			border: 'hsl(var(--border))',

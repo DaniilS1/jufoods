@@ -83,7 +83,7 @@ export function PasswordForm() {
   return (
     <Card className="border border-primary/10 shadow-sm">
       <CardHeader>
-        <CardTitle>{t('passwordHeading')}</CardTitle>
+        <CardTitle className="font-display">{t('passwordHeading')}</CardTitle>
         <CardDescription>{t('passwordDescription')}</CardDescription>
       </CardHeader>
       <CardContent>

@@ -55,7 +55,6 @@ function toLocalDateString(date: Date): string {
 export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }: FlavourDetailWrapperProps) {
   const t = useTranslations('product')
   const tCatalog = useTranslations('catalog')
-  const tNav = useTranslations('nav')
   const { addItem } = useCartStore()
   const { openCart } = useUIStore()
 
@@ -101,13 +100,14 @@ export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }:
         aria-label="Breadcrumb"
       >
         <Link href={`/${locale}`} className="hover:text-primary transition-colors">
-          {tNav('catalog')}
+          Home
         </Link>
         <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
-        <Link
-          href={`/${locale}?category=torten&view=flavours`}
-          className="hover:text-primary transition-colors"
-        >
+        <Link href={`/${locale}/catalog`} className="hover:text-primary transition-colors">
+          {tCatalog('title')}
+        </Link>
+        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
+        <Link href={`/${locale}/catalog`} className="hover:text-primary transition-colors">
           {categoryName}
         </Link>
         <ChevronRight className="h-4 w-4 shrink-0" aria-hidden />
@@ -129,7 +129,7 @@ export function FlavourDetailWrapper({ flavour, designs, locale, categoryName }:
           <section className="space-y-4" aria-labelledby="flavour-title">
             <h1
               id="flavour-title"
-              className="text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance"
+              className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl text-balance"
             >
               {flavour.name}
             </h1>

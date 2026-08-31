@@ -190,7 +190,7 @@ export function ProductDetailClient({
           )}
           <h1
             id="product-title"
-            className="text-2xl font-bold tracking-tight text-foreground md:text-3xl lg:text-4xl text-balance"
+            className="font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl lg:text-4xl text-balance"
           >
             {product.name}
           </h1>

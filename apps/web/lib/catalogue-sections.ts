@@ -121,3 +121,17 @@ export const dessertSections = catalogueSections.filter((s) => s.group === 'dess
 export function getSectionById(id: string): CatalogueSection | undefined {
   return catalogueSections.find((s) => s.id === id)
 }
+
+export function getSectionForProduct(input: {
+  category: string
+  subCategory?: string | null
+  classic?: boolean
+}): CatalogueSection | undefined {
+  if (input.category === 'torten') {
+    if (input.classic) {
+      return catalogueSections.find((s) => s.group === 'torten' && s.classic)
+    }
+    return catalogueSections.find((s) => s.group === 'torten' && s.dbSubCategory === input.subCategory)
+  }
+  return catalogueSections.find((s) => s.group === 'desserts' && s.dbCategory === input.category)
+}

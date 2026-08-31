@@ -102,7 +102,7 @@ export function DesignUpload() {
   return (
     <Card className="border border-primary/10 shadow-sm">
       <CardHeader>
-        <CardTitle>{t('designsHeading')}</CardTitle>
+        <CardTitle className="font-display">{t('designsHeading')}</CardTitle>
         <CardDescription>{t('designsDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

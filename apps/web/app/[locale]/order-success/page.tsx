@@ -16,7 +16,7 @@ export default async function OrderSuccessPage({ params }: OrderSuccessProps) {
     <div className="min-h-dvh flex items-start justify-center pt-16 px-4">
       <div className="max-w-lg w-full text-center">
         <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-6" />
-        <h1 className="text-2xl md:text-3xl font-bold mb-3">{t('success')}</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold mb-3">{t('success')}</h1>
         <p className="text-muted-foreground mb-8 leading-relaxed">
           {locale === 'uk'
             ? 'Ми отримали ваше замовлення і незабаром зв’яжемося з вами.'

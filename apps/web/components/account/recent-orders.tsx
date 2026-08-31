@@ -64,7 +64,7 @@ export function RecentOrders({ locale }: RecentOrdersProps) {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-base">{t('ordersHeading')}</h2>
+          <h2 className="font-display font-semibold text-base">{t('ordersHeading')}</h2>
           <p className="text-sm text-muted-foreground">{t('ordersDescription')}</p>
         </div>
         <Button asChild variant="outline" size="sm">
