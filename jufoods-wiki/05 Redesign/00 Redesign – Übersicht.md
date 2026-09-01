@@ -81,11 +81,12 @@ Zwei Gruppen mit diesen Karten (Card-IDs = `section`-Parameter in der URL):
 | [[12 Katalog – Kategorie-Detail]] | Sidebar + Produktraster / Mobil-Stack |
 | [[13 Produktdetail]] | Split-Layout Desktop, Bottom-Sheet Mobil |
 | [[14 Bestellfluss – Bestellsheet & Warenkorb]] | TorteBestellenModal + ShoppingCart |
-| [[15 Checkout]] | 5-Schritt-Wizard restyled |
+| [[15 Checkout]] | 3-Schritt-Wizard (Angaben/Übersicht/Bestätigt), echte Stepper-Primitive |
 | [[16 Konto – Meine Bestellungen & Profil]] | Account-Bereich |
 | [[17 Admin Panel]] | Dark Sidebar + Master-Detail |
 | [[18 Auth & statische Seiten]] | Login, Register, About, Contact, … |
 | [[90 Phase 2 – Preise, Anzahlung & erweiterte Status (Backlog)]] | Preismodell (nicht in Phase 1) |
+| [[91 E-Commerce Audit (2026-09-01)]] | System-Audit: was fehlt für den Endnutzer (SEO, Recht, Fehlerseiten, Kontaktformular) |
 
 ---
 

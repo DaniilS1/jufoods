@@ -7,7 +7,9 @@
 
 ## Ziel
 
-Die bestehenden CSS-Custom-Properties im aktiven **`.theme-neutral`**-Block präzisieren, sodass sie exakt den Mockup-Farben entsprechen. Playfair Display als Serif-Schrift ergänzen. Spacing, Radius und Shadow-Scale explizit festschreiben. Barrierefreiheit sicherstellen (Kontrast ≥ 4,5:1 für Fließtext).
+Die bestehenden CSS-Custom-Properties im aktiven **`.theme-neutral`**-Block präzisieren, sodass sie exakt den Mockup-Farben entsprechen. Lora als Serif-Schrift ergänzen. Spacing, Radius und Shadow-Scale explizit festschreiben. Barrierefreiheit sicherstellen (Kontrast ≥ 4,5:1 für Fließtext).
+
+> **Update (2026-09-01):** Serif-Font von Playfair Display auf **Lora** gewechselt (User-Wunsch: wärmere, "handgemachtere" Anmutung passend zur Bakery-Marke). Kurz Fraunces evaluiert (populäre warme Serife 2024/25) — verworfen, da Fraunces **kein Kyrillisch-Subset** hat und die uk-Version dadurch auf eine System-Schrift zurückgefallen wäre. Lora hat vollen Kyrillisch-Support (Google Fonts Rang #39, sehr verbreitet) und bleibt bei Inter als Fließschrift. `--font-display` CSS-Variable unverändert, dadurch mussten die ca. 30 `font-display`-Klassenzuweisungen aus dem vorherigen Fix nicht angefasst werden.
 
 ---
 
@@ -215,7 +217,7 @@ Neue ggf. per `npx shadcn@latest add <name>` hinzufügen, nicht manuell schreibe
 
 - [ ] Kontrast `#C4A0A0` auf `#FFFFFF` prüfen → ~2,8:1 → **nicht** für Fließtext verwenden, nur für Buttons mit weißem Text bei genug Hintergrundgröße.
 - [ ] `--radius: 0.75rem` bricht `rounded-lg/md/sm` Kalkulation → in `tailwind.config.ts` prüfen.
-- [x] Playfair Display Cyrillic-Subset für Ukrainisch sicherstellen.
+- [x] Lora Cyrillic-Subset für Ukrainisch sicherstellen.
 
 ---
 
@@ -223,7 +225,7 @@ Neue ggf. per `npx shadcn@latest add <name>` hinzufügen, nicht manuell schreibe
 
 - [x] `pnpm build` ohne Fehler nach Token-Änderung
 - [ ] Visueller Vergleich `globals.css` Tokens vs. Mockup-Farbwerte (Firefox DevTools Eyedropper)
-- [x] Playfair Display in Headings auf Desktop + Mobil sichtbar — **Korrektur (2026-09-01):** war zu früh abgehakt. Site-weiter Check via `/ui-ux-pro-max` ergab: 12/12 `<h1>` und 11/16 `<CardTitle>` hatten `font-display` gar nicht gesetzt (Spec: H1/H2/H3 = `font-display`, siehe Tabelle oben). Jetzt konsequent auf alle echten Storefront-Überschriften angewendet (H1, H2, CardTitle) — Admin-Panel bewusst ausgenommen (eigenes, dediziert nicht-editorial `admin-theme`). Ausnahme: reine Eyebrow-/Mikro-Labels, die semantisch `<h2>` sind aber optisch keine Section-Heading (z. B. `flavour-detail-wrapper.tsx` „Zutaten"-Label) — dort würde Serif+Uppercase+Tracking gegen den Stil arbeiten, bewusst nicht geändert.
+- [x] Lora in Headings auf Desktop + Mobil sichtbar — **Korrektur (2026-09-01):** war zu früh abgehakt. Site-weiter Check via `/ui-ux-pro-max` ergab: 12/12 `<h1>` und 11/16 `<CardTitle>` hatten `font-display` gar nicht gesetzt (Spec: H1/H2/H3 = `font-display`, siehe Tabelle oben). Jetzt konsequent auf alle echten Storefront-Überschriften angewendet (H1, H2, CardTitle) — Admin-Panel bewusst ausgenommen (eigenes, dediziert nicht-editorial `admin-theme`). Ausnahme: reine Eyebrow-/Mikro-Labels, die semantisch `<h2>` sind aber optisch keine Section-Heading (z. B. `flavour-detail-wrapper.tsx` „Zutaten"-Label) — dort würde Serif+Uppercase+Tracking gegen den Stil arbeiten, bewusst nicht geändert.
 - [x] Alle Status-Badges in `recent-orders.tsx` korrekt eingefärbt
 - [x] `pnpm lint` ohne Fehler
 - [x] **Neu (2026-09-01):** Input/Select/Textarea-Formularkontrollen vereinheitlicht — `Select` war `h-9`, `Input` `h-11`, `Textarea` hatte einen anderen Focus-Ring (`ring-2 ring-offset-2` statt `ring-1`). `PhoneInput` hatte deshalb explizit `h-9` gesetzt, um zum (falschen) Select zu passen. Jetzt: `Select` → `h-11`, `Textarea`-Ring → `ring-1` (wie `Input`), `PhoneInput` → `h-11`. Erfüllt jetzt konsistent den eigenen 44px-Touch-Target-Standard (siehe oben) statt ihn nur bei `Input` einzuhalten.

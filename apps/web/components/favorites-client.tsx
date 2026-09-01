@@ -36,11 +36,6 @@ export function FavoritesClient() {
 
   useEffect(() => {
     setMounted(true)
-    // Debug: Check localStorage
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('jufoods-favorites')
-      console.log('Favorites from localStorage:', stored)
-    }
   }, [])
 
   useEffect(() => {
@@ -58,7 +53,6 @@ export function FavoritesClient() {
       return
     }
 
-    console.log('Loading favorite products for IDs:', favoriteIds)
     setLoading(true)
     setError(null)
     try {
@@ -158,14 +152,7 @@ export function FavoritesClient() {
       }
 
       const loadedProducts = favoriteIds.map((id) => combinedMap.get(id)).filter(Boolean) as Product[]
-      
-      console.log('Loaded products:', {
-        favoriteIds,
-        tortenCount: tortenProducts.length,
-        otherProductsCount: otherProducts.length,
-        loadedCount: loadedProducts.length,
-      })
-      
+
       if (loadedProducts.length === 0 && favoriteIds.length > 0) {
         console.warn('No products found for favorite IDs:', favoriteIds)
         console.warn('Torten designs found:', designsResponse.data?.length || 0)

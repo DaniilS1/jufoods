@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import { ProductCard } from '@/components/product-card'
@@ -13,6 +14,31 @@ import type { Locale } from '@/i18n'
 interface SectionPageProps {
   params: { locale: Locale; section: string }
   searchParams?: Record<string, string | string[] | undefined>
+}
+
+export async function generateMetadata({ params }: SectionPageProps): Promise<Metadata> {
+  const { locale, section: sectionId } = params
+  const catalogSection = getSectionById(sectionId)
+  if (!catalogSection) return {}
+
+  const t = await getTranslations('catalog')
+  const title = t(`sections.${sectionId}` as Parameters<typeof t>[0])
+
+  const supabase = await createClient()
+  const { data: image } = await supabase
+    .from('category_images')
+    .select('image_url')
+    .eq('section_id', sectionId)
+    .maybeSingle()
+
+  return {
+    title,
+    alternates: { canonical: `/${locale}/catalog/${sectionId}` },
+    openGraph: {
+      title,
+      images: image?.image_url ? [{ url: image.image_url }] : undefined,
+    },
+  }
 }
 
 type ProductItem = {

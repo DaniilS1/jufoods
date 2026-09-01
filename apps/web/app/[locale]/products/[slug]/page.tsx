@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { ProductDetailWrapper } from '@/components/product-detail-wrapper'
@@ -7,6 +8,39 @@ import { FlavourDetailWrapper } from '@/components/flavour-detail-wrapper'
 import { ProductCard } from '@/components/product-card'
 import { createClient } from '@/lib/supabase/server'
 import type { FlavorOption, NutritionFact, DesignOption } from '@/types/product'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>
+}): Promise<Metadata> {
+  const { locale, slug } = await params
+  const supabase = await createClient()
+
+  const [design, product, flavour] = await Promise.all([
+    supabase.from('torten_designs').select('name_de, name_uk, description_de, description_uk, image_url').eq('slug', slug).maybeSingle(),
+    supabase.from('products').select('name_de, name_uk, description_de, description_uk, image_url').eq('slug', slug).maybeSingle(),
+    supabase.from('torten_flavours').select('name_de, name_uk, description_de, description_uk, image_url').eq('slug', slug).maybeSingle(),
+  ])
+
+  const record = design.data ?? product.data ?? flavour.data
+  if (!record) return {}
+
+  const title = locale === 'uk' ? record.name_uk : record.name_de
+  const rawDescription = (locale === 'uk' ? record.description_uk : record.description_de) ?? ''
+  const description = rawDescription.replace(/<[^>]+>/g, '').slice(0, 160) || title
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/${locale}/products/${slug}` },
+    openGraph: {
+      title,
+      description,
+      images: record.image_url ? [{ url: record.image_url }] : undefined,
+    },
+  }
+}
 
 interface TortenFlavourRecord {
   id: string

@@ -12,6 +12,9 @@ export function Footer() {
   const t = useTranslations('nav')
   const tCommon = useTranslations('common')
   const tContact = useTranslations('contact')
+  const tImpressum = useTranslations('impressum')
+  const tDatenschutz = useTranslations('datenschutz')
+  const tAgb = useTranslations('agb')
   const pathname = usePathname()
   const locale = pathname?.split('/')[1] || 'de'
 
@@ -131,13 +134,22 @@ export function Footer() {
                 ? `© ${new Date().getFullYear()} jufoods. Всі права захищені.`
                 : `© ${new Date().getFullYear()} jufoods. Alle Rechte vorbehalten.`}
             </p>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
               <LanguageSwitcher />
               <Link href={`/${locale}/about`} className="hover:text-primary active:text-primary transition-colors">
                 {t('about')}
               </Link>
               <Link href={`/${locale}/contact`} className="hover:text-primary active:text-primary transition-colors">
                 {t('contact')}
+              </Link>
+              <Link href={`/${locale}/impressum`} className="hover:text-primary active:text-primary transition-colors">
+                {tImpressum('title')}
+              </Link>
+              <Link href={`/${locale}/datenschutz`} className="hover:text-primary active:text-primary transition-colors">
+                {tDatenschutz('title')}
+              </Link>
+              <Link href={`/${locale}/agb`} className="hover:text-primary active:text-primary transition-colors">
+                {tAgb('title')}
               </Link>
             </div>
           </div>
